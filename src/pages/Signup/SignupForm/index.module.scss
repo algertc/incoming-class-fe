@@ -1,0 +1,59 @@
+.label{
+    font-size: 20px;
+    color: black;
+    
+    @media (max-width: 768px) {
+        font-size: 16px;
+    }
+}
+
+.input{
+    height: 46px;
+    background-color: white;
+    color: black;
+    
+    @media (max-width: 768px) {
+        height: 40px;
+    }
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 24px;
+    background-color: transparent;
+}
+
+.checkBoxLabel{
+    font-size: 18px;
+    
+    @media (max-width: 768px) {
+        font-size: 14px;
+    }
+}
+
+.btnRoot{
+    height: 56px;
+    
+    @media (max-width: 768px) {
+        height: 48px;
+    }
+}
+
+.btnLabel{
+    font-size: 16px;
+}
+
+.divLabel{
+    font-size: 20px;
+    color: black;
+    
+    @media (max-width: 768px) {
+        font-size: 16px;
+    }
+}
+
+.socialBtn{
+    border-radius: 999em;
+}

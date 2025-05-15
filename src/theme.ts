@@ -11,7 +11,7 @@ const blueShades: MantineColorsTuple = [
   '#c1cbff', // 2
   '#a5b3fc', // 3
   '#8a9bfa', // 4
-  '#546ff8', // 5: Base color
+  '#4a5dfd', // 5: Base color
   '#4860e0', // 6
   '#3c51c9', // 7
   '#2f41b1', // 8
@@ -37,7 +37,7 @@ const coralShades: MantineColorsTuple = [
   '#ffc6bc', // 2
   '#ffb2a5', // 3
   '#ff9e8e', // 4
-  '#f25e40', // 5: Base color
+  '#fad95f', // 5: Base color
   '#e04d30', // 6
   '#cf3c20', // 7
   '#be2c12', // 8
@@ -48,7 +48,7 @@ const coralShades: MantineColorsTuple = [
 const THEME = createTheme({
   // Set primary color
   primaryColor: 'blue',
-  fontFamily: "Permanent Marker",
+  fontFamily: "Dosis",
   // Define color palette
   colors: {
     blue: blueShades,

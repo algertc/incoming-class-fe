@@ -1,9 +1,8 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
 import Home from "../pages/Home/Home";
-import Login from "../pages/Login/Login";
 import MainLayout from "../layouts/MainLayout";
 import Colleges from "../pages/Colleges/Colleges";
-import Signup from "../pages/Signup/Signup";
+import AuthLayout from "../layouts/AuthLayout";
 
 const router = createBrowserRouter([
     {
@@ -15,18 +14,18 @@ const router = createBrowserRouter([
                 element: <Home />
             },
             {
-                path: "/login",
-                element: <Login />
-            },
-            {
                 path: "/colleges",
                 element: <Colleges />
             },
-            {
-                path: "/signup",
-                element: <Signup />
-            }
         ]
+    },
+    {
+        path: "/login",
+        element: <AuthLayout formType={"login"}/>
+    },
+    {
+        path: "/signup",
+        element: <AuthLayout formType={"signup"} />
     },
 ])
 

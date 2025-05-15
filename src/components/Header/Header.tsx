@@ -7,16 +7,13 @@ import {
   Container,
   Burger,
   Menu,
-  Divider
+  Divider,
+  Flex
 } from '@mantine/core'
 import { Link } from 'react-router'
 import { useDisclosure } from '@mantine/hooks'
 import NavLink from './HeaderNavLink';
 import Logo from './Logo';
-
-
-
-
 
 const Header:React.FC = () => {
   const [opened, { toggle }] = useDisclosure(false);
@@ -24,26 +21,27 @@ const Header:React.FC = () => {
   return (
     <Container px={72} size={"100%"}>
       <Group justify="space-between" style={{ height: '100%' }}>
-        <Group>
+        <Flex align={"center"}>
           <Logo />
-          <Group ml="xl" display={{ base: 'none', sm: 'flex' }} gap={rem(5)}>
+        
+        </Flex>
+        <Group ml="xl" display={{ base: 'none', sm: 'flex' }} gap={rem(5)}>
             <NavLink to="/" label="Home" />
             <NavLink to="/colleges" label="Colleges" />
           </Group>
-        </Group>
-        
-        <Group gap={32}>
+        <Group align={"flex-start"} gap={32}>
           <Button 
             variant={"outline"}
-            color="dark" 
+            color="red" 
             radius="md" 
-            size="lg" 
+            size="xl" 
+            fz={"24px"}
             component={Link} 
             to="/login"
             display={{ base: 'none', sm: 'block' }}
             style={{
-              fontWeight: 500,
-              fontSize:"20px",
+              fontWeight: 700,
+          
               '&:hover': {
                 background: 'rgba(0,0,0,0.05)',
                 color: 'dark'
@@ -54,18 +52,14 @@ const Header:React.FC = () => {
           </Button>
           <Button 
             variant="filled" 
-            color="blue" 
+            fz={"24px"}
+            fw={900}
             radius="md" 
-            size="lg" 
+            size="xl" 
             component={Link} 
             to="/signup"
             display={{ base: 'none', sm: 'block' }}
-            style={{
-              background: 'linear-gradient(90deg, #546ff8 0%, #3c51c9 100%)',
-              boxShadow: '0 4px 10px rgba(84, 111, 248, 0.25)',
-              border: 'none',
-              fontWeight: 500
-            }}
+            bg={"yellow.5"}
           >
             Sign Up
           </Button>

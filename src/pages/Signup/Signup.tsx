@@ -1,43 +1,31 @@
 import React from 'react'
-import { Container, TextInput, PasswordInput, Button, Paper, Stack, Title, Divider } from '@mantine/core'
+import { Card, Flex, Stack, Title, Text } from '@mantine/core'
+import Logo from '../../components/Header/Logo'
+import SignupForm from './SignupForm/SignupForm'
 
 const Signup: React.FC = () => {
   return (
-    <Container size="sm" py="xl">
-      <Paper shadow="md" p="xl" radius="md">
-        <Title order={2} ta="center" mb="lg" c="blue">
-          Create an Account
-        </Title>
-        <form>
-          <Stack>
-            <TextInput
-              label="Name"
-              placeholder="Your full name"
-              required
-            />
-            <TextInput
-              label="Email"
-              placeholder="your@email.com"
-              required
-            />
-            <PasswordInput
-              label="Password"
-              placeholder="Create a password"
-              required
-            />
-            <PasswordInput
-              label="Confirm Password"
-              placeholder="Confirm your password"
-              required
-            />
-            <Divider my="xs" />
-            <Button type="submit" color="blue" mt="md" fullWidth>
-              Sign up
-            </Button>
-          </Stack>
-        </form>
-      </Paper>
-    </Container>
+    <Card
+      shadow="xs"
+      p="md"
+      w="100%"
+      h="100%"
+      bg={"white"}
+    >
+      <Flex
+        direction="column"
+        justify="flex-start"
+        align="center"
+        gap="xl"
+      >
+        <Logo />
+        <Stack gap="xs" align="center">
+          <Title order={1} size="h1" c="black">Welcome, sign up to continue</Title>
+          <Text size="h2" c="dark">Please enter your details</Text>
+        </Stack>
+        <SignupForm />
+      </Flex>
+    </Card>
   )
 }
 

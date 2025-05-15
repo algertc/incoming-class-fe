@@ -1,23 +1,29 @@
-import {  Flex, Text } from "@mantine/core";
+import {   Stack, Text } from "@mantine/core";
 
 const Logo = () => {
     return (
-      <Flex direction={"column"} justify={"center"} align={"center"} >
+      <Stack style={{position:"relative"}}  align="center">
         <Text 
+        span
           fw={700} 
-          fz={16}
+          fz={30}
           c={"blue"}
         >
-          Incoming
+          INCOMING
         </Text>
         <Text 
+        span
           fw={700} 
-          fz={16}
+          fz={30}
           c={"black"}
+          style={{
+            position:"absolute",
+            top:20
+          }}
         >
-          Class
+          CLASS
         </Text>
-      </Flex>
+      </Stack>
     );
   };
 
