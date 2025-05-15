@@ -25,7 +25,7 @@ const MainLayout:React.FC = () => {
       </AppShell.Header>
 
       <AppShell.Main pt="xl">
-        <Container size="xl">
+        <Container bg={"white"} size="100%">
           <Outlet />
         </Container>
       </AppShell.Main>
