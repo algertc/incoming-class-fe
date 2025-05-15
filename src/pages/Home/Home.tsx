@@ -15,7 +15,8 @@ import {
   Select,
   Badge,
   Divider,
-  Kbd
+  Kbd,
+  useMantineTheme
 } from '@mantine/core'
 import { useHover } from '@mantine/hooks'
 
@@ -61,6 +62,7 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
   const { hovered, ref } = useHover();
+  const theme = useMantineTheme();
   
   return (
     <Paper
@@ -69,8 +71,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
       radius="md"
       style={{
         height: '100%',
-        backgroundColor: hovered ? 'rgba(0, 71, 171, 0.03)' : '#111',
-        border: `1px solid ${hovered ? '#0047AB' : 'rgba(255, 255, 255, 0.1)'}`,
+        backgroundColor: hovered ? `rgba(74, 93, 253, 0.1)` : theme.colors.dark[8],
+        border: `1px solid ${hovered ? theme.colors.blue[5] : theme.colors.dark[7]}`,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
         transform: hovered ? 'translateY(-8px)' : 'none',
@@ -80,10 +82,10 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
         <Text size="xxl" style={{ fontSize: 48 }}>
           {icon}
         </Text>
-        <Title order={3} fw={700} c="white" ta="center">
+        <Title order={3} fw={600} c={theme.white}>
           {title}
         </Title>
-        <Text c="dimmed" size="md" ta="center">
+        <Text c={theme.colors.dark[2]} size="md" ta="center">
           {description}
         </Text>
       </Stack>
@@ -94,13 +96,15 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
 const StepCard: React.FC<{ number: number; title: string; description: string }> = ({ 
   number, title, description 
 }) => {
+  const theme = useMantineTheme();
+  
   return (
     <Paper
       p="lg"
       radius="md"
       style={{
-        backgroundColor: '#111',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: theme.colors.dark[8],
+        border: `1px solid ${theme.colors.dark[7]}`,
         position: 'relative',
         overflow: 'hidden'
       }}
@@ -113,23 +117,23 @@ const StepCard: React.FC<{ number: number; title: string; description: string }>
           width: 60,
           height: 60,
           borderRadius: '50%',
-          backgroundColor: '#0047AB',
+          backgroundColor: theme.colors.blue[5],
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           zIndex: 1
         }}
       >
-        <Text fw={700} size="xl" c="white">
+        <Text fw={700} size="xl" c={theme.white}>
           {number}
         </Text>
       </Box>
       
       <Stack gap="sm" pl={40} pt={15}>
-        <Title order={4} c="white">
+        <Title order={4} c={theme.white}>
           {title}
         </Title>
-        <Text c="dimmed" size="sm">
+        <Text c={theme.colors.dark[2]} size="sm">
           {description}
         </Text>
       </Stack>
@@ -143,13 +147,15 @@ const TestimonialCard: React.FC<{
   college: string; 
   text: string 
 }> = ({ name, image, college, text }) => {
+  const theme = useMantineTheme();
+  
   return (
     <Paper
       p="lg"
       radius="md"
       style={{
-        backgroundColor: '#111',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backgroundColor: theme.colors.dark[8],
+        border: `1px solid ${theme.colors.dark[7]}`,
         height: '100%',
       }}
     >
@@ -163,13 +169,13 @@ const TestimonialCard: React.FC<{
               radius="xl"
             />
             <Box>
-              <Text fw={600} c="white">{name}</Text>
-              <Text size="xs" c="dimmed">{college}</Text>
+              <Text fw={600} c={theme.white}>{name}</Text>
+              <Text size="xs" c={theme.colors.dark[2]}>{college}</Text>
             </Box>
           </Group>
           <Text size="xl">🔥</Text>
         </Group>
-        <Text c="white" fz="md" style={{ fontStyle: 'italic' }}>"{text}"</Text>
+        <Text c={theme.white} fz="md" style={{ fontStyle: 'italic' }}>"{text}"</Text>
       </Stack>
     </Paper>
   )
@@ -177,6 +183,7 @@ const TestimonialCard: React.FC<{
 
 const CollegeCard: React.FC<{ name: string; count: number }> = ({ name, count }) => {
   const { hovered, ref } = useHover();
+  const theme = useMantineTheme();
   
   return (
     <Paper
@@ -184,17 +191,17 @@ const CollegeCard: React.FC<{ name: string; count: number }> = ({ name, count })
       p="md"
       radius="md"
       style={{
-        backgroundColor: hovered ? 'rgba(0, 71, 171, 0.1)' : '#111', 
-        border: `1px solid ${hovered ? '#0047AB' : 'rgba(255, 255, 255, 0.1)'}`,
+        backgroundColor: hovered ? `rgba(74, 93, 253, 0.1)` : theme.colors.dark[8], 
+        border: `1px solid ${hovered ? theme.colors.blue[5] : theme.colors.dark[7]}`,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
       }}
     >
       <Stack gap="xs" align="center">
-        <Text fw={600} c="white" ta="center">{name}</Text>
+        <Text fw={600} c={theme.white} ta="center">{name}</Text>
         <Badge 
           variant="filled" 
-          color={hovered ? '#0047AB' : 'gray'}
+          color={hovered ? "blue" : "dark"}
           radius="sm"
         >
           {count} students
@@ -207,17 +214,18 @@ const CollegeCard: React.FC<{ name: string; count: number }> = ({ name, count })
 const Home: React.FC = () => {
   const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
   const [email, setEmail] = useState('');
+  const theme = useMantineTheme();
 
   return (
     <Box 
       style={{
-        backgroundColor: 'black',
-        color: 'white',
+        backgroundColor: theme.colors.dark[9],
+        color: theme.white,
         minHeight: '100vh'
       }}
     >
       {/* Hero Section */}
-      <Container size="xl" py={80}>
+      <Container size="xl" py={60}>
         <Flex 
           direction={{ base: 'column', md: 'row' }} 
           gap={{ base: 40, md: 60 }}
@@ -227,7 +235,7 @@ const Home: React.FC = () => {
           <Box w={{ base: '100%', md: '50%' }}>
             <Badge 
               variant="filled" 
-              color="#0047AB"
+              color="blue"
               size="lg"
               radius="sm"
               mb="md"
@@ -246,7 +254,7 @@ const Home: React.FC = () => {
               <Text
                 inherit
                 component="span"
-                c="white"
+                c={theme.white}
               >
                 College Connections
               </Text>{' '}
@@ -254,7 +262,7 @@ const Home: React.FC = () => {
                 inherit
                 component="span"
                 variant="gradient"
-                gradient={{ from: '#0047AB', to: '#5e9fff', deg: 45 }}
+                gradient={{ from: theme.colors.blue[5], to: theme.colors.blue[3], deg: 45 }}
               >
                 Unleashed
               </Text>
@@ -263,7 +271,7 @@ const Home: React.FC = () => {
               order={2} 
               size="h4" 
               mb="xl" 
-              c="dimmed"
+              c={theme.colors.dark[2]}
               style={{ fontWeight: 500 }}
             >
               Find your squad before freshman year starts
@@ -271,7 +279,7 @@ const Home: React.FC = () => {
             
             <Text 
               size="md"
-              c="dimmed" 
+              c={theme.colors.dark[2]}
               mb="xl"
             >
               Connect with classmates, find roommates, and build your circle before you even step on campus. 
@@ -282,14 +290,18 @@ const Home: React.FC = () => {
               <Button 
                 size="lg" 
                 radius="md"
+                color="blue"
                 style={{
-                  backgroundColor: '#0047AB',
                   transition: 'all 0.3s ease',
-                  '&:hover': {
-                    backgroundColor: '#003d91',
-                    transform: 'translateY(-5px)',
-                  }
                 }}
+                styles={(theme) => ({
+                  root: {
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      backgroundColor: theme.colors.blue[6],
+                    }
+                  }
+                })}
               >
                 Select Your College
               </Button>
@@ -298,15 +310,15 @@ const Home: React.FC = () => {
                 size="lg" 
                 radius="md"
                 variant="outline"
-                color="white"
+                color="gray"
               >
                 Watch Demo
               </Button>
             </Group>
             
             <Group gap="xs" mt="xl">
-              <Kbd>trusted by</Kbd>
-              <Text c="dimmed" size="sm">Harvard, Stanford, Yale, and 50+ top schools</Text>
+              <Kbd>{theme.colors.blue[5]}</Kbd>
+              <Text c={theme.colors.dark[2]} size="sm">Harvard, Stanford, Yale, and 50+ top schools</Text>
             </Group>
           </Box>
           
@@ -319,7 +331,7 @@ const Home: React.FC = () => {
                 position: 'absolute',
                 width: '100%',
                 height: '100%',
-                background: 'radial-gradient(circle, rgba(0,71,171,0.2) 0%, rgba(0,71,171,0.1) 70%, rgba(0,0,0,0) 100%)',
+                background: `radial-gradient(circle, rgba(74, 93, 253, 0.2) 0%, rgba(74, 93, 253, 0.1) 70%, rgba(0,0,0,0) 100%)`,
                 transform: 'translate(-50px, -50px) scale(1.5)',
                 filter: 'blur(60px)',
                 zIndex: 0
@@ -331,9 +343,9 @@ const Home: React.FC = () => {
                 position: 'relative',
                 zIndex: 1,
                 overflow: 'hidden',
-                border: '2px solid rgba(0, 71, 171, 0.3)',
-                backgroundColor: '#111',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
+                border: `2px solid rgba(74, 93, 253, 0.3)`,
+                backgroundColor: theme.colors.dark[8],
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)'
               }}
             >
               <Image
@@ -349,7 +361,7 @@ const Home: React.FC = () => {
                 bottom: -20,
                 right: -20,
                 zIndex: 2,
-                backgroundColor: '#0047AB',
+                backgroundColor: theme.colors.blue[5],
                 borderRadius: '50%',
                 width: 120,
                 height: 120,
@@ -357,10 +369,10 @@ const Home: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.3)',
-                border: '4px solid black',
+                border: `4px solid ${theme.colors.dark[9]}`,
               }}
             >
-              <Text fw={700} size="lg" c="white" ta="center">Join<br/>Now</Text>
+              <Text fw={700} size="lg" c={theme.white} ta="center">Join<br/>Now</Text>
             </Paper>
           </Box>
         </Flex>
@@ -369,62 +381,68 @@ const Home: React.FC = () => {
       {/* Statistics Bar */}
       <Box 
         style={{ 
-          backgroundColor: '#0047AB',
+          backgroundColor: theme.colors.blue[7],
           padding: '20px 0'
         }}
       >
         <Container size="xl">
-          <Group justify="center" grow>
-            <Stack gap={0} align="center">
-              <Text fw={700} size="xl" c="white">10,000+</Text>
-              <Text size="sm" c="white" opacity={0.8}>Active Students</Text>
-            </Stack>
+          <Grid gutter={0}>
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Stack gap={0} align="center" py="md">
+                <Text fw={700} size="xl" c={theme.white}>10,000+</Text>
+                <Text size="sm" c={theme.white} opacity={0.8}>Active Students</Text>
+              </Stack>
+            </Grid.Col>
             
-            <Stack gap={0} align="center">
-              <Text fw={700} size="xl" c="white">78%</Text>
-              <Text size="sm" c="white" opacity={0.8}>Find Roommates</Text>
-            </Stack>
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Stack gap={0} align="center" py="md">
+                <Text fw={700} size="xl" c={theme.white}>78%</Text>
+                <Text size="sm" c={theme.white} opacity={0.8}>Find Roommates</Text>
+              </Stack>
+            </Grid.Col>
             
-            <Stack gap={0} align="center">
-              <Text fw={700} size="xl" c="white">50+</Text>
-              <Text size="sm" c="white" opacity={0.8}>Colleges</Text>
-            </Stack>
-          </Group>
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Stack gap={0} align="center" py="md">
+                <Text fw={700} size="xl" c={theme.white}>50+</Text>
+                <Text size="sm" c={theme.white} opacity={0.8}>Colleges</Text>
+              </Stack>
+            </Grid.Col>
+          </Grid>
         </Container>
       </Box>
       
       {/* Value Proposition */}
-      <Container size="xl" py={100}>
-        <Stack gap="xl" align="center" mb={60}>
+      <Container size="xl" py={80}>
+        <Stack gap="lg" align="center" mb={40}>
           <Badge 
             variant="filled" 
-            color="#0047AB"
+            color="blue"
             size="lg"
             radius="sm"
           >
             WHY CHOOSE US
           </Badge>
-          <Title order={2} ta="center" c="white" maw={700} mx="auto">
+          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
             Create your college circle before you even arrive
           </Title>
         </Stack>
         
         <Grid>
-          <Grid.Col span={4}>
+          <Grid.Col span={{ base: 12, md: 4 }}>
             <FeatureCard 
               icon="👥"
               title="Connect with Classmates"
               description="Find people in your major and courses. Start building your study groups early."
             />
           </Grid.Col>
-          <Grid.Col span={4}>
+          <Grid.Col span={{ base: 12, md: 4 }}>
             <FeatureCard 
               icon="🏠"
               title="Find Your Roommate"
               description="Match with potential roommates based on lifestyle, sleep habits, and interests."
             />
           </Grid.Col>
-          <Grid.Col span={4}>
+          <Grid.Col span={{ base: 12, md: 4 }}>
             <FeatureCard 
               icon="🎯"
               title="Build Your Circle"
@@ -434,27 +452,27 @@ const Home: React.FC = () => {
         </Grid>
         
         {/* Social Proof */}
-        <Box mt={120}>
-          <Stack gap="xl" align="center" mb={60}>
+        <Box mt={100}>
+          <Stack gap="lg" align="center" mb={40}>
             <Badge 
               variant="filled" 
-              color="#0047AB"
+              color="blue"
               size="lg"
               radius="sm"
             >
               SUCCESS STORIES
             </Badge>
-            <Title order={2} ta="center" c="white" maw={700} mx="auto">
+            <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
               Join thousands of students already connected
             </Title>
-            <Text c="dimmed" ta="center" size="lg" maw={600} mx="auto">
-              <Text component="span" c="#0047AB" fw={700}>78% of users</Text> find their roommates through our platform
+            <Text c={theme.colors.dark[2]} ta="center" size="lg" maw={600} mx="auto">
+              <Text component="span" c={theme.colors.blue[5]} fw={700}>78% of users</Text> find their roommates through our platform
             </Text>
           </Stack>
           
           <Grid>
             {TESTIMONIALS.map((testimonial, index) => (
-              <Grid.Col span={4} key={index}>
+              <Grid.Col span={{ base: 12, md: 4 }} key={index}>
                 <TestimonialCard 
                   name={testimonial.name}
                   image={testimonial.image}
@@ -470,48 +488,48 @@ const Home: React.FC = () => {
       {/* How It Works */}
       <Box 
         style={{ 
-          backgroundColor: '#0a0a0a',
-          padding: '100px 0'
+          backgroundColor: '#0d0d0d',
+          padding: '80px 0'
         }}
       >
         <Container size="xl">
-          <Stack gap="xl" align="center" mb={60}>
+          <Stack gap="lg" align="center" mb={40}>
             <Badge 
               variant="filled" 
-              color="#0047AB"
+              color="blue"
               size="lg"
               radius="sm"
             >
               HOW IT WORKS
             </Badge>
-            <Title order={2} ta="center" c="white" maw={700} mx="auto">
+            <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
               Four simple steps to get connected
             </Title>
           </Stack>
           
           <Grid>
-            <Grid.Col span={3}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <StepCard 
                 number={1}
                 title="Select Your College"
                 description="Choose from our list of 50+ partner colleges and universities."
               />
             </Grid.Col>
-            <Grid.Col span={3}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <StepCard 
                 number={2}
                 title="Create Your Profile"
                 description="Add your interests, major, and what you're looking for."
               />
             </Grid.Col>
-            <Grid.Col span={3}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <StepCard 
                 number={3}
                 title="Get Matched"
                 description="Our AI matches you with compatible classmates."
               />
             </Grid.Col>
-            <Grid.Col span={3}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 3 }}>
               <StepCard 
                 number={4}
                 title="Start Connecting"
@@ -523,27 +541,27 @@ const Home: React.FC = () => {
       </Box>
       
       {/* Featured Schools */}
-      <Container size="xl" py={100}>
-        <Stack gap="xl" align="center" mb={60}>
+      <Container size="xl" py={80}>
+        <Stack gap="lg" align="center" mb={40}>
           <Badge 
             variant="filled" 
-            color="#0047AB"
+            color="blue"
             size="lg"
             radius="sm"
           >
             FEATURED SCHOOLS
           </Badge>
-          <Title order={2} ta="center" c="white" maw={700} mx="auto">
+          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
             Join students from top colleges nationwide
           </Title>
-          <Text c="dimmed" ta="center" size="lg" maw={600} mx="auto">
+          <Text c={theme.colors.dark[2]} ta="center" size="lg" maw={600} mx="auto">
             Access exclusive school-specific communities
           </Text>
         </Stack>
         
         <Grid>
           {COLLEGES.map((college, index) => (
-            <Grid.Col span={3} key={index}>
+            <Grid.Col span={{ base: 12, sm: 6, md: 3 }} key={index}>
               <CollegeCard 
                 name={college.label}
                 count={college.count}
@@ -556,8 +574,8 @@ const Home: React.FC = () => {
       {/* CTA Section */}
       <Box 
         style={{ 
-          background: 'linear-gradient(45deg, #000000, #0a0a0a)',
-          padding: '80px 0',
+          background: `linear-gradient(45deg, ${theme.colors.dark[9]}, #0d0d0d)`,
+          padding: '60px 0',
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -570,7 +588,7 @@ const Home: React.FC = () => {
             width: '140%',
             height: '140%',
             transform: 'translate(-50%, -50%)',
-            background: 'radial-gradient(circle, rgba(0,71,171,0.1) 0%, rgba(0,0,0,0) 70%)',
+            background: `radial-gradient(circle, rgba(74, 93, 253, 0.1) 0%, rgba(0,0,0,0) 70%)`,
             zIndex: 0
           }}
         />
@@ -580,15 +598,15 @@ const Home: React.FC = () => {
             p="xl"
             radius="lg"
             style={{
-              backgroundColor: '#111',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              backgroundColor: theme.colors.dark[8],
+              border: `1px solid ${theme.colors.dark[7]}`,
             }}
           >
-            <Stack gap="xl" align="center">
-              <Title order={2} ta="center" c="white">
+            <Stack gap="md" align="center">
+              <Title order={2} ta="center" c={theme.white}>
                 Ready to find your college crew?
               </Title>
-              <Text c="dimmed" ta="center" size="lg" mb="xl">
+              <Text c={theme.colors.dark[2]} ta="center" size="lg" mb="md">
                 Get early access to connect with your future classmates
               </Text>
               
@@ -608,13 +626,13 @@ const Home: React.FC = () => {
                 />
                 <Button 
                   size="md" 
-                  style={{ backgroundColor: '#0047AB' }}
+                  color="blue"
                 >
                   Get Started — Free!
                 </Button>
               </Group>
               
-              <Text size="xs" c="dimmed">
+              <Text size="xs" c={theme.colors.dark[3]}>
                 Free to join. Premium features available for upgrade. By signing up, you agree to our Terms of Service.
               </Text>
             </Stack>
@@ -623,11 +641,11 @@ const Home: React.FC = () => {
       </Box>
       
       {/* Footer */}
-      <Box style={{ backgroundColor: '#0a0a0a', padding: '40px 0' }}>
+      <Box style={{ backgroundColor: theme.colors.dark[8], padding: '32px 0' }}>
         <Container size="xl">
-          <Stack gap="xl">
+          <Stack gap="lg">
             <Group justify="apart">
-              <Text fw={700} size="lg" c="white">College Connections Unleashed</Text>
+              <Text fw={700} size="lg" c={theme.white}>College Connections Unleashed</Text>
               <Group gap="lg">
                 <Text size="md" style={{ cursor: 'pointer' }}>✨</Text>
                 <Text size="md" style={{ cursor: 'pointer' }}>📱</Text>
@@ -635,14 +653,14 @@ const Home: React.FC = () => {
               </Group>
             </Group>
             
-            <Divider color="rgba(255, 255, 255, 0.1)" />
+            <Divider color={theme.colors.dark[7]} />
             
             <Group justify="apart">
-              <Text size="xs" c="dimmed">© 2023 College Connections Unleashed. All rights reserved.</Text>
+              <Text size="xs" c={theme.colors.dark[3]}>© 2023 College Connections Unleashed. All rights reserved.</Text>
               <Group gap="md">
-                <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Terms</Text>
-                <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Privacy</Text>
-                <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Contact</Text>
+                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Terms</Text>
+                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Privacy</Text>
+                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Contact</Text>
               </Group>
             </Group>
           </Stack>
