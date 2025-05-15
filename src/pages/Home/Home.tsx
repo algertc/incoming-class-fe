@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useEffect } from 'react'
 import { 
   Box, 
   Button, 
@@ -11,14 +11,18 @@ import {
   Stack, 
   Text, 
   Title,
-  TextInput,
-  Select,
   Badge,
-  Divider,
   Kbd,
-  useMantineTheme
+  useMantineTheme,
+  ActionIcon
 } from '@mantine/core'
 import { useHover } from '@mantine/hooks'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { IconBrandTwitter, IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react'
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 // Mock data for colleges
 const COLLEGES = [
@@ -60,13 +64,64 @@ interface FeatureCardProps {
   description: string;
 }
 
+interface TestimonialCardProps {
+  name: string;
+  image: string;
+  college: string;
+  text: string;
+  index: number;
+}
+
+interface CollegeCardProps {
+  name: string;
+  count: number;
+  index: number;
+}
+
+interface StepCardProps {
+  number: number;
+  title: string;
+  description: string;
+}
+
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) => {
-  const { hovered, ref } = useHover();
+  const hoverState = useHover();
+  const hovered = hoverState.hovered;
   const theme = useMantineTheme();
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Animation for when the card enters viewport
+    if (cardRef.current) {
+      gsap.fromTo(
+        cardRef.current,
+        { 
+          y: 50, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.6, 
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: cardRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+  }, []);
   
   return (
     <Paper
-      ref={ref}
+      ref={node => {
+        // Update the div reference for animations
+        cardRef.current = node;
+        // Update the hover reference
+        hoverState.ref.current = node;
+      }}
       p="xl"
       radius="md"
       style={{
@@ -93,13 +148,64 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description }) =
   )
 }
 
-const StepCard: React.FC<{ number: number; title: string; description: string }> = ({ 
+const StepCard: React.FC<StepCardProps> = ({ 
   number, title, description 
 }) => {
   const theme = useMantineTheme();
+  const cardRef = useRef<HTMLDivElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (cardRef.current) {
+      // Card animation
+      gsap.fromTo(
+        cardRef.current,
+        { 
+          x: -30, 
+          opacity: 0 
+        },
+        { 
+          x: 0, 
+          opacity: 1, 
+          duration: 0.6, 
+          delay: 0.1 * number, // Stagger based on step number
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: cardRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+    
+    if (circleRef.current) {
+      // Number circle animation
+      gsap.fromTo(
+        circleRef.current,
+        { 
+          scale: 0,
+          rotate: -30
+        },
+        { 
+          scale: 1,
+          rotate: 0,
+          duration: 0.5, 
+          delay: 0.1 * number + 0.3, // Slightly delayed after card appears
+          ease: "back.out(1.7)",
+          scrollTrigger: {
+            trigger: cardRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+  }, [number]);
   
   return (
     <Paper
+      ref={cardRef}
       p="lg"
       radius="md"
       style={{
@@ -110,6 +216,7 @@ const StepCard: React.FC<{ number: number; title: string; description: string }>
       }}
     >
       <Box
+        ref={circleRef}
         style={{
           position: 'absolute',
           top: -15,
@@ -141,16 +248,40 @@ const StepCard: React.FC<{ number: number; title: string; description: string }>
   )
 }
 
-const TestimonialCard: React.FC<{ 
-  name: string; 
-  image: string; 
-  college: string; 
-  text: string 
-}> = ({ name, image, college, text }) => {
+const TestimonialCard: React.FC<TestimonialCardProps> = ({ 
+  name, image, college, text, index 
+}) => {
   const theme = useMantineTheme();
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (cardRef.current) {
+      // Staggered entrance animation
+      gsap.fromTo(
+        cardRef.current,
+        { 
+          y: 50, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.6, 
+          delay: 0.15 * index, // Stagger based on index
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: cardRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+  }, [index]);
   
   return (
     <Paper
+      ref={cardRef}
       p="lg"
       radius="md"
       style={{
@@ -181,13 +312,58 @@ const TestimonialCard: React.FC<{
   )
 }
 
-const CollegeCard: React.FC<{ name: string; count: number }> = ({ name, count }) => {
-  const { hovered, ref } = useHover();
+const CollegeCard: React.FC<CollegeCardProps> = ({ name, count, index }) => {
+  const hoverState = useHover();
+  const hovered = hoverState.hovered;
   const theme = useMantineTheme();
+  const cardRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (cardRef.current) {
+      // Staggered entrance animation
+      gsap.fromTo(
+        cardRef.current,
+        { 
+          y: 40, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.5,
+          delay: 0.07 * index, // Stagger based on index
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: cardRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+      
+      // Subtle floating animation - different for each card to create wave effect
+      gsap.to(
+        cardRef.current,
+        {
+          y: (index % 2 === 0) ? "-8px" : "-12px",
+          duration: 2 + (index % 3) * 0.4, // Varying durations
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: index * 0.2 // Staggered start times
+        }
+      );
+    }
+  }, [index]);
   
   return (
     <Paper
-      ref={ref}
+      ref={node => {
+        // Update the div reference for animations
+        cardRef.current = node;
+        // Update the hover reference
+        hoverState.ref.current = node;
+      }}
       p="md"
       radius="md"
       style={{
@@ -212,9 +388,225 @@ const CollegeCard: React.FC<{ name: string; count: number }> = ({ name, count })
 }
 
 const Home: React.FC = () => {
-  const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
   const theme = useMantineTheme();
+  
+  // Refs for animations
+  const heroTitleRef = useRef<HTMLHeadingElement>(null);
+  const heroTextRef = useRef<HTMLParagraphElement>(null);
+  const heroButtonsRef = useRef<HTMLDivElement>(null);
+  const heroImageRef = useRef<HTMLDivElement>(null);
+  const heroImageGlowRef = useRef<HTMLDivElement>(null);
+  const heroBadgeRef = useRef<HTMLDivElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
+  const circleBadgeRef = useRef<HTMLDivElement>(null);
+  
+  // Add CTA refs
+  const ctaPaperRef = useRef<HTMLDivElement>(null);
+  const ctaContentRef = useRef<HTMLDivElement>(null);
+  const ctaBackgroundRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    // Hero section animations
+    const heroTimeline = gsap.timeline();
+    
+    // Badge animation
+    if (heroBadgeRef.current) {
+      heroTimeline.fromTo(
+        heroBadgeRef.current,
+        { y: -20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }
+      );
+    }
+    
+    // Title animation with stagger for text reveal
+    if (heroTitleRef.current) {
+      heroTimeline.fromTo(
+        heroTitleRef.current,
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
+        "-=0.2"
+      );
+    }
+    
+    // Text animation
+    if (heroTextRef.current) {
+      heroTimeline.fromTo(
+        heroTextRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
+        "-=0.3"
+      );
+    }
+    
+    // Buttons animation
+    if (heroButtonsRef.current) {
+      heroTimeline.fromTo(
+        heroButtonsRef.current,
+        { y: 20, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
+        "-=0.2"
+      );
+    }
+    
+    // Image animation
+    if (heroImageRef.current) {
+      heroTimeline.fromTo(
+        heroImageRef.current,
+        { x: 100, opacity: 0 },
+        { x: 0, opacity: 1, duration: 0.8, ease: "power2.out" },
+        "-=0.4"
+      );
+    }
+    
+    // Image glow animation
+    if (heroImageGlowRef.current) {
+      heroTimeline.fromTo(
+        heroImageGlowRef.current,
+        { opacity: 0 },
+        { opacity: 1, duration: 1.2, ease: "power2.out" },
+        "-=0.8"
+      );
+      
+      // Add continuous pulse animation to the glow
+      gsap.to(
+        heroImageGlowRef.current,
+        {
+          scale: 1.2,
+          opacity: 0.6,
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        }
+      );
+    }
+    
+    // Circle badge animation
+    if (circleBadgeRef.current) {
+      heroTimeline.fromTo(
+        circleBadgeRef.current,
+        { scale: 0, rotation: -30 },
+        { 
+          scale: 1, 
+          rotation: 0, 
+          duration: 0.6, 
+          ease: "back.out(1.7)",
+          delay: 0.2
+        },
+        "-=0.3"
+      );
+      
+      // Add floating animation to circle badge
+      gsap.to(
+        circleBadgeRef.current,
+        {
+          y: "-10px",
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut"
+        }
+      );
+    }
+    
+    // Stats section animation
+    if (statsRef.current) {
+      gsap.fromTo(
+        statsRef.current,
+        { y: 30, opacity: 0 },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: "top bottom-=50",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+    
+    // Set up scroll animations for sections
+    gsap.utils.toArray<HTMLElement>('.section-title').forEach((title) => {
+      gsap.fromTo(
+        title,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          scrollTrigger: {
+            trigger: title,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    });
+    
+    // CTA section animation
+    if (ctaBackgroundRef.current) {
+      // Animate the radial background
+      gsap.fromTo(
+        ctaBackgroundRef.current,
+        { opacity: 0, scale: 0.8 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 1.5,
+          scrollTrigger: {
+            trigger: ctaBackgroundRef.current,
+            start: "top bottom",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+    
+    if (ctaPaperRef.current) {
+      // Animate the CTA card
+      gsap.fromTo(
+        ctaPaperRef.current,
+        { y: 50, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: ctaPaperRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+    
+    if (ctaContentRef.current) {
+      // Animate the content inside the CTA
+      gsap.fromTo(
+        ctaContentRef.current.children,
+        { y: 20, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.6,
+          stagger: 0.1,
+          delay: 0.2,
+          scrollTrigger: {
+            trigger: ctaContentRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          }
+        }
+      );
+    }
+    
+    return () => {
+      // Clean up animations when component unmounts
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
 
   return (
     <Box 
@@ -234,6 +626,7 @@ const Home: React.FC = () => {
         >
           <Box w={{ base: '100%', md: '50%' }}>
             <Badge 
+              ref={heroBadgeRef}
               variant="filled" 
               color="blue"
               size="lg"
@@ -243,6 +636,7 @@ const Home: React.FC = () => {
               NEW WAY TO CONNECT
             </Badge>
             <Title 
+              ref={heroTitleRef}
               order={1} 
               mb="sm"
               style={{ 
@@ -278,6 +672,7 @@ const Home: React.FC = () => {
             </Title>
             
             <Text 
+              ref={heroTextRef}
               size="md"
               c={theme.colors.dark[2]}
               mb="xl"
@@ -286,7 +681,7 @@ const Home: React.FC = () => {
               Join the 10,000+ students already making connections for the upcoming school year.
             </Text>
             
-            <Group>
+            <Group ref={heroButtonsRef}>
               <Button 
                 size="lg" 
                 radius="md"
@@ -323,10 +718,12 @@ const Home: React.FC = () => {
           </Box>
           
           <Box 
+            ref={heroImageRef}
             w={{ base: '100%', md: '45%' }}
             style={{ position: 'relative' }}
           >
             <Box
+              ref={heroImageGlowRef}
               style={{
                 position: 'absolute',
                 width: '100%',
@@ -356,6 +753,7 @@ const Home: React.FC = () => {
             </Paper>
             
             <Paper
+              ref={circleBadgeRef}
               style={{
                 position: 'absolute',
                 bottom: -20,
@@ -380,6 +778,7 @@ const Home: React.FC = () => {
       
       {/* Statistics Bar */}
       <Box 
+        ref={statsRef}
         style={{ 
           backgroundColor: theme.colors.blue[7],
           padding: '20px 0'
@@ -422,7 +821,7 @@ const Home: React.FC = () => {
           >
             WHY CHOOSE US
           </Badge>
-          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
+          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto" className="section-title">
             Create your college circle before you even arrive
           </Title>
         </Stack>
@@ -462,7 +861,7 @@ const Home: React.FC = () => {
             >
               SUCCESS STORIES
             </Badge>
-            <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
+            <Title order={2} ta="center" c={theme.white} maw={700} mx="auto" className="section-title">
               Join thousands of students already connected
             </Title>
             <Text c={theme.colors.dark[2]} ta="center" size="lg" maw={600} mx="auto">
@@ -478,6 +877,7 @@ const Home: React.FC = () => {
                   image={testimonial.image}
                   college={testimonial.college}
                   text={testimonial.text}
+                  index={index}
                 />
               </Grid.Col>
             ))}
@@ -551,7 +951,7 @@ const Home: React.FC = () => {
           >
             FEATURED SCHOOLS
           </Badge>
-          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto">
+          <Title order={2} ta="center" c={theme.white} maw={700} mx="auto" className="section-title">
             Join students from top colleges nationwide
           </Title>
           <Text c={theme.colors.dark[2]} ta="center" size="lg" maw={600} mx="auto">
@@ -565,6 +965,7 @@ const Home: React.FC = () => {
               <CollegeCard 
                 name={college.label}
                 count={college.count}
+                index={index}
               />
             </Grid.Col>
           ))}
@@ -572,98 +973,73 @@ const Home: React.FC = () => {
       </Container>
       
       {/* CTA Section */}
-      <Box 
-        style={{ 
-          background: `linear-gradient(45deg, ${theme.colors.dark[9]}, #0d0d0d)`,
-          padding: '60px 0',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        <Box
+      <Box pos="relative" py={120}>
+        <Box 
+          ref={ctaBackgroundRef}
+          pos="absolute" 
+          top={0} 
+          left={0} 
+          right={0} 
+          bottom={0} 
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: '140%',
-            height: '140%',
-            transform: 'translate(-50%, -50%)',
-            background: `radial-gradient(circle, rgba(74, 93, 253, 0.1) 0%, rgba(0,0,0,0) 70%)`,
+            background: `radial-gradient(circle, ${theme.colors.red[1]} 0%, rgba(255,255,255,0) 70%)`,
             zIndex: 0
           }}
         />
-        
-        <Container size="md" style={{ position: 'relative', zIndex: 1 }}>
+        <Container size="md">
           <Paper
-            p="xl"
+            ref={ctaPaperRef}
+            shadow="md"
+            p={40}
             radius="lg"
+            bg="white"
             style={{
-              backgroundColor: theme.colors.dark[8],
-              border: `1px solid ${theme.colors.dark[7]}`,
+              border: `1px solid ${theme.colors.gray[2]}`,
+              position: 'relative',
+              zIndex: 1
             }}
           >
-            <Stack gap="md" align="center">
-              <Title order={2} ta="center" c={theme.white}>
-                Ready to find your college crew?
-              </Title>
-              <Text c={theme.colors.dark[2]} ta="center" size="lg" mb="md">
-                Get early access to connect with your future classmates
+            <Stack ref={ctaContentRef} align="center" ta="center" gap="lg">
+              <Badge variant="filled" color="red" size="lg">
+                Get Started Today
+              </Badge>
+              <Title c={"black"} order={2}>Ready to Find Your Dream College?</Title>
+              <Text size="lg" c="dark" maw={600} mx="auto">
+                Join thousands of students who have already found their perfect college match.
+                Start your journey now.
               </Text>
-              
-              <Group style={{ width: '100%' }} justify="center" gap="md">
-                <Select
-                  placeholder="Select your college"
-                  data={COLLEGES.map(c => ({ value: c.value, label: c.label }))}
-                  value={selectedCollege}
-                  onChange={setSelectedCollege}
-                  style={{ flex: 1, maxWidth: 250 }}
-                />
-                <TextInput
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.currentTarget.value)}
-                  style={{ flex: 1, maxWidth: 250 }}
-                />
-                <Button 
-                  size="md" 
-                  color="blue"
-                >
-                  Get Started — Free!
+              <Group mt="md">
+                <Button radius="md" size="lg" color="red">
+                  Create Account
+                </Button>
+                <Button radius="md" size="lg" variant="outline">
+                  Learn More
                 </Button>
               </Group>
-              
-              <Text size="xs" c={theme.colors.dark[3]}>
-                Free to join. Premium features available for upgrade. By signing up, you agree to our Terms of Service.
-              </Text>
             </Stack>
           </Paper>
         </Container>
       </Box>
       
       {/* Footer */}
-      <Box style={{ backgroundColor: theme.colors.dark[8], padding: '32px 0' }}>
-        <Container size="xl">
-          <Stack gap="lg">
-            <Group justify="apart">
-              <Text fw={700} size="lg" c={theme.white}>College Connections Unleashed</Text>
-              <Group gap="lg">
-                <Text size="md" style={{ cursor: 'pointer' }}>✨</Text>
-                <Text size="md" style={{ cursor: 'pointer' }}>📱</Text>
-                <Text size="md" style={{ cursor: 'pointer' }}>💬</Text>
-              </Group>
+      <Box bg="gray.1" py={40}>
+        <Container>
+          <Group justify="space-between">
+            <Text size="sm" c="dimmed">
+              © 2023 CollegeConnect. All rights reserved.
+            </Text>
+            <Group gap="xs">
+              <ActionIcon size="lg" variant="subtle" radius="xl">
+                <IconBrandTwitter size={18} />
+              </ActionIcon>
+              <ActionIcon size="lg" variant="subtle" radius="xl">
+                <IconBrandInstagram size={18} />
+              </ActionIcon>
+              <ActionIcon size="lg" variant="subtle" radius="xl">
+                <IconBrandFacebook size={18} />
+              </ActionIcon>
             </Group>
-            
-            <Divider color={theme.colors.dark[7]} />
-            
-            <Group justify="apart">
-              <Text size="xs" c={theme.colors.dark[3]}>© 2023 College Connections Unleashed. All rights reserved.</Text>
-              <Group gap="md">
-                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Terms</Text>
-                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Privacy</Text>
-                <Text size="xs" c={theme.colors.dark[3]} style={{ cursor: 'pointer' }}>Contact</Text>
-              </Group>
-            </Group>
-          </Stack>
+          </Group>
         </Container>
       </Box>
     </Box>
