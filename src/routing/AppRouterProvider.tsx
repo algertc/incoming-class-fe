@@ -27,6 +27,14 @@ const router = createBrowserRouter([
         path: "/signup",
         element: <AuthLayout formType={"signup"} />
     },
+    {
+        path: "/forgot-password",
+        element: <AuthLayout formType={"forgotPassword"} />
+    },
+    {
+        path: "/forgot-password/reset",
+        element: <AuthLayout formType={"forgotPassword"} />
+    }
 ])
 
 const AppRouterProvider = () => {   

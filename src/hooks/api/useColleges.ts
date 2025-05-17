@@ -1,0 +1,46 @@
+import { useQuery } from '@tanstack/react-query';
+import { request } from '../../http/client';
+import { College, CollegeSearchParams, IServerResponse } from './types';
+
+// Key factory for college queries
+export const collegeKeys = {
+  all: ['colleges'] as const,
+  lists: () => [...collegeKeys.all, 'list'] as const,
+  list: (filters: CollegeSearchParams) => [...collegeKeys.lists(), filters] as const,
+  details: () => [...collegeKeys.all, 'detail'] as const,
+  detail: (id: string) => [...collegeKeys.details(), id] as const,
+  featured: () => [...collegeKeys.lists(), 'featured'] as const,
+};
+
+/**
+ * Hook to fetch featured colleges
+ */
+export const useFeaturedColleges = () => {
+  return useQuery<IServerResponse<College[]>>({
+    queryKey: collegeKeys.featured(),
+    queryFn: () => request.get('/colleges/featured'),
+    staleTime: 1000 * 60 * 10, // 10 minutes
+  });
+};
+
+/**
+ * Hook to search for colleges
+ */
+export const useCollegeSearch = (params: CollegeSearchParams) => {
+  return useQuery<IServerResponse<College[]>>({
+    queryKey: collegeKeys.list(params),
+    queryFn: () => request.get('/colleges', { params }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+};
+
+/**
+ * Hook to fetch a single college
+ */
+export const useCollege = (id: string) => {
+  return useQuery<IServerResponse<College>>({
+    queryKey: collegeKeys.detail(id),
+    queryFn: () => request.get(`/colleges/${id}`),
+    staleTime: 1000 * 60 * 15, // 15 minutes
+  });
+}; 

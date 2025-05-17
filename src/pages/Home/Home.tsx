@@ -424,6 +424,11 @@ const Home: React.FC = () => {
   const statsRef = useRef<HTMLDivElement>(null);
   const circleBadgeRef = useRef<HTMLDivElement>(null);
   
+  // Add refs for the stat counters
+  const stat1Ref = useRef<HTMLDivElement>(null);
+  const stat2Ref = useRef<HTMLDivElement>(null);
+  const stat3Ref = useRef<HTMLDivElement>(null);
+  
   // Add CTA refs
   const ctaPaperRef = useRef<HTMLDivElement>(null);
   const ctaContentRef = useRef<HTMLDivElement>(null);
@@ -637,6 +642,7 @@ const Home: React.FC = () => {
     
     // Stats section animation
     if (statsRef.current) {
+      // First animate the entire section
       gsap.fromTo(
         statsRef.current,
         { y: 30, opacity: 0 },
@@ -647,7 +653,55 @@ const Home: React.FC = () => {
           scrollTrigger: {
             trigger: statsRef.current,
             start: "top bottom-=50",
-            toggleActions: "play none none none"
+            toggleActions: "play none none none",
+            onEnter: () => {
+              // Once the section is visible, animate the counters
+              
+              // Animate the first stat (10,000+)
+              if (stat1Ref.current) {
+                const value = { val: 0 };
+                gsap.to(value, {
+                  val: 10000,
+                  duration: 2.5,
+                  ease: "power2.out",
+                  onUpdate: function() {
+                    if (stat1Ref.current) {
+                      stat1Ref.current.innerHTML = Math.floor(value.val).toLocaleString() + '+';
+                    }
+                  }
+                });
+              }
+              
+              // Animate the second stat (78%)
+              if (stat2Ref.current) {
+                const value = { val: 0 };
+                gsap.to(value, {
+                  val: 78,
+                  duration: 2,
+                  ease: "power2.out",
+                  onUpdate: function() {
+                    if (stat2Ref.current) {
+                      stat2Ref.current.innerHTML = Math.floor(value.val) + '%';
+                    }
+                  }
+                });
+              }
+              
+              // Animate the third stat (50+)
+              if (stat3Ref.current) {
+                const value = { val: 0 };
+                gsap.to(value, {
+                  val: 50,
+                  duration: 1.8,
+                  ease: "power2.out",
+                  onUpdate: function() {
+                    if (stat3Ref.current) {
+                      stat3Ref.current.innerHTML = Math.floor(value.val) + '+';
+                    }
+                  }
+                });
+              }
+            }
           }
         }
       );
@@ -848,7 +902,7 @@ const Home: React.FC = () => {
         </Box>
         
         <Container size="xl" style={{ position: 'relative', zIndex: 1 }}>
-          <Stack align="center" mb={60} mt={40}>
+          <Stack align="center" mb={60} >
             <Title 
               ref={heroTitleRef}
               order={1} 
@@ -939,8 +993,8 @@ const Home: React.FC = () => {
             </Group>
           </Stack>
           
-          {/* Dynamic Student Cards */}
-          <Box style={{ position: 'relative', height: 320, marginTop: 60 }}>
+          {/* Dynamic Student Cards - Desktop only */}
+          <Box style={{ position: 'relative', height: 320, marginTop: 60 }} display={{ base: 'none', md: 'block' }}>
             {/* Left Card */}
             <Box
               style={{
@@ -1124,21 +1178,27 @@ const Home: React.FC = () => {
           <Grid gutter={0}>
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack gap={0} align="center" py="md">
-                <Text fw={700} size="xl" c={theme.white}>10,000+</Text>
+                <Text fw={700} size="xl" c={theme.white}>
+                  <div ref={stat1Ref}>0+</div>
+                </Text>
                 <Text size="sm" c={theme.white} opacity={0.8}>Active Students</Text>
               </Stack>
             </Grid.Col>
             
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack gap={0} align="center" py="md">
-                <Text fw={700} size="xl" c={theme.white}>78%</Text>
+                <Text fw={700} size="xl" c={theme.white}>
+                  <div ref={stat2Ref}>0%</div>
+                </Text>
                 <Text size="sm" c={theme.white} opacity={0.8}>Find Roommates</Text>
               </Stack>
             </Grid.Col>
             
             <Grid.Col span={{ base: 12, md: 4 }}>
               <Stack gap={0} align="center" py="md">
-                <Text fw={700} size="xl" c={theme.white}>50+</Text>
+                <Text fw={700} size="xl" c={theme.white}>
+                  <div ref={stat3Ref}>0+</div>
+                </Text>
                 <Text size="sm" c={theme.white} opacity={0.8}>Colleges</Text>
               </Stack>
             </Grid.Col>
@@ -1358,24 +1418,90 @@ const Home: React.FC = () => {
       </Box>
       
       {/* Footer */}
-      <Box bg="gray.1" py={40}>
-        <Container>
-          <Group justify="space-between">
-            <Text size="sm" c="dimmed">
+      <Box bg={theme.colors.dark[8]} py={50}>
+        <Container size="xl">
+          <Grid mb={40}>
+            <Grid.Col span={{ base: 12, md: 4 }}>
+              <Stack gap="xs">
+                <Title order={4} c={theme.white} mb="xs">CollegeConnect</Title>
+                <Text size="sm" c="dimmed" maw={300}>
+                  Connecting college students before they even step on campus. Find roommates, make friends, and start your college journey right.
+                </Text>
+                <Group mt="md" gap="xs">
+                  <ActionIcon size="lg" variant="filled" radius="xl" color="blue">
+                    <IconBrandTwitter size={18} />
+                  </ActionIcon>
+                  <ActionIcon size="lg" variant="filled" radius="xl" color="blue">
+                    <IconBrandInstagram size={18} />
+                  </ActionIcon>
+                  <ActionIcon size="lg" variant="filled" radius="xl" color="blue">
+                    <IconBrandFacebook size={18} />
+                  </ActionIcon>
+                </Group>
+              </Stack>
+            </Grid.Col>
+            
+            <Grid.Col span={{ base: 6, md: 2 }}>
+              <Title order={5} c={theme.white} mb="md">Product</Title>
+              <Stack gap={8}>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Features</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Pricing</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Schools</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Testimonials</Text>
+              </Stack>
+            </Grid.Col>
+            
+            <Grid.Col span={{ base: 6, md: 2 }}>
+              <Title order={5} c={theme.white} mb="md">Company</Title>
+              <Stack gap={8}>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>About</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Careers</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Blog</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Press</Text>
+              </Stack>
+            </Grid.Col>
+            
+            <Grid.Col span={{ base: 6, md: 2 }}>
+              <Title order={5} c={theme.white} mb="md">Support</Title>
+              <Stack gap={8}>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Contact</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>FAQ</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Privacy</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Terms</Text>
+              </Stack>
+            </Grid.Col>
+            
+            <Grid.Col span={{ base: 6, md: 2 }}>
+              <Title order={5} c={theme.white} mb="md">Resources</Title>
+              <Stack gap={8}>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Campus Guides</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Roommate Tips</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Dorm Essentials</Text>
+                <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }}>Student Discounts</Text>
+              </Stack>
+            </Grid.Col>
+          </Grid>
+          
+          <Box
+            style={{ 
+              borderTop: `1px solid ${theme.colors.dark[6]}`,
+              paddingTop: 20,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 10
+            }}
+          >
+            <Text size="xs" c="dimmed">
               © 2023 CollegeConnect. All rights reserved.
             </Text>
-            <Group gap="xs">
-              <ActionIcon size="lg" variant="subtle" radius="xl">
-                <IconBrandTwitter size={18} />
-              </ActionIcon>
-              <ActionIcon size="lg" variant="subtle" radius="xl">
-                <IconBrandInstagram size={18} />
-              </ActionIcon>
-              <ActionIcon size="lg" variant="subtle" radius="xl">
-                <IconBrandFacebook size={18} />
-              </ActionIcon>
+            <Group gap="md">
+              <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Privacy Policy</Text>
+              <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Terms of Service</Text>
+              <Text size="xs" c="dimmed" style={{ cursor: 'pointer' }}>Cookie Policy</Text>
             </Group>
-          </Group>
+          </Box>
         </Container>
       </Box>
     </Box>

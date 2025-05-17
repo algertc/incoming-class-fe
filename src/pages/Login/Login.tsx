@@ -8,8 +8,7 @@ const Login: React.FC = () => {
     <Card
       shadow="xs"
       p="md"
-      w="100%"
-      h="100%"
+      w="100%" 
       bg={"white"}
     >
       <Flex
@@ -17,6 +16,7 @@ const Login: React.FC = () => {
         justify="flex-start"
         align="center"
         gap="md"
+      
       >
         <Logo />
         <Stack gap="xs" align="center">

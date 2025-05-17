@@ -48,7 +48,7 @@ const coralShades: MantineColorsTuple = [
 const THEME = createTheme({
   // Set primary color
   primaryColor: 'blue',
-  fontFamily: "Dosis",
+  fontFamily: "Cascadia Mono",
   // Define color palette
   colors: {
     blue: blueShades,

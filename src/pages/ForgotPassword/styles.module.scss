@@ -1,11 +1,20 @@
 .formContainer {
-   
+    position: relative;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
+    border: 1px solid #f0f0f0;
+    background-color: white;
+    
+    &::before {
+        content: '';
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0) 70%);
+        border-radius: 50%;
+        z-index: 0;
+    }
 }
 
 .label {
@@ -36,23 +45,6 @@
     }
 }
 
-.form{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 24px;
-    background-color: transparent;
-}
-
-.checkBoxLabel {
-    font-size: 15px;
-    font-weight: 500;
-    
-    @media (max-width: 768px) {
-        font-size: 14px;
-    }
-}
-
 .btnRoot {
     height: 50px;
     
@@ -74,17 +66,6 @@
         transform: translateY(-2px);
         background-color: #3a0ca3 !important;
         box-shadow: 0 6px 16px rgba(67, 97, 238, 0.3);
-    }
-}
-
-.socialButton {
-    transition: all 0.2s ease;
-    border: 1px solid #e5e5e5;
-    
-    &:hover {
-        transform: translateY(-2px);
-        background-color: #f8f9fa !important;
-        border-color: #d0d0d0;
     }
 }
 
@@ -113,20 +94,6 @@
     }
 }
 
-.divLabel {
-    font-size: 16px;
-    color: #6c757d;
-    font-weight: 500;
-    
-    @media (max-width: 768px) {
-        font-size: 14px;
-    }
-}
-
-.socialBtn {
-    border-radius: 999em;
-}
-
 .decorativeCircle1 {
     position: absolute;
     top: -15px;
@@ -147,4 +114,4 @@
     background: radial-gradient(circle, rgba(67, 97, 238, 0.08) 0%, rgba(67, 97, 238, 0) 70%);
     border-radius: 50%;
     z-index: 0;
-}
+} 
