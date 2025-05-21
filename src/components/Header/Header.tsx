@@ -16,7 +16,7 @@ import NavLink from './HeaderNavLink';
 import Logo from './Logo';
 import gsap from 'gsap';
 
-const Header: React.FC = () => {
+export const Header: React.FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const theme = useMantineTheme();
   

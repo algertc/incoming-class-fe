@@ -32,7 +32,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
   logout: async () => {
     try {
-      await authService.logout();
+      authService.logout();
       set({ user: null });
     } catch (err) {
       set({ error: 'Failed to logout' });

@@ -2,11 +2,11 @@ import React from 'react';
 import { AppShell, Container } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { Outlet } from 'react-router';
-import Header from './Header/Header';
+import { Header } from './Header/Header';
 import { withAuth } from '../auth/withAuth';
 
-const AuthenticatedLayout: React.FC = () => {
-  const [opened, { toggle }] = useDisclosure();
+export const AuthenticatedLayout: React.FC = () => {
+  const [opened] = useDisclosure();
 
   return (
     <AppShell
@@ -18,7 +18,7 @@ const AuthenticatedLayout: React.FC = () => {
       }}
       padding="md"
     >
-      <Header toggle={toggle} />
+      <Header />
       <Container size="xl">
         <AppShell.Main>
           <Outlet />
@@ -28,4 +28,5 @@ const AuthenticatedLayout: React.FC = () => {
   );
 };
 
-export default withAuth(AuthenticatedLayout); 
+const WrappedAuthenticatedLayout = withAuth(AuthenticatedLayout);
+export default WrappedAuthenticatedLayout; 

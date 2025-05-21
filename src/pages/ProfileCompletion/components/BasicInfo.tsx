@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   TextInput,
   Select,
@@ -9,37 +9,35 @@ import {
   Stack,
   Text,
   rem,
-  useMantineTheme,
   Paper,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { IconBrandInstagram, IconBrandSnapchat } from '@tabler/icons-react';
-import styles from './BasicInfo.module.css';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
+import styles from "./BasicInfo.module.css";
 
 interface BasicInfoProps {
   onComplete: () => void;
 }
 
 const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
-  const theme = useMantineTheme();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
     initialValues: {
-      instagram: '',
-      snapchat: '',
-      major: '',
-      hometown: '',
-      bio: '',
+      instagram: "",
+      snapchat: "",
+      major: "",
+      hometown: "",
+      bio: "",
       lookingForRoommate: false,
     },
     validate: {
-      instagram: (value) => (!value ? 'Instagram handle is required' : null),
-      major: (value) => (!value ? 'Major is required' : null),
-      hometown: (value) => (!value ? 'Hometown is required' : null),
+      instagram: (value) => (!value ? "Instagram handle is required" : null),
+      major: (value) => (!value ? "Major is required" : null),
+      hometown: (value) => (!value ? "Hometown is required" : null),
       bio: (value) => {
-        if (!value) return 'Bio is required';
-        if (value.length < 20) return 'Bio must be at least 20 characters';
+        if (!value) return "Bio is required";
+        if (value.length < 20) return "Bio must be at least 20 characters";
         return null;
       },
     },
@@ -48,7 +46,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
   const handleSubmit = async (values: typeof form.values) => {
     setIsSubmitting(true);
     try {
-      // TODO: Save to backend
       console.log(values);
       onComplete();
     } catch (error) {
@@ -70,8 +67,10 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             required
             label="Instagram Handle"
             placeholder="@username"
-            leftSection={<IconBrandInstagram style={{ width: rem(16), height: rem(16) }} />}
-            {...form.getInputProps('instagram')}
+            leftSection={
+              <IconBrandInstagram style={{ width: rem(16), height: rem(16) }} />
+            }
+            {...form.getInputProps("instagram")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -81,8 +80,10 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
           <TextInput
             label="Snapchat Handle"
             placeholder="@username"
-            leftSection={<IconBrandSnapchat style={{ width: rem(16), height: rem(16) }} />}
-            {...form.getInputProps('snapchat')}
+            leftSection={
+              <IconBrandSnapchat style={{ width: rem(16), height: rem(16) }} />
+            }
+            {...form.getInputProps("snapchat")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -94,14 +95,14 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             label="Major"
             placeholder="Select your major"
             data={[
-              'Computer Science',
-              'Business',
-              'Engineering',
-              'Psychology',
-              'Biology',
-              'Other',
+              "Computer Science",
+              "Business",
+              "Engineering",
+              "Psychology",
+              "Biology",
+              "Other",
             ]}
-            {...form.getInputProps('major')}
+            {...form.getInputProps("major")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -116,18 +117,58 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             placeholder="Select your state"
             searchable
             data={[
-              'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California',
-              'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia',
-              'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
-              'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland',
-              'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri',
-              'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey',
-              'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
-              'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina',
-              'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont',
-              'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming',
+              "Alabama",
+              "Alaska",
+              "Arizona",
+              "Arkansas",
+              "California",
+              "Colorado",
+              "Connecticut",
+              "Delaware",
+              "Florida",
+              "Georgia",
+              "Hawaii",
+              "Idaho",
+              "Illinois",
+              "Indiana",
+              "Iowa",
+              "Kansas",
+              "Kentucky",
+              "Louisiana",
+              "Maine",
+              "Maryland",
+              "Massachusetts",
+              "Michigan",
+              "Minnesota",
+              "Mississippi",
+              "Missouri",
+              "Montana",
+              "Nebraska",
+              "Nevada",
+              "New Hampshire",
+              "New Jersey",
+              "New Mexico",
+              "New York",
+              "North Carolina",
+              "North Dakota",
+              "Ohio",
+              "Oklahoma",
+              "Oregon",
+              "Pennsylvania",
+              "Rhode Island",
+              "South Carolina",
+              "South Dakota",
+              "Tennessee",
+              "Texas",
+              "Utah",
+              "Vermont",
+              "Virginia",
+              "Washington",
+              "West Virginia",
+              "Wisconsin",
+              "Wyoming",
             ]}
-            {...form.getInputProps('hometown')}
+            {...form.getInputProps("hometown")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -141,7 +182,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             label="Short Bio"
             placeholder="Tell us about yourself..."
             minRows={4}
-            {...form.getInputProps('bio')}
+            {...form.getInputProps("bio")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -150,7 +191,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
 
           <Checkbox
             label="Looking for a roommate"
-            {...form.getInputProps('lookingForRoommate', { type: 'checkbox' })}
+            {...form.getInputProps("lookingForRoommate", { type: "checkbox" })}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -173,4 +214,4 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
   );
 };
 
-export default BasicInfo; 
+export default BasicInfo;

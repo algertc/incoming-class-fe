@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersService } from '../../services';
 import type { UpdateProfileData, User } from '../../models/user.model';
-import type { IServerResponse } from '../../interfaces/serverResponse.interface';
+import type { IServerResponse } from '../../models/serverResponse.model';
 
 /**
  * React Query key factory for user-related queries

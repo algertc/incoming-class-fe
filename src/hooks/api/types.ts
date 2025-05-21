@@ -1,10 +1,11 @@
 // Common API response types
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface IServerResponse<T = any> {
   status: boolean;
   message: string;
   data: T;
 }
-
+/* eslint-enable @typescript-eslint/no-explicit-any */
 // Authentication types
 export interface User {
   id: string;
