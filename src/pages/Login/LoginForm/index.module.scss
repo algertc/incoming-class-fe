@@ -1,11 +1,13 @@
 .formContainer {
-   
-    overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    width: 100%;
+    transition: transform 0.3s ease;
 
+    &:hover {
+        transform: translateY(-5px);
+    }
 }
 
 .label {
@@ -14,8 +16,9 @@
     color: #2d2d2d;
     margin-bottom: 6px;
     
-    @media (max-width: 768px) {
+    @media (max-width: 576px) {
         font-size: 14px;
+        margin-bottom: 4px;
     }
 }
 
@@ -31,7 +34,7 @@
         box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
     }
     
-    @media (max-width: 768px) {
+    @media (max-width: 576px) {
         height: 40px;
     }
 }
@@ -49,32 +52,27 @@
     font-weight: 500;
     color: #2d2d2d;
     
-    @media (max-width: 768px) {
-        font-size: 14px;
+    @media (max-width: 576px) {
+        font-size: 13px;
     }
-}
-
-.btnRoot {
-    height: 50px;
-    
-    @media (max-width: 768px) {
-        height: 44px;
-    }
-}
-
-.btnLabel {
-    font-size: 16px;
-    font-weight: 600;
 }
 
 .primaryButton {
     transition: transform 0.2s ease, background-color 0.2s ease;
     box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+    font-size: 16px;
+    font-weight: 600;
+    height: 50px;
     
     &:hover {
         transform: translateY(-2px);
         background-color: #3a0ca3 !important;
         box-shadow: 0 6px 16px rgba(67, 97, 238, 0.3);
+    }
+    
+    @media (max-width: 576px) {
+        height: 44px;
+        font-size: 15px;
     }
 }
 

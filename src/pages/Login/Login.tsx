@@ -1,21 +1,21 @@
 import React from 'react';
-import { Container } from '@mantine/core';
+import { Box } from '@mantine/core';
 import LoginForm from './LoginForm/LoginForm';
 
 const Login: React.FC = () => {
   return (
-    <Container 
-      size="100%" 
+    <Box 
+      w="100%" 
       h="100vh" 
       style={{ 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        background: 'white'
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
       }}
     >
       <LoginForm />
-    </Container>
+    </Box>
   );
 };
 

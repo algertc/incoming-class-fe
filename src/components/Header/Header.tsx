@@ -8,6 +8,7 @@ import {
   Burger,
   Drawer,
   Stack,
+  Flex,
   useMantineTheme
 } from '@mantine/core'
 import { Link } from 'react-router'
@@ -71,10 +72,13 @@ export const Header: React.FC = () => {
         top: 0,
         left: 0,
         right: 0,
-        zIndex: 1000
+        zIndex: 1000,
+        background: "linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(26,0,48,0.95) 100%)",
+        backdropFilter: "blur(8px)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)"
       }}
     >
-      <Container px={{ base: 16, sm: 32, md: 72 }} size="100%" h={90}>
+      <Container px={{ base: 16, sm: 32, lg: 48 }} size="100%" h={{ base: 70, sm: 80, md: 90 }}>
         <Group justify="space-between" style={{ height: '100%' }}>
           {/* Logo */}
           <Box ref={logoRef}>
@@ -82,18 +86,18 @@ export const Header: React.FC = () => {
           </Box>
           
           {/* Desktop Navigation */}
-          <Group ml="xl" ref={navLinksRef} display={{ base: 'none', sm: 'flex' }} gap={rem(5)}>
-            <NavLink to="/" label="Home" darkMode />
-            <NavLink to="/colleges" label="Colleges" darkMode />
-          </Group>
+          <Flex ref={navLinksRef} display={{ base: 'none', sm: 'flex' }} gap={rem(5)} direction="row">
+            <NavLink to="/" label="Home" darkMode displayMode="horizontal" />
+            <NavLink to="/colleges" label="Colleges" darkMode displayMode="horizontal" />
+          </Flex>
           
           {/* Desktop Action Buttons */}
-          <Group ref={buttonsRef} align="center" gap={24} display={{ base: 'none', sm: 'flex' }}>
+          <Group ref={buttonsRef} align="center" gap={rem(16)} display={{ base: 'none', sm: 'flex' }}>
             <Button 
               variant="outline" 
               color="red" 
               radius="md" 
-              size="md" 
+              size="sm"
               component={Link} 
               to="/login"
               style={{
@@ -112,7 +116,7 @@ export const Header: React.FC = () => {
             <Button 
               variant="filled" 
               radius="md" 
-              size="md" 
+              size="sm"
               component={Link} 
               to="/signup"
               style={{
@@ -146,25 +150,27 @@ export const Header: React.FC = () => {
         onClose={closeDrawer}
         size="100%"
         padding="md"
-        title="Menu"
+        title="CollegeConnect"
         hiddenFrom="sm"
         zIndex={1000}
+        transitionProps={{ transition: 'slide-right', duration: 300 }}
         styles={{
           title: { fontSize: rem(20), fontWeight: 700, color: theme.white },
           header: { 
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            borderBottom: `1px solid ${theme.colors.dark[6]}`
+            backgroundColor: 'rgba(0, 0, 0, 0.95)',
+            borderBottom: `1px solid ${theme.colors.dark[6]}`,
+            height: 70
           },
           body: { 
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(26,0,48,0.98) 100%)',
             padding: rem(32)
           },
           close: { color: theme.white }
         }}
       >
-        <Stack gap="xl">
-          <NavLink to="/" label="Home" darkMode onClick={closeDrawer} />
-          <NavLink to="/colleges" label="Colleges" darkMode onClick={closeDrawer} />
+        <Stack align='center' gap="xl" mt={20}>
+          <NavLink to="/" label="Home" darkMode displayMode="vertical" onClick={closeDrawer} />
+          <NavLink to="/colleges" label="Colleges" darkMode displayMode="vertical" onClick={closeDrawer} />
           
           <Box h={20} />
           

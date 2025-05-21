@@ -8,7 +8,7 @@ import {
   Text, 
   TextInput, 
   PasswordInput,
-  Paper
+  Box
 } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import classes from './index.module.scss'
@@ -55,17 +55,20 @@ const LoginForm: React.FC = () => {
   }
 
   return (
-    <Paper 
-      shadow="md" 
-      radius="lg" 
-      p="xl" 
-      w={{ base: '90%', sm: '400px' }}
+    <Box 
+      w={{ base: '90%', xs: '85%', sm: '420px' }}
+      mx="auto"
+      p={{ base: 'md', sm: 'lg' }}
       className={classes.formContainer}
       bg="white"
+      style={{
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+        borderRadius: '12px'
+      }}
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Flex direction="column" gap={24}>
-          <Text size="xl" fw={700} ta="center" mb={20} c="dark.8">
+        <Flex direction="column" gap={{ base: 16, sm: 20 }}>
+          <Text size="xl" fw={700} ta="center" mb={{ base: 10, sm: 16 }} c="dark.8">
             Welcome back!
           </Text>
           
@@ -114,9 +117,9 @@ const LoginForm: React.FC = () => {
             radius="md"
             size="lg"
             fullWidth
-            classNames={{ root: classes.btnRoot, inner: classes.btnLabel }}
             className={classes.primaryButton}
             loading={login.isPending}
+            my={{ base: 4, sm: 8 }}
           >
             Log In
           </Button>
@@ -136,20 +139,20 @@ const LoginForm: React.FC = () => {
           </Flex>
           
           <Divider 
-            my="xs" 
             label="Or continue with" 
             labelPosition="center"
             color="gray.3"
+            my={{ base: 10, sm: 15 }}
           />
           
           <Flex 
             justify="center" 
-            gap={16}
+            gap={{ base: 10, sm: 16 }}
           >
             <Button 
               classNames={{ root: classes.socialBtn }} 
               w="100%"
-              h={48}
+              h={{ base: 42, sm: 48 }}
               bg="white" 
               leftSection={<Image h={20} w={20} src={icons.GOOGLE} />} 
               variant="default" 
@@ -163,7 +166,7 @@ const LoginForm: React.FC = () => {
             <Button 
               classNames={{ root: classes.socialBtn }} 
               w="100%"
-              h={48}
+              h={{ base: 42, sm: 48 }}
               bg="white" 
               leftSection={<Image h={20} w={20} src={icons.APPLE} />} 
               variant="default" 
@@ -177,7 +180,7 @@ const LoginForm: React.FC = () => {
           </Flex>
         </Flex>
       </form>
-    </Paper>
+    </Box>
   )
 }
 
