@@ -1,0 +1,52 @@
+.title {
+  color: white;
+  text-align: center;
+}
+
+.previewContainer {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sectionTitle {
+  color: white;
+  margin-bottom: 16px;
+}
+
+.instagramPreview {
+  background: linear-gradient(45deg, #405DE6, #5851DB, #833AB4, #C13584, #E1306C, #FD1D1D);
+  padding: 20px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.userInfo {
+  color: white;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.photo {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: var(--mantine-radius-md);
+}
+
+.divider {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.socialIcon {
+  color: white;
+}
+
+.nextButton {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+}
+
+.nextButton:hover {
+  background: linear-gradient(45deg, #FF5252, #3DBEB6);
+} 

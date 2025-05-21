@@ -1,6 +1,6 @@
-import { request } from '../http/client';
-import API_ENDPOINTS from '../http/api.endpoints';
-import type { IServerResponse } from '../interfaces/serverResponse.interface';
+import { request } from '../hooks/api/http.client';
+import API_ENDPOINTS from '../hooks/api/api.endpoints';
+import type { IServerResponse } from '../models/serverResponse.model';
 import type { User, UpdateProfileData } from '../models/user.model';
 
 /**

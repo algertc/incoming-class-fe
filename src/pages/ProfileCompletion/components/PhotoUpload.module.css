@@ -1,0 +1,58 @@
+.container {
+  text-align: center;
+}
+
+.title {
+  color: white;
+  margin-bottom: 20px;
+}
+
+.dropzone {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 20px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.dropzone:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dropzoneText {
+  color: white;
+  margin-top: 10px;
+}
+
+.photoGrid {
+  margin-top: 20px;
+}
+
+.photoItem {
+  position: relative;
+}
+
+.photoImage {
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.addPhotoButton {
+  aspect-ratio: 1/1;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.nextButton {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  margin-top: 20px;
+}
+
+.nextButton:hover {
+  background: linear-gradient(45deg, #FF5252, #3DBEB6);
+} 

@@ -8,84 +8,80 @@ import {
   Text, 
   TextInput, 
   PasswordInput,
-  Box,
-  Container
+  Paper
 } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import classes from './index.module.scss'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import icons from '../../../assets/icons'
 import { useLogin } from '../../../hooks/api'
-import type { LoginCredentials } from '../../../models/user.model'
+import type { LoginCredentials, AuthResponse } from '../../../models/user.model'
 import { loginSchema, loginInitialValues } from '../../../forms'
 import { showSuccess, showError, showInfo } from '../../../utils'
+import { ROUTES } from '../../../routing/routes'
 
 const LoginForm: React.FC = () => {
-  // Use the login mutation hook
+  const navigate = useNavigate();
   const login = useLogin()
   
-  // Initialize form with Mantine useForm and yupResolver
   const form = useForm({
     initialValues: loginInitialValues,
     validate: yupResolver(loginSchema)
   })
 
-  // Form submission handler
-  const handleSubmit = (values: typeof form.values) => {
-    // Call the login mutation with the form values
+  const handleSubmit = async (values: typeof form.values) => {
     const loginData: LoginCredentials = {
       email: values.email,
       password: values.password
     }
     
-    console.log("Login form", loginData)
-    
-    // Uncomment in production
-    // login.mutate(loginData, {
-    //   onSuccess: (response) => {
-    //     if (response.status) {
-    //       showSuccess('You have successfully logged in');
-    //     } else {
-    //       showError(response.message || 'Login failed');
-    //     }
-    //   },
-    //   onError: (error) => {
-    //     showError(error instanceof Error ? error.message : 'An error occurred during login');
-    //   }
-    // });
-    
-    // For demo purposes only
-    setTimeout(() => {
-      if (values.email === 'demo@example.com' && values.password === 'password') {
-        showSuccess('You have successfully logged in');
+    try {
+      const response = await login.mutateAsync({
+        email: loginData.email,
+        password: loginData.password
+      });
+
+      if (response.status) {
+        showSuccess("Login Successful!");
+        const authResponse = response.data as AuthResponse;
+        navigate(authResponse.isProfileComplete ? ROUTES.APP : ROUTES.PROFILE_COMPLETION);
       } else {
-        showError('Invalid email or password');
+        showError(response.message);
       }
-    }, 2000);
+    } catch (error) {
+      console.log(error);
+      showError('An error occurred during login');
+    }
   }
 
   return (
-    <Container 
-    size={"100%"}
-    w={"100%"}
-    className={classes.formContainer}
+    <Paper 
+      shadow="md" 
+      radius="lg" 
+      p="xl" 
+      w={{ base: '90%', sm: '400px' }}
+      className={classes.formContainer}
+      bg="white"
     >
-      <form style={{width:"100%"}} onSubmit={form.onSubmit(handleSubmit)}>
-        <Flex direction={"column"} gap={{ base: 20, md: 24 }}>
-          {/* API errors are now handled through notifications */}
-        
+      <form onSubmit={form.onSubmit(handleSubmit)}>
+        <Flex direction="column" gap={24}>
+          <Text size="xl" fw={700} ta="center" mb={20} c="dark.8">
+            Welcome back!
+          </Text>
+          
           <TextInput
             classNames={{ label: classes.label, input: classes.input }} 
-            label={"Email"} 
+            label="Email" 
             placeholder="Enter your email"
             radius="md"
             size="md"
             required
             {...form.getInputProps('email')}
           />
+          
           <PasswordInput 
             classNames={{ label: classes.label, input: classes.input }} 
-            label={"Password"}
+            label="Password"
             placeholder="Enter your password" 
             radius="md"
             size="md"
@@ -97,12 +93,12 @@ const LoginForm: React.FC = () => {
             <Checkbox 
               classNames={{ label: classes.checkBoxLabel }} 
               color="blue"
-              label={"Remember me"}
-              c={"black"}
+              label="Remember me"
+              c="dark.8"
             />
-            <Link to="/forgot-password">
+            <Link to={ROUTES.FORGOT_PASSWORD}>
               <Text 
-                fz={{ base: "14px", md: "16px" }} 
+                fz={14} 
                 fw={500} 
                 c="#4361ee"
                 className={classes.linkText}
@@ -125,16 +121,16 @@ const LoginForm: React.FC = () => {
             Log In
           </Button>
           
-          <Flex justify={"center"} align="center" direction={{ base: "column", sm: "row" }} gap={{ base: 8, sm: 16 }}>
-            <Text c={"black"} fz={{ base: "16px", md: "18px" }} fw={500}>Don't have an account? </Text>
-            <Link to={"/signup"}>
+          <Flex justify="center" align="center" gap={8}>
+            <Text c="dark.8" fz={14}>Don't have an account?</Text>
+            <Link to={ROUTES.SIGNUP}>
               <Text 
-                fz={{ base: "16px", md: "18px" }} 
+                fz={14} 
                 fw={700} 
                 c="#e5383b"
                 className={classes.linkText}
               >
-                Sign up here
+                Sign up
               </Text>
             </Link>
           </Flex>
@@ -144,20 +140,17 @@ const LoginForm: React.FC = () => {
             label="Or continue with" 
             labelPosition="center"
             color="gray.3"
-            
           />
           
           <Flex 
-            justify={"center"} 
-            direction={{ base: "column", md: "row" }} 
-            gap={{ base: 16, md: 20 }}
+            justify="center" 
+            gap={16}
           >
             <Button 
               classNames={{ root: classes.socialBtn }} 
-              w={{ base: "100%", md: "auto" }}
-              fz={{ base: "16px", md: "16px" }} 
-              h={{ base: "48px", md: "50px" }} 
-              bg={"white"} 
+              w="100%"
+              h={48}
+              bg="white" 
               leftSection={<Image h={20} w={20} src={icons.GOOGLE} />} 
               variant="default" 
               radius="xl"
@@ -169,10 +162,9 @@ const LoginForm: React.FC = () => {
             </Button>
             <Button 
               classNames={{ root: classes.socialBtn }} 
-              w={{ base: "100%", md: "auto" }}
-              fz={{ base: "16px", md: "16px" }} 
-              h={{ base: "48px", md: "50px" }} 
-              bg={"white"} 
+              w="100%"
+              h={48}
+              bg="white" 
               leftSection={<Image h={20} w={20} src={icons.APPLE} />} 
               variant="default" 
               radius="xl"
@@ -183,13 +175,9 @@ const LoginForm: React.FC = () => {
               Apple
             </Button>
           </Flex>
-          
-          {/* Decorative elements to match the landing page theme */}
-          <Box className={classes.decorativeCircle1} />
-          <Box className={classes.decorativeCircle2} />
         </Flex>
       </form>
-    </Container>
+    </Paper>
   )
 }
 

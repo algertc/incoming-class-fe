@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { request } from '../../http/client';
-import { College, CollegeSearchParams, IServerResponse } from './types';
+import { request } from './http.client';
+import type { College, CollegeSearchParams } from './types';
+import type { IServerResponse } from '../../models/serverResponse.model';
 
 // Key factory for college queries
 export const collegeKeys = {
@@ -18,7 +19,7 @@ export const collegeKeys = {
 export const useFeaturedColleges = () => {
   return useQuery<IServerResponse<College[]>>({
     queryKey: collegeKeys.featured(),
-    queryFn: () => request.get('/colleges/featured'),
+    queryFn: async () => await request({url:'/colleges/featured'}),
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
 };
@@ -29,7 +30,7 @@ export const useFeaturedColleges = () => {
 export const useCollegeSearch = (params: CollegeSearchParams) => {
   return useQuery<IServerResponse<College[]>>({
     queryKey: collegeKeys.list(params),
-    queryFn: () => request.get('/colleges', { params }),
+    queryFn: async () => await request({url:'/colleges', params }),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };
@@ -40,7 +41,7 @@ export const useCollegeSearch = (params: CollegeSearchParams) => {
 export const useCollege = (id: string) => {
   return useQuery<IServerResponse<College>>({
     queryKey: collegeKeys.detail(id),
-    queryFn: () => request.get(`/colleges/${id}`),
+    queryFn: async () => await request({url:`/colleges/${id}`}),
     staleTime: 1000 * 60 * 15, // 15 minutes
   });
 }; 

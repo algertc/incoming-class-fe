@@ -22,7 +22,7 @@
 .input {
     height: 46px;
     background-color: white;
-    color: black;
+    color: #2d2d2d;
     border: 1px solid #e5e5e5;
     transition: all 0.2s ease;
     
@@ -47,6 +47,7 @@
 .checkBoxLabel {
     font-size: 15px;
     font-weight: 500;
+    color: #2d2d2d;
     
     @media (max-width: 768px) {
         font-size: 14px;

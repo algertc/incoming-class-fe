@@ -1,0 +1,49 @@
+.container {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  color: white;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.input::placeholder {
+  color: var(--mantine-color-gray-5);
+}
+
+.label {
+  color: white;
+}
+
+.dropdown {
+  background-color: var(--mantine-color-dark-7);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.item {
+  color: white;
+}
+
+.item[data-selected] {
+  background-color: var(--mantine-color-blue-6);
+}
+
+.item[data-hovered] {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nextButton {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+}
+
+.nextButton:hover {
+  background: linear-gradient(45deg, #FF5252, #3DBEB6);
+} 

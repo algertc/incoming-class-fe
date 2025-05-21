@@ -1,0 +1,91 @@
+.card {
+  background-color: var(--mantine-color-white);
+  border-color: var(--mantine-color-gray-2);
+  margin-bottom: 1rem;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+.card:hover {
+  transform: scale(1.01);
+  box-shadow: var(--mantine-shadow-md);
+}
+
+.section {
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+}
+
+.username {
+  color: var(--mantine-color-blue-6);
+}
+
+.image {
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 1;
+}
+
+.caption {
+  color: var(--mantine-color-gray-7);
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.label {
+  font-size: var(--mantine-font-size-xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.locationIcon {
+  color: var(--mantine-color-gray-6);
+}
+
+.likes {
+  color: var(--mantine-color-gray-7);
+}
+
+.moreButton {
+  cursor: pointer;
+  font-weight: 500;
+  user-select: none;
+}
+
+.moreButton:hover {
+  text-decoration: underline;
+}
+
+.divider {
+  border-color: var(--mantine-color-gray-2);
+}
+
+.commentInput {
+  flex: 1;
+}
+
+.commentInput input {
+  background-color: var(--mantine-color-gray-0);
+  border-color: var(--mantine-color-gray-2);
+}
+
+.commentInput input:focus {
+  border-color: var(--mantine-color-blue-5);
+}
+
+/* Like button animation */
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.heartAnimation {
+  animation: heartBeat 0.3s ease-in-out;
+} 

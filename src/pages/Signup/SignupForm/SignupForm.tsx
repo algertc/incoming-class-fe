@@ -1,5 +1,5 @@
-import React from 'react'
-import { Button, Checkbox, Divider, Flex, Image, Text, TextInput, PasswordInput } from '@mantine/core'
+import React, { useState } from 'react'
+import { Button, Checkbox, Divider, Flex, Image, Text, TextInput, PasswordInput, PinInput, Stack } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import classes from './index.module.scss'
 import { Link, useNavigate } from 'react-router'
@@ -11,20 +11,38 @@ import { showError, showSuccess } from '../../../utils'
 import ROUTES from '../../../constants/routes'
 
 const SignupForm: React.FC = () => {
-
   const navigate = useNavigate()
+  const [otp, setOtp] = useState('')
+  const [isOtpSent, setIsOtpSent] = useState(false)
 
-  // Use the signup mutation hook
   const {mutateAsync,isPending} = useSignup()
   
-  // Initialize form with Mantine useForm and yupResolver
+
   const form = useForm({
     initialValues: signupInitialValues,
     validate: yupResolver(signupSchema)
   })
 
+  // Handle verify email button click
+  const handleVerifyEmail = async () => {
+    try {
+      // TODO: Call API to send OTP
+      // For now, just simulate the API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setIsOtpSent(true)
+      showSuccess("OTP sent to your email")
+    } catch (error) {
+      showError((error as Error).message)
+    }
+  }
+
   // Form submission handler
   const handleSubmit = async(values: typeof form.values) => {
+    if (!isOtpSent) {
+      await handleVerifyEmail()
+      return
+    }
+
     // Call the signup mutation with the form values
     const signupData: SignupData = {
       firstName: values.firstName,
@@ -34,6 +52,9 @@ const SignupForm: React.FC = () => {
     }
 
     try {
+      // TODO: Verify OTP with backend
+      // For now, just simulate the API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
       const response = await mutateAsync(signupData)
       if(!response.status) throw new Error(response.message)
       showSuccess("Signup successful")
@@ -41,14 +62,11 @@ const SignupForm: React.FC = () => {
     } catch (error) {
       showError((error as Error).message)
     }
-  
   }
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Flex direction={"column"} gap={{ base: 16, md: 20 }}>
- 
-        
         {/* First and Last Name */}
         <Flex direction={{ base: "column", sm: "row" }} gap={{ base: 16, sm: 0 }} justify={"space-between"}>
           <TextInput 
@@ -105,6 +123,30 @@ const SignupForm: React.FC = () => {
           label={"By checking this box I am agreeing to the Terms of Service and Privacy Policy"}
           {...form.getInputProps('termsAccepted', { type: 'checkbox' })}
         />
+
+        {/* OTP Input */}
+        {isOtpSent && (
+          <Stack gap="xs" align="center">
+            <Text size="lg" fw={600} c="blue.5" className={classes.label} ta="center">
+              Enter Verification Code
+            </Text>
+            <Text size="md" c="blue.7" mb="md" ta="center">
+              We've sent a 6-digit verification code to <Text span fw={600} c="blue.5">{form.values.email}</Text>
+            </Text>
+            <PinInput
+              length={6}
+              value={otp}
+              onChange={setOtp}
+              size="lg"
+              radius="md"
+              classNames={{ input: classes.input }}
+              placeholder=""
+            />
+            <Text size="md" c="blue.7" ta="center" mt="md">
+              Didn't receive the code? <Text span c="blue.5" fw={600} style={{ cursor: 'pointer' }} onClick={handleVerifyEmail}>Resend</Text>
+            </Text>
+          </Stack>
+        )}
         
         {/* Submit Button */}
         <Button 
@@ -113,7 +155,7 @@ const SignupForm: React.FC = () => {
           classNames={{ root: classes.btnRoot, inner: classes.btnLabel }}
           loading={isPending}
         >
-          Sign Up
+          {isOtpSent ? 'Sign Up' : 'Verify Email'}
         </Button>
         
         {/* Login Link */}

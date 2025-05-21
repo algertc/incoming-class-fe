@@ -1,32 +1,22 @@
-import React from 'react'
-import { Card, Flex, Stack, Title, Text } from '@mantine/core'
-import Logo from '../../components/Header/Logo'
-import LoginForm from './LoginForm/LoginForm'
+import React from 'react';
+import { Container } from '@mantine/core';
+import LoginForm from './LoginForm/LoginForm';
 
 const Login: React.FC = () => {
   return (
-    <Card
-      shadow="xs"
-      p="md"
-      w="100%" 
-      bg={"white"}
+    <Container 
+      size="100%" 
+      h="100vh" 
+      style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'white'
+      }}
     >
-      <Flex
-        direction="column"
-        justify="flex-start"
-        align="center"
-        gap="md"
-      
-      >
-        <Logo />
-        <Stack gap="xs" align="center">
-          <Title order={1} size="h3" c="black">Welcome back</Title>
-          <Text size="md" c="black">Please enter your details to login</Text>
-        </Stack>
-        <LoginForm />
-      </Flex>
-    </Card>
-  )
-}
+      <LoginForm />
+    </Container>
+  );
+};
 
-export default Login
+export default Login;

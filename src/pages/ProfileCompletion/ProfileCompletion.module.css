@@ -1,0 +1,53 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #000000 0%, #1a0030 100%);
+  padding: 40px 0;
+}
+
+.paper {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.title {
+  background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 32px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.backButton {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.backButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.stepIcon {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.stepIcon[data-progress] {
+  border-color: var(--mantine-color-blue-6);
+  background-color: var(--mantine-color-blue-6);
+}
+
+.step[data-progress] {
+  color: white;
+}
+
+.separator {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.separator[data-active] {
+  background-color: var(--mantine-color-blue-6);
+} 

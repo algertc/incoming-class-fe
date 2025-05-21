@@ -1,6 +1,6 @@
-import { request } from '../http/client';
-import API_ENDPOINTS from '../http/api.endpoints';
-import type { IServerResponse } from '../interfaces/serverResponse.interface';
+import { request } from '../hooks/api/http.client';
+import API_ENDPOINTS from '../hooks/api/api.endpoints';
+import type { IServerResponse } from '../models/serverResponse.model';
 import type { 
   User, 
   LoginCredentials, 
@@ -8,6 +8,18 @@ import type {
   ResetPasswordData, 
   AuthResponse 
 } from '../models/user.model';
+
+// Mock user data for development
+const MOCK_USER: User = {
+  id: '1',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john.doe@example.com',
+  profileImage: 'https://i.pravatar.cc/150?img=1',
+  bio: 'Software Developer | Tech Enthusiast',
+  createdAt: new Date().toISOString(),
+  updatedAt: new Date().toISOString()
+};
 
 /**
  * Authentication Service
@@ -65,12 +77,18 @@ class AuthService {
   
   /**
    * Get current user profile
+   * Mock implementation for development
    */
   async getCurrentUser(): Promise<IServerResponse<User>> {
-    return request<User>({
-      url: API_ENDPOINTS.auth.me,
-      method: 'GET'
-    });
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Return mock user data
+    return {
+      status: true,
+      message: 'User profile retrieved successfully',
+      data: MOCK_USER
+    };
   }
   
   /**
