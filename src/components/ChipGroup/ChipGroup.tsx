@@ -5,7 +5,7 @@ import styles from './ChipGroup.module.css';
 interface ChipGroupProps {
   data: string[];
   value: string[];
-  onChange: (value: string[]) => void;
+  onChange: (_value: string[]) => void;
   error?: string;
 }
 

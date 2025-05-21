@@ -6,7 +6,7 @@ interface AuthState {
   user: User | null;
   isLoading: boolean;
   error: string | null;
-  setUser: (user: User | null) => void;
+  setUser: (_user: User | null) => void;
   fetchUser: () => Promise<void>;
   logout: () => Promise<void>;
 }

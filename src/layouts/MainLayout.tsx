@@ -4,6 +4,7 @@ import {
 } from '@mantine/core'
 import { Outlet } from 'react-router'
 import Header from '../components/Header/Header'
+import Footer from '../components/Footer/Footer'
 
 const MainLayout: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const MainLayout: React.FC = () => {
 
       <AppShell.Main>
         <Outlet />
+        <Footer />
       </AppShell.Main>
     </AppShell>
   )
