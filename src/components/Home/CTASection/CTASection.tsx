@@ -84,12 +84,18 @@ export const CTASection: React.FC = () => {
         <Paper
           ref={ctaPaperRef}
           radius="lg"
-          p={50}
           style={{
             position: 'relative',
             overflow: 'hidden',
             backgroundColor: 'transparent',
-            border: `1px solid ${theme.colors.dark[7]}`
+            border: `1px solid ${theme.colors.dark[7]}`,
+            padding: '50px',
+            '@media (max-width: 768px)': {
+              padding: '35px'
+            },
+            '@media (max-width: 576px)': {
+              padding: '25px'
+            }
           }}
         >
           {/* Background effect */}
@@ -113,13 +119,45 @@ export const CTASection: React.FC = () => {
             gap="xl" 
             align="center"
           >
-            <Title order={2} fw={700} ta="center" c={theme.white} style={{ fontSize: '2.5rem' }}>
+            <Title 
+              order={2} 
+              fw={700} 
+              ta="center" 
+              c={theme.white}
+              style={{ 
+                fontSize: 'clamp(1.5rem, 5vw, 2.5rem)'
+              }}
+            >
               Ready to find your college community?
             </Title>
-            <Text c={theme.colors.dark[1]} size="xl" maw={600} ta="center">
+            <Text 
+              c={theme.colors.dark[1]}
+              size="xl"
+              maw={600} 
+              ta="center"
+              style={{
+                '@media (max-width: 576px)': {
+                  fontSize: '1rem'
+                }
+              }}
+            >
               Join thousands of students already building their network before even stepping on campus.
             </Text>
-            <Button size="xl" color="blue" radius="md">
+            <Button 
+              size="xl"
+              color="blue" 
+              radius="md"
+              style={{
+                '@media (max-width: 768px)': {
+                  fontSize: '1rem',
+                  padding: '0.5rem 1.5rem'
+                },
+                '@media (max-width: 576px)': {
+                  fontSize: '0.875rem',
+                  padding: '0.375rem 1.25rem'
+                }
+              }}
+            >
               Sign Up Now
             </Button>
           </Stack>
