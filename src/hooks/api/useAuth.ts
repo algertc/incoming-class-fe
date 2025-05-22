@@ -26,14 +26,14 @@ export const useLogin = () => {
       if (data.status && data.data?.token) {
         // Store token in localStorage
         localStorage.setItem('token', data.data.token);
-        
+
         // Update user cache
         queryClient.setQueryData(authKeys.currentUser(), {
           status: true,
           message: 'User profile retrieved',
           data: data.data.user
         });
-        
+
         // Navigate to home page
         navigate(ROUTES.HOME);
       }
@@ -53,7 +53,7 @@ export const useSignup = () => {
       if (data.status && data.data?.token) {
         // Store token in localStorage
         localStorage.setItem('token', data.data.token);
-        
+
         // Update user cache
         queryClient.setQueryData(authKeys.currentUser(), {
           status: true,
@@ -66,12 +66,19 @@ export const useSignup = () => {
   });
 };
 
+export const useVerifyEmail = () => {
+  return useMutation({
+    mutationFn: (data: { email: string, otp: string }) => authService.verifyEmailOTP(data),
+
+  })
+}
+
 /**
  * Hook for getting the current user's profile
  */
 export const useCurrentUser = () => {
   const token = localStorage.getItem('token');
-  
+
   return useQuery({
     queryKey: authKeys.currentUser(),
     queryFn: () => authService.getCurrentUser(),
@@ -95,7 +102,7 @@ export const useRequestPasswordReset = () => {
  */
 export const useResetPassword = () => {
   const navigate = useNavigate();
-  
+
   return useMutation({
     mutationFn: (data: ResetPasswordData) => authService.resetPassword(data),
     onSuccess: (data) => {
@@ -115,7 +122,7 @@ export const useResetPassword = () => {
 export const useLogout = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  
+
   return useMutation({
     mutationFn: () => {
       authService.logout();
@@ -124,7 +131,7 @@ export const useLogout = () => {
     onSuccess: () => {
       // Clear the query cache for auth-related queries
       queryClient.removeQueries({ queryKey: authKeys.all });
-      
+
       // Navigate to login
       navigate(ROUTES.LOGIN);
     }

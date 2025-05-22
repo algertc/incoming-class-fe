@@ -1,12 +1,12 @@
 import { request } from '../hooks/api/http.client';
 import API_ENDPOINTS from '../hooks/api/api.endpoints';
 import type { IServerResponse } from '../models/serverResponse.model';
-import type { 
-  User, 
-  LoginCredentials, 
-  SignupData, 
-  ResetPasswordData, 
-  AuthResponse 
+import type {
+  User,
+  LoginCredentials,
+  SignupData,
+  ResetPasswordData,
+  AuthResponse
 } from '../models/user.model';
 
 // Mock user data for development
@@ -41,7 +41,7 @@ class AuthService {
       data: credentials
     });
   }
-  
+
   /**
    * Register new user
    */
@@ -52,7 +52,7 @@ class AuthService {
       data: userData
     });
   }
-  
+
   /**
    * Request password reset OTP
    */
@@ -63,7 +63,7 @@ class AuthService {
       data: { email }
     });
   }
-  
+
   /**
    * Reset password with OTP
    */
@@ -74,7 +74,15 @@ class AuthService {
       data
     });
   }
-  
+
+  async verifyEmailOTP(data: { email: string, otp: string }): Promise<IServerResponse> {
+    return request({
+      url: API_ENDPOINTS.auth.verifyMail,
+      method: 'POST',
+      data
+    })
+  }
+
   /**
    * Get current user profile
    * Mock implementation for development
@@ -82,7 +90,7 @@ class AuthService {
   async getCurrentUser(): Promise<IServerResponse<User>> {
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 500));
-    
+
     // Return mock user data
     return {
       status: true,
@@ -90,7 +98,7 @@ class AuthService {
       data: MOCK_USER
     };
   }
-  
+
   /**
    * Logout user
    */

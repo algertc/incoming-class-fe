@@ -11,26 +11,27 @@ const API_ENDPOINTS = {
   auth: {
     login: '/auth/login',
     signup: '/auth/register',
+    verifyMail: '/auth/verify-email',
     me: '/auth/me',
     forgotPassword: '/auth/forgot-password',
     resetPassword: '/auth/reset-password',
     logout: '/auth/logout',
   },
-  
+
   users: {
     base: '/users',
     getById: (id: string) => `/users/${id}`,
     updateProfile: (id: string) => `/users/${id}`,
     deleteAccount: (id: string) => `/users/${id}`,
   },
-  
+
   colleges: {
     base: '/colleges',
     getById: (id: string) => `/colleges/${id}`,
     search: '/colleges/search',
     featured: '/colleges/featured',
   },
-  
+
   posts: {
     base: '/posts',
     getById: (id: string) => `/posts/${id}`,

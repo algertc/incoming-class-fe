@@ -1,18 +1,15 @@
-import { useRef, useEffect } from 'react'
-import { 
-  Box, 
-  useMantineTheme,
-} from '@mantine/core'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { useRef, useEffect } from "react";
+import { Box, useMantineTheme } from "@mantine/core";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 // Import all the components
-import { HeroSection } from '../../components/Home/HeroSection/HeroSection'
-import { StatisticsSection } from '../../components/Home/StatisticsSection/StatisticsSection'
-import { FeaturedSection } from '../../components/Home/FeaturedSection/FeaturedSection'
-import { HowItWorksSection } from '../../components/Home/HowItWorksSection/HowItWorksSection'
-import { CollegesSection } from '../../components/Home/CollegesSection/CollegesSection'
-import { CTASection } from '../../components/Home/CTASection/CTASection'
+import { HeroSection } from "../../components/Home/HeroSection/HeroSection";
+import { StatisticsSection } from "../../components/Home/StatisticsSection/StatisticsSection";
+import { FeaturedSection } from "../../components/Home/FeaturedSection/FeaturedSection";
+import { HowItWorksSection } from "../../components/Home/HowItWorksSection/HowItWorksSection";
+import { CollegesSection } from "../../components/Home/CollegesSection/CollegesSection";
+import { CTASection } from "../../components/Home/CTASection/CTASection";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -81,7 +78,7 @@ const animationStyles = `
 
 const Home: React.FC = () => {
   const theme = useMantineTheme();
-  
+
   // Animated background elements refs
   const bgCircle1Ref = useRef<HTMLDivElement>(null);
   const bgCircle2Ref = useRef<HTMLDivElement>(null);
@@ -95,20 +92,20 @@ const Home: React.FC = () => {
     stars.forEach((star, index) => {
       // Add a subtle initial animation to each star
       gsap.fromTo(
-        star, 
-        { 
+        star,
+        {
           opacity: 0,
-          scale: 0.3
-        }, 
-        { 
+          scale: 0.3,
+        },
+        {
           opacity: () => Math.random() * 0.5 + 0.5, // Random initial opacity
           scale: 1,
-          duration: 0.1, 
-          delay: index * 0.03 
+          duration: 0.1,
+          delay: index * 0.03,
         }
       );
     });
-    
+
     // Animate background elements
     if (bgCircle1Ref.current && bgCircle2Ref.current && bgCircle3Ref.current) {
       // Circle 1 animation
@@ -118,9 +115,9 @@ const Home: React.FC = () => {
         duration: 8,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut"
+        ease: "sine.inOut",
       });
-      
+
       // Circle 2 animation
       gsap.to(bgCircle2Ref.current, {
         y: 40,
@@ -129,9 +126,9 @@ const Home: React.FC = () => {
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        delay: 0.5
+        delay: 0.5,
       });
-      
+
       // Circle 3 animation
       gsap.to(bgCircle3Ref.current, {
         y: -50,
@@ -140,10 +137,10 @@ const Home: React.FC = () => {
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
-        delay: 1
+        delay: 1,
       });
     }
-    
+
     // Animate gradient backgrounds
     if (bgGradient1Ref.current && bgGradient2Ref.current) {
       // Gradient 1 animation
@@ -151,152 +148,179 @@ const Home: React.FC = () => {
         rotation: 360,
         duration: 60,
         repeat: -1,
-        ease: "none"
+        ease: "none",
       });
-      
+
       // Gradient 2 animation
       gsap.to(bgGradient2Ref.current, {
         rotation: -360,
         duration: 80,
         repeat: -1,
-        ease: "none"
+        ease: "none",
       });
     }
-    
+
     return () => {
       // Clean up animations when component unmounts
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
   }, []);
 
   return (
-    <Box style={{ backgroundColor: theme.colors.dark[9], minHeight: '100vh' }}>
+    <Box style={{ backgroundColor: theme.colors.dark[9], minHeight: "100vh" }}>
       {/* Add the custom style tag for animations */}
       <style>{animationStyles}</style>
-      
+
       {/* Background elements */}
       <Box
         style={{
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
-          width: '100%',
-          height: '100%',
-          overflow: 'hidden',
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
           zIndex: 0,
-          opacity: 0.6
+          opacity: 0.6,
         }}
       >
         {/* Animated background gradients */}
         <Box
           ref={bgGradient1Ref}
           style={{
-            position: 'absolute',
-            top: '-50%',
-            left: '-20%',
-            width: '100%',
-            height: '100%',
-            background: 'radial-gradient(circle, rgba(25, 113, 194, 0.2) 0%, rgba(25, 113, 194, 0) 70%)',
-            borderRadius: '50%',
-            filter: 'blur(40px)',
-            opacity: 0.4
+            position: "absolute",
+            top: "-50%",
+            left: "-20%",
+            width: "100%",
+            height: "100%",
+            background:
+              "radial-gradient(circle, rgba(25, 113, 194, 0.2) 0%, rgba(25, 113, 194, 0) 70%)",
+            borderRadius: "50%",
+            filter: "blur(40px)",
+            opacity: 0.4,
           }}
         />
         <Box
           ref={bgGradient2Ref}
           style={{
-            position: 'absolute',
-            bottom: '-30%',
-            right: '-10%',
-            width: '80%',
-            height: '80%',
-            background: 'radial-gradient(circle, rgba(74, 93, 253, 0.2) 0%, rgba(74, 93, 253, 0) 70%)',
-            borderRadius: '50%',
-            filter: 'blur(40px)',
-            opacity: 0.4
+            position: "absolute",
+            bottom: "-30%",
+            right: "-10%",
+            width: "80%",
+            height: "80%",
+            background:
+              "radial-gradient(circle, rgba(74, 93, 253, 0.2) 0%, rgba(74, 93, 253, 0) 70%)",
+            borderRadius: "50%",
+            filter: "blur(40px)",
+            opacity: 0.4,
           }}
         />
-        
+
         {/* Animated circles/blob elements */}
         <Box
           ref={bgCircle1Ref}
           style={{
-            position: 'absolute',
-            top: '15%',
-            right: '10%',
-            width: '300px',
-            height: '300px',
-            background: 'radial-gradient(circle, rgba(74, 93, 253, 0.1) 0%, rgba(74, 93, 253, 0) 70%)',
-            borderRadius: '50%',
-            filter: 'blur(20px)',
-            opacity: 0.8
+            position: "absolute",
+            top: "15%",
+            right: "10%",
+            width: "300px",
+            height: "300px",
+            background:
+              "radial-gradient(circle, rgba(74, 93, 253, 0.1) 0%, rgba(74, 93, 253, 0) 70%)",
+            borderRadius: "50%",
+            filter: "blur(20px)",
+            opacity: 0.8,
           }}
         />
         <Box
           ref={bgCircle2Ref}
           style={{
-            position: 'absolute',
-            bottom: '20%',
-            left: '5%',
-            width: '250px',
-            height: '250px',
-            background: 'radial-gradient(circle, rgba(25, 113, 194, 0.1) 0%, rgba(25, 113, 194, 0) 70%)',
-            borderRadius: '50%',
-            filter: 'blur(20px)',
-            opacity: 0.6
+            position: "absolute",
+            bottom: "20%",
+            left: "5%",
+            width: "250px",
+            height: "250px",
+            background:
+              "radial-gradient(circle, rgba(25, 113, 194, 0.1) 0%, rgba(25, 113, 194, 0) 70%)",
+            borderRadius: "50%",
+            filter: "blur(20px)",
+            opacity: 0.6,
           }}
         />
         <Box
           ref={bgCircle3Ref}
           style={{
-            position: 'absolute',
-            top: '40%',
-            left: '20%',
-            width: '200px',
-            height: '200px',
-            background: 'radial-gradient(circle, rgba(114, 137, 218, 0.1) 0%, rgba(114, 137, 218, 0) 70%)',
-            borderRadius: '50%',
-            filter: 'blur(20px)',
-            opacity: 0.7
+            position: "absolute",
+            top: "40%",
+            left: "20%",
+            width: "200px",
+            height: "200px",
+            background:
+              "radial-gradient(circle, rgba(114, 137, 218, 0.1) 0%, rgba(114, 137, 218, 0) 70%)",
+            borderRadius: "50%",
+            filter: "blur(20px)",
+            opacity: 0.7,
           }}
         />
-        
+
         {/* Small animated stars */}
-        <Box className="animated-stars" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+        <Box
+          className="animated-stars"
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 0,
+          }}
+        >
           {Array.from({ length: 50 }).map((_, index) => {
             // Determine star size and animation properties
-            const sizeClass = index % 5 === 0 ? 'star-large' : (index % 3 === 0 ? 'star-medium' : 'star-small');
-            const twinkleAnimation = index % 3 === 0 ? 'twinkle-1' : (index % 2 === 0 ? 'twinkle-2' : 'twinkle-3');
+            const sizeClass =
+              index % 5 === 0
+                ? "star-large"
+                : index % 3 === 0
+                ? "star-medium"
+                : "star-small";
+            const twinkleAnimation =
+              index % 3 === 0
+                ? "twinkle-1"
+                : index % 2 === 0
+                ? "twinkle-2"
+                : "twinkle-3";
             const animationDuration = Math.random() * 3 + 2; // Random duration between 2-5s
-            const floatAnimation = `float-${index % 5} ${Math.random() * 10 + 15}s infinite ease-in-out`;
-            
+            const floatAnimation = `float-${index % 5} ${
+              Math.random() * 10 + 15
+            }s infinite ease-in-out`;
+
             return (
               <Box
-                key={index}
+                key={index + "xyzrnadokeychbsd"}
                 className={`star ${sizeClass}`}
                 style={{
-                  position: 'absolute',
+                  position: "absolute",
                   zIndex: 1,
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
                   animation: `${twinkleAnimation} ${animationDuration}s infinite ease-in-out, ${floatAnimation}`,
-                  animationDelay: `${Math.random() * 5}s, 0s`
+                  animationDelay: `${Math.random() * 5}s, 0s`,
                 }}
               />
             );
           })}
         </Box>
       </Box>
-      
+
       {/* Main content sections */}
       <HeroSection />
       <StatisticsSection />
-      <FeaturedSection />
       <HowItWorksSection />
+      <FeaturedSection />
       <CollegesSection />
       <CTASection />
     </Box>
-  )
-}
+  );
+};
 
 export default Home;

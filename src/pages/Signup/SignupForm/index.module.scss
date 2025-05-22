@@ -1,19 +1,20 @@
 .label{
-    font-size: 20px;
+    font-size: 16px;
     color: black;
+    font-weight: 500;
     
     @media (max-width: 768px) {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
 .input{
-    height: 46px;
+    height: 42px;
     background-color: white;
     color: black;
     
     @media (max-width: 768px) {
-        height: 40px;
+        height: 38px;
     }
 }
 
@@ -26,31 +27,31 @@
 }
 
 .checkBoxLabel{
-    font-size: 18px;
+    font-size: 14px;
     
     @media (max-width: 768px) {
-        font-size: 14px;
+        font-size: 13px;
     }
 }
 
 .btnRoot{
-    height: 56px;
+    height: 48px;
     
     @media (max-width: 768px) {
-        height: 48px;
+        height: 42px;
     }
 }
 
 .btnLabel{
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .divLabel{
-    font-size: 20px;
+    font-size: 16px;
     color: black;
     
     @media (max-width: 768px) {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
