@@ -6,12 +6,12 @@ import AuthLayout from "../layouts/AuthLayout";
 import AuthenticatedLayout from "../components/layout/AuthenticatedLayout";
 import { ROUTES } from './routes';
 import ProfileCompletion from '../pages/ProfileCompletion/ProfileCompletion';
+import Feed from "../pages/Feed/Feed";
 
 // Placeholder components for authenticated routes
 const Applications = () => <div>Applications</div>;
 const Profile = () => <div>Profile</div>;
 const Settings = () => <div>Settings</div>;
-const FeedPlaceholder = () => <div>Feed component will be created here</div>;
 
 const router = createBrowserRouter([
     // Public routes
@@ -22,6 +22,10 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <Home />
+            },
+            {
+                path: "feed",
+                element: <Feed />
             },
             {
                 path: "public/colleges",
@@ -58,7 +62,11 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <FeedPlaceholder />
+                element: <Feed />
+            },
+            {
+                path: "feed",
+                element: <Feed />
             },
             {
                 path: "colleges",

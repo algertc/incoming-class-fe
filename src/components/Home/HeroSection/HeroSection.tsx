@@ -485,7 +485,7 @@ export const HeroSection: React.FC = () => {
             build your college circle—all before orientation.
           </Text>
 
-          <Group ref={heroButtonsRef} gap="md" mb="xl" className="hero-buttons">
+          <Group w="50%" ref={heroButtonsRef} gap="md" mb="xl" className="hero-buttons">
             <CollegeSelect />
           </Group>
 
