@@ -9,8 +9,9 @@
 
 const API_ENDPOINTS = {
   auth: {
+    sendEmailOtp: "/auth/send-email-otp",
+    signup: '/auth/verify-email-otp',
     login: '/auth/login',
-    signup: '/auth/register',
     verifyMail: '/auth/verify-email',
     me: '/auth/me',
     forgotPassword: '/auth/forgot-password',

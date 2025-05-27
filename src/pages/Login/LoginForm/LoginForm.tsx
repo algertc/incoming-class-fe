@@ -1,7 +1,6 @@
 import React from 'react'
 import { 
   Button, 
-  Checkbox, 
   Divider, 
   Flex, 
   Image, 
@@ -11,7 +10,7 @@ import {
   Box
 } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
-import classes from './index.module.scss'
+import classes from '../../../styles/authStyles.module.scss'
 import { Link, useNavigate } from 'react-router'
 import icons from '../../../assets/icons'
 import { useLogin } from '../../../hooks/api'
@@ -41,34 +40,36 @@ const LoginForm: React.FC = () => {
         password: loginData.password
       });
 
-      if (response.status) {
+      if (!response.status) throw new Error(response.errorMessage?.message)
+
         showSuccess("Login Successful!");
         const authResponse = response.data as AuthResponse;
         navigate(authResponse.isProfileComplete ? ROUTES.APP : ROUTES.PROFILE_COMPLETION);
-      } else {
-        showError(response.message);
-      }
+      
     } catch (error) {
-      console.log(error);
-      showError('An error occurred during login');
+      showError((error as Error).message);
     }
   }
 
   return (
     <Box 
-      w={{ base: '90%', xs: '85%', sm: '420px' }}
+      w={{ base: '100%', xs: '100%', sm: '520px' }}
       mx="auto"
-      p={{ base: 'md', sm: 'lg' }}
       className={classes.formContainer}
-      bg="white"
-      style={{
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
-        borderRadius: '12px'
+      style={{ 
+        position: 'relative', 
+        minHeight: 'auto', 
+        maxHeight: 'none',
+        overflow: 'visible'
       }}
     >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
+      {/* Decorative elements */}
+      <Box className={classes.decorativeCircle1} />
+      <Box className={classes.decorativeCircle2} />
+      
+      <form onSubmit={form.onSubmit(handleSubmit)} style={{ width: '100%', position: 'relative', zIndex: 1 }}>
         <Flex direction="column" gap={{ base: 16, sm: 20 }}>
-          <Text size="xl" fw={700} ta="center" mb={{ base: 10, sm: 16 }} c="dark.8">
+          <Text size="xl" fw={700} ta="center" mb={{ base: 10, sm: 16 }} className={classes.formTitle}>
             Welcome back!
           </Text>
           
@@ -93,17 +94,10 @@ const LoginForm: React.FC = () => {
           />
           
           <Flex justify="space-between" align="center">
-            <Checkbox 
-              classNames={{ label: classes.checkBoxLabel }} 
-              color="blue"
-              label="Remember me"
-              c="dark.8"
-            />
             <Link to={ROUTES.FORGOT_PASSWORD}>
               <Text 
                 fz={14} 
                 fw={500} 
-                c="#4361ee"
                 className={classes.linkText}
               >
                 Forgot password?
@@ -113,7 +107,6 @@ const LoginForm: React.FC = () => {
           
           <Button 
             type="submit"
-            color="#4361ee"
             radius="md"
             size="lg"
             fullWidth
@@ -125,12 +118,11 @@ const LoginForm: React.FC = () => {
           </Button>
           
           <Flex justify="center" align="center" gap={8}>
-            <Text c="dark.8" fz={14}>Don't have an account?</Text>
+            <Text c={classes.formText} fz={14}>Don't have an account?</Text>
             <Link to={ROUTES.SIGNUP}>
               <Text 
                 fz={14} 
                 fw={700} 
-                c="#e5383b"
                 className={classes.linkText}
               >
                 Sign up
@@ -141,43 +133,24 @@ const LoginForm: React.FC = () => {
           <Divider 
             label="Or continue with" 
             labelPosition="center"
-            color="gray.3"
+            classNames={{ 
+              root: classes.divider,
+              label: classes.dividerLabel 
+            }}
             my={{ base: 10, sm: 15 }}
           />
           
-          <Flex 
-            justify="center" 
-            gap={{ base: 10, sm: 16 }}
+          <Button 
+            w="100%"
+            h={{ base: 42, sm: 48 }}
+            leftSection={<Image h={20} w={20} src={icons.GOOGLE} />} 
+            variant="default" 
+            radius="xl"
+            className={classes.socialButton}
+            onClick={() => showInfo('Google login is not implemented yet')}
           >
-            <Button 
-              classNames={{ root: classes.socialBtn }} 
-              w="100%"
-              h={{ base: 42, sm: 48 }}
-              bg="white" 
-              leftSection={<Image h={20} w={20} src={icons.GOOGLE} />} 
-              variant="default" 
-              radius="xl"
-              c="dark.8"
-              className={classes.socialButton}
-              onClick={() => showInfo('Google login is not implemented yet')}
-            >
-              Google
-            </Button>
-            <Button 
-              classNames={{ root: classes.socialBtn }} 
-              w="100%"
-              h={{ base: 42, sm: 48 }}
-              bg="white" 
-              leftSection={<Image h={20} w={20} src={icons.APPLE} />} 
-              variant="default" 
-              radius="xl"
-              c="dark.8"
-              className={classes.socialButton}
-              onClick={() => showInfo('Apple login is not implemented yet')}
-            >
-              Apple
-            </Button>
-          </Flex>
+            Google
+          </Button>
         </Flex>
       </form>
     </Box>

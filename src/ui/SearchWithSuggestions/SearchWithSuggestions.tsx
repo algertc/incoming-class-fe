@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
-import { Box, Text, ScrollArea, Group, TextInput, Loader } from "@mantine/core";
+import { Box, Text, ScrollArea, Group, TextInput, Loader, useMantineTheme } from "@mantine/core";
 import { IconSearch, IconX } from "@tabler/icons-react";
+import { useMediaQuery } from '@mantine/hooks';
 import classes from "./SearchWithSuggestions.module.scss";
 
 export interface Suggestion {
@@ -41,8 +42,26 @@ export const SearchWithSuggestions: React.FC<SearchWithSuggestionsProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [dropdownPosition, setDropdownPosition] = useState<'bottom' | 'top'>('bottom');
   const componentRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
+  
+  // Check if dropdown should open upward
+  useEffect(() => {
+    if (isOpen && componentRef.current) {
+      const rect = componentRef.current.getBoundingClientRect();
+      const availableSpaceBelow = window.innerHeight - rect.bottom;
+      const estimatedDropdownHeight = Math.min(maxHeight, suggestions.length * 60);
+      
+      if (availableSpaceBelow < estimatedDropdownHeight && rect.top > estimatedDropdownHeight) {
+        setDropdownPosition('top');
+      } else {
+        setDropdownPosition('bottom');
+      }
+    }
+  }, [isOpen, suggestions.length, maxHeight]);
   
   // Handle outside click to close suggestions
   useEffect(() => {
@@ -100,7 +119,6 @@ export const SearchWithSuggestions: React.FC<SearchWithSuggestionsProps> = ({
       className={classes.container}
       style={{ width }}
     >
-    
       
       {/* Search Input */}
       <Box
@@ -138,22 +156,23 @@ export const SearchWithSuggestions: React.FC<SearchWithSuggestionsProps> = ({
             root: classes.inputRoot
           }}
           style={{ width: '100%' }}
+          size={isMobile ? "md" : "lg"}
         />
       </Box>
 
       {/* Error message */}
       {error && (
-        <Text className={classes.errorMessage}>
+        <Text className={classes.errorMessage} size={isMobile ? "xs" : "sm"}>
           {error}
         </Text>
       )}
 
       {/* Suggestions Dropdown */}
       <Box
-        className={`${classes.dropdown} ${isOpen && suggestions.length > 0 ? classes.dropdownVisible : classes.dropdownHidden}`}
+        className={`${classes.dropdown} ${isOpen && suggestions.length > 0 ? classes.dropdownVisible : classes.dropdownHidden} ${dropdownPosition === 'top' ? classes.dropdownTop : classes.dropdownBottom}`}
       >
         <ScrollArea h={Math.min(maxHeight, suggestions.length * 60)} scrollbarSize={6}>
-          <Box p="xs">
+          <Box p={isMobile ? "xs" : "md"}>
             {suggestions.map((suggestion) => (
               <Box
                 key={suggestion.id}
@@ -162,11 +181,11 @@ export const SearchWithSuggestions: React.FC<SearchWithSuggestionsProps> = ({
               >
                 <Group gap="xs" align="flex-start">
                   <Box style={{ flex: 1 }}>
-                    <Text className={classes.suggestionLabel}>
+                    <Text className={classes.suggestionLabel} size={isMobile ? "sm" : "md"}>
                       {suggestion.label}
                     </Text>
                     {suggestion.description && (
-                      <Text className={classes.suggestionDescription} lineClamp={1}>
+                      <Text className={classes.suggestionDescription} lineClamp={1} size={isMobile ? "xs" : "sm"}>
                         {suggestion.description}
                       </Text>
                     )}

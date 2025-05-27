@@ -485,9 +485,21 @@ export const HeroSection: React.FC = () => {
             build your college circle—all before orientation.
           </Text>
 
-          <Group w="50%" ref={heroButtonsRef} gap="md" mb="xl" className="hero-buttons">
-            <CollegeSelect />
-          </Group>
+          <Box 
+            ref={heroButtonsRef}
+            className="hero-buttons"
+            style={{ 
+              width: '100%', 
+              display: 'flex', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              marginBottom: 'xl'
+            }}
+          >
+            <Box style={{ width: '100%', maxWidth: '500px' }}>
+              <CollegeSelect />
+            </Box>
+          </Box>
 
           <Group
             style={{ zIndex: "-2" }}

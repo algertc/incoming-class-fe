@@ -3,4 +3,5 @@ export interface IServerResponse<T = unknown> {
   message: string;
   data: T;
   statusCode?: number;
+  errorMessage?: {message: string};
 } 

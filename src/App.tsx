@@ -1,11 +1,11 @@
-import { MantineProvider } from "@mantine/core"
-import '@mantine/core/styles.css';
-import { Notifications } from '@mantine/notifications';
-import '@mantine/notifications/styles.css';
-import './index.css'
-import THEME from "./theme"
+import { MantineProvider } from "@mantine/core";
+import "@mantine/core/styles.css";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
+import "./index.css";
+import THEME from "./theme";
 import AppRouterProvider from "./routing/AppRouterProvider";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -20,13 +20,13 @@ const queryClient = new QueryClient({
 
 const App = () => {
   return (
-   <QueryClientProvider client={queryClient}>
-     <MantineProvider theme={THEME}>
-       <Notifications position="top-right" zIndex={2000} />
-       <AppRouterProvider />
-     </MantineProvider>
-   </QueryClientProvider>
-  )
-}
+    <QueryClientProvider client={queryClient}>
+      <MantineProvider theme={THEME}>
+        <Notifications position="top-right" zIndex={2000} limit={1} />
+        <AppRouterProvider />
+      </MantineProvider>
+    </QueryClientProvider>
+  );
+};
 
-export default App
+export default App;

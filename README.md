@@ -52,3 +52,100 @@ export default tseslint.config({
   },
 })
 ```
+
+# Incoming Class Frontend
+
+A modern web application for college discovery and application management.
+
+## Folder Structure
+
+The codebase follows a feature-based modular architecture, organized as follows:
+
+```
+src/
+├── features/               # Feature-based modules
+│   ├── auth/               # Authentication-related features
+│   │   ├── components/     # Auth-specific components (withAuthRedirect)
+│   │   ├── login/          # Login feature components
+│   │   │   └── components/ # Login form components
+│   │   ├── signup/         # Signup feature components
+│   │   │   └── components/ # Signup form components
+│   │   └── forgot-password/# Forgot password feature components
+│   │       └── components/ # Forgot password form components
+│   ├── profile/            # Profile completion features
+│   ├── home/               # Home page features
+│   ├── colleges/           # Colleges listing features
+│   ├── feed/               # Feed page features
+│   └── common/             # Shared features
+│       ├── layouts/        # Layout components
+│       └── components/     # Shared UI components (LoadingScreen)
+├── pages/                  # Legacy page components (being migrated)
+├── components/             # Legacy shared components
+├── hooks/                  # API and utility hooks
+├── models/                 # Data models and types
+├── services/               # API services
+├── store/                  # State management
+├── routing/                # Routing configuration
+├── utils/                  # Utility functions
+└── constants/              # Application constants
+```
+
+## Migration Status
+
+The application is currently being migrated from a traditional page-based structure to a more modular, feature-based architecture. The following features have been migrated:
+
+- ✅ Home page
+- ✅ Login feature
+- ✅ Signup feature
+- ✅ Forgot password feature
+- ✅ Profile completion
+- ✅ Colleges feature
+- ✅ Feed feature
+- ✅ Layout components
+- ⏳ Profile management (in progress)
+- ⏳ Settings feature (in progress)
+
+## Authentication Flow
+
+The application implements a sophisticated authentication flow with several guards and redirects:
+
+### Public Routes
+- If a user is authenticated and has a complete profile, they are redirected to the dashboard
+- If a user is authenticated but has an incomplete profile, they are redirected to profile completion
+
+### Auth Routes (Login, Signup, Forgot Password)
+- If a user is authenticated and has a complete profile, they are redirected to the dashboard
+- If a user is authenticated but has an incomplete profile, they are redirected to profile completion
+
+### Profile Completion Route
+- If a user is not authenticated, they are redirected to login
+- If a user is authenticated but has a complete profile, they are redirected to dashboard
+- Only users with incomplete profiles can access this route
+
+### Protected Routes
+- If a user is not authenticated, they are redirected to login
+
+## Higher-Order Components (HOCs)
+
+Several HOCs are used to implement the authentication flow:
+
+### `withAuth`
+Ensures that only authenticated users can access protected routes.
+
+### `withAuthRedirect`
+Prevents authenticated users from accessing public and auth routes, redirecting them to appropriate pages based on their profile completion status.
+
+### `withProfileStageGuard`
+Guards the profile completion page, ensuring only users with incomplete profiles can access it.
+
+## State Persistence
+
+The application uses localStorage to persist state across page reloads, including:
+
+- Form data in the signup process
+- OTP verification state
+- Countdown timers
+
+## Styling
+
+The application uses Mantine UI components with custom styling through CSS modules. Each component has its own module CSS file for better maintainability.

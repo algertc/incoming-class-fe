@@ -1,7 +1,8 @@
 // Authentication hooks
 export {
   useLogin,
-  useSignup,
+  useSendEmailOtp,
+  useVerifyEmail,
   useCurrentUser,
   useRequestPasswordReset,
   useResetPassword,

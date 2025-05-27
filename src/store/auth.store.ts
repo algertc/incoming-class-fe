@@ -22,6 +22,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const response = await authService.getCurrentUser();
       if (response.data) {
         set({ user: response.data, isLoading: false });
+        
       } else {
         set({ error: 'No user data received', isLoading: false });
       }

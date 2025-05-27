@@ -28,7 +28,7 @@ export const HowItWorksSection: React.FC = () => {
   }, []);
 
   return (
-    <Box style={{ backgroundColor: theme.colors.dark[8], padding: '80px 0' }}>
+    <Box style={{  padding: '80px 0' }}>
       <Container size="lg">
         <Stack gap="lg" align="center" mb={60}>
           <Badge 

@@ -18,7 +18,6 @@ export const authKeys = {
  */
 export const useLogin = () => {
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
@@ -27,28 +26,32 @@ export const useLogin = () => {
         // Store token in localStorage
         localStorage.setItem('token', data.data.token);
 
-        // Update user cache
+    
         queryClient.setQueryData(authKeys.currentUser(), {
           status: true,
           message: 'User profile retrieved',
           data: data.data.user
         });
-
-        // Navigate to home page
-        navigate(ROUTES.HOME);
+        
       }
     }
   });
 };
 
+export const useSendEmailOtp = () => {
+  return useMutation({
+    mutationFn: (email: string) => authService.sendEmailOtp(email)
+  })
+}
+
 /**
  * Hook for signing up a new user
  */
-export const useSignup = () => {
+export const useVerifyEmail = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (userData: SignupData) => authService.signup(userData),
+    mutationFn: (userData: SignupData) => authService.verifyEmailOTP(userData),
     onSuccess: (data) => {
       if (data.status && data.data?.token) {
         // Store token in localStorage
@@ -65,13 +68,6 @@ export const useSignup = () => {
     }
   });
 };
-
-export const useVerifyEmail = () => {
-  return useMutation({
-    mutationFn: (data: { email: string, otp: string }) => authService.verifyEmailOTP(data),
-
-  })
-}
 
 /**
  * Hook for getting the current user's profile

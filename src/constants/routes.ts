@@ -9,6 +9,9 @@ const ROUTES = {
   FORGOT_PASSWORD: "/forgot-password",
   RESET_PASSWORD: "/forgot-password/reset",
   
+  // Profile completion
+  PROFILE_COMPLETION: "/profile-completion",
+  
   // Protected routes
   DASHBOARD: "/app",
   COLLEGES: "/app/colleges",

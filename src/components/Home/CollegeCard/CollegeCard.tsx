@@ -14,42 +14,53 @@ export const CollegeCard: React.FC<CollegeCardProps> = ({ name, count, index }) 
   const hovered = hoverState.hovered;
   const theme = useMantineTheme();
   const cardRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
-    if (cardRef.current) {
-      // Staggered entrance animation
-      gsap.fromTo(
-        cardRef.current,
-        { 
-          y: 40, 
-          opacity: 0 
-        },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.5,
-          delay: 0.07 * index, // Stagger based on index
-          ease: "power2.out",
-          scrollTrigger: {
-            trigger: cardRef.current,
-            start: "top bottom-=100",
-            toggleActions: "play none none none"
-          }
+    if (cardRef.current && contentRef.current) {
+      // Create a timeline for more complex animation sequence
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: cardRef.current,
+          start: "top bottom-=100",
+          toggleActions: "play none none reset"
         }
-      );
+      });
       
-      // Subtle floating animation - different for each card to create wave effect
-      gsap.to(
-        cardRef.current,
-        {
-          y: (index % 2 === 0) ? "-8px" : "-12px",
-          duration: 2 + (index % 3) * 0.4, // Varying durations
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: index * 0.2 // Staggered start times
-        }
-      );
+      // Initial state of the card
+      gsap.set(cardRef.current, { 
+        y: 60,
+        scale: 0.8, 
+        opacity: 0,
+        rotationX: 15,
+        transformOrigin: "center bottom"
+      });
+      
+      // Initial state of the content (for reveal effect)
+      gsap.set(contentRef.current.children, { 
+        y: 20, 
+        opacity: 0 
+      });
+      
+      // Card entrance animation
+      tl.to(cardRef.current, {
+        y: 0,
+        scale: 1,
+        opacity: 1,
+        rotationX: 0,
+        duration: 0.7,
+        delay: 0.12 * index, // Staggered delay based on card index
+        ease: "back.out(1.2)",
+      })
+      
+      // Content reveal animation (staggered children)
+      .to(contentRef.current.children, {
+        y: 0,
+        opacity: 1,
+        duration: 0.4,
+        stagger: 0.1,
+        ease: "power2.out",
+      }, "-=0.2"); // Slight overlap with the card animation
     }
   }, [index]);
   
@@ -68,9 +79,12 @@ export const CollegeCard: React.FC<CollegeCardProps> = ({ name, count, index }) 
         border: `1px solid ${hovered ? theme.colors.blue[5] : theme.colors.dark[7]}`,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
+        transform: hovered ? 'translateY(-5px)' : 'translateY(0)',
+        boxShadow: hovered ? '0 10px 20px -10px rgba(67, 97, 238, 0.4)' : 'none',
+        perspective: '1000px',
       }}
     >
-      <Stack gap="xs" align="center">
+      <Stack ref={contentRef} gap="xs" align="center">
         <Text fw={600} c={theme.white} ta="center">{name}</Text>
         <Badge 
           variant="filled" 

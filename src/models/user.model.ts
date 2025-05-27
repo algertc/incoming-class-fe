@@ -5,6 +5,15 @@
 /**
  * Basic user profile information
  */
+
+export enum ProfileStage {
+  UPLOAD_PHOTOS = "UPLOAD_PHOTOS",
+  ABOUT_YOU = "ABOUT_YOU",
+  PREFERENCES = "PREFERENCES",
+  PROFILE_PREVIEW = "PROFILE_PREVIEW",
+  PAYMENT = "PAYMENT",
+}
+
 export interface User {
   id: string;
   firstName: string;
@@ -14,6 +23,7 @@ export interface User {
   bio?: string;
   createdAt?: string;
   updatedAt?: string;
+  profileStage?: ProfileStage;
 }
 
 /**
@@ -32,6 +42,7 @@ export interface SignupData {
   lastName: string;
   email: string;
   password: string;
+  otp: string
 }
 
 /**

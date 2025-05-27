@@ -1,4 +1,4 @@
-import { Stack, Text, Box, useMantineTheme } from "@mantine/core";
+import { Stack, Text,  useMantineTheme } from "@mantine/core";
 
 interface LogoProps {
   darkMode?: boolean;
@@ -34,17 +34,7 @@ const Logo = ({ darkMode = false }: LogoProps) => {
       >
         CLASS
       </Text>
-      <Box 
-        style={{ 
-          position: "absolute",
-          top: 46,
-          width: "50%",
-          height: 2,
-          background: darkMode ? theme.colors.red[5] : "coral",
-          borderRadius: theme.radius.xl,
-          opacity: 0.7
-        }}
-      />
+     
     </Stack>
   );
 };

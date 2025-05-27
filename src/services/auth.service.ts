@@ -10,16 +10,16 @@ import type {
 } from '../models/user.model';
 
 // Mock user data for development
-const MOCK_USER: User = {
-  id: '1',
-  firstName: 'John',
-  lastName: 'Doe',
-  email: 'john.doe@example.com',
-  profileImage: 'https://i.pravatar.cc/150?img=1',
-  bio: 'Software Developer | Tech Enthusiast',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
+// const MOCK_USER: User = {
+//   id: '1',
+//   firstName: 'John',
+//   lastName: 'Doe',
+//   email: 'john.doe@example.com',
+//   profileImage: 'https://i.pravatar.cc/150?img=1',
+//   bio: 'Software Developer | Tech Enthusiast',
+//   createdAt: new Date().toISOString(),
+//   updatedAt: new Date().toISOString()
+// };
 
 /**
  * Authentication Service
@@ -31,6 +31,26 @@ const MOCK_USER: User = {
  * - User profile
  */
 class AuthService {
+
+  async sendEmailOtp(email: string) {
+    return request({
+      url: API_ENDPOINTS.auth.sendEmailOtp,
+      method: "POST",
+      data: { email }
+    })
+  }
+
+  /**
+   * Register new user
+   */
+  async verifyEmailOTP(userData: SignupData): Promise<IServerResponse<AuthResponse>> {
+    return request<AuthResponse>({
+      url: API_ENDPOINTS.auth.signup,
+      method: 'POST',
+      data: userData
+    });
+  }
+
   /**
    * Login with email and password
    */
@@ -39,17 +59,6 @@ class AuthService {
       url: API_ENDPOINTS.auth.login,
       method: 'POST',
       data: credentials
-    });
-  }
-
-  /**
-   * Register new user
-   */
-  async signup(userData: SignupData): Promise<IServerResponse<AuthResponse>> {
-    return request<AuthResponse>({
-      url: API_ENDPOINTS.auth.signup,
-      method: 'POST',
-      data: userData
     });
   }
 
@@ -75,28 +84,15 @@ class AuthService {
     });
   }
 
-  async verifyEmailOTP(data: { email: string, otp: string }): Promise<IServerResponse> {
-    return request({
-      url: API_ENDPOINTS.auth.verifyMail,
-      method: 'POST',
-      data
-    })
-  }
-
   /**
    * Get current user profile
    * Mock implementation for development
    */
   async getCurrentUser(): Promise<IServerResponse<User>> {
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // Return mock user data
-    return {
-      status: true,
-      message: 'User profile retrieved successfully',
-      data: MOCK_USER
-    };
+    return request({
+      url: API_ENDPOINTS.auth.me
+    })
   }
 
   /**

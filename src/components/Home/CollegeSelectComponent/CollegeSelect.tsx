@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
-import { useLocalStorage } from "@mantine/hooks";
+import { useLocalStorage, useMediaQuery } from "@mantine/hooks";
+import { Box, useMantineTheme } from "@mantine/core";
 import SearchWithSuggestions from "../../../ui/SearchWithSuggestions/SearchWithSuggestions";
 import type { Suggestion } from "../../../ui/SearchWithSuggestions/SearchWithSuggestions";
 
@@ -28,6 +29,8 @@ const CollegeSelect: React.FC = () => {
   
   const [filteredColleges, setFilteredColleges] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const theme = useMantineTheme();
+  const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints.sm})`);
 
   // Handle search query changes
   const handleSearch = useCallback((query: string) => {
@@ -51,19 +54,21 @@ const CollegeSelect: React.FC = () => {
   }, [setSelectedCollege]);
 
   return (
-    <SearchWithSuggestions
-      label="Find your college"
-      placeholder="Search for your university..."
-      suggestions={filteredColleges}
-      onSearch={handleSearch}
-      onSelect={handleSelect}
-      value={searchQuery}
-      onChange={setSearchQuery}
-      loading={loading}
-      width="100%"
-      maxHeight={400}
-      debounceMs={300}
-    />
+    <Box style={{ width: "100%" }}>
+      <SearchWithSuggestions
+        label="Find your college"
+        placeholder={isMobile ? "Search college..." : "Search for your university..."}
+        suggestions={filteredColleges}
+        onSearch={handleSearch}
+        onSelect={handleSelect}
+        value={searchQuery}
+        onChange={setSearchQuery}
+        loading={loading}
+        width="100%"
+        maxHeight={isMobile ? 300 : 400}
+        debounceMs={300}
+      />
+    </Box>
   );
 };
 

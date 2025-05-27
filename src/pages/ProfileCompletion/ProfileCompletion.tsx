@@ -18,6 +18,7 @@ import TraitsPreferences from './components/TraitsPreferences';
 import ProfilePreview from './components/ProfilePreview';
 import Payment from './components/Payment';
 import styles from './ProfileCompletion.module.css';
+import ROUTES from '../../constants/routes';
 
 const ProfileCompletion: React.FC = () => {
   const [active, setActive] = useState(0);
@@ -54,6 +55,11 @@ const ProfileCompletion: React.FC = () => {
       icon: <IconCreditCard style={{ width: rem(18), height: rem(18) }} />,
     },
   ];
+
+  const handlePaymentComplete = () => {
+    // After payment is completed, navigate to app dashboard
+    navigate(ROUTES.DASHBOARD);
+  };
 
   return (
     <Box className={styles.container}>
@@ -110,7 +116,7 @@ const ProfileCompletion: React.FC = () => {
             {active === 1 && <BasicInfo onComplete={nextStep} />}
             {active === 2 && <TraitsPreferences onComplete={nextStep} />}
             {active === 3 && <ProfilePreview onComplete={nextStep} />}
-            {active === 4 && <Payment onComplete={() => navigate('/app')} />}
+            {active === 4 && <Payment onComplete={handlePaymentComplete} />}
           </Box>
 
           <Group justify="space-between" mt="xl">

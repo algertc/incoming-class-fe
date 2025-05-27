@@ -1,12 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router";
-import Home from "../pages/Home/Home";
-import MainLayout from "../layouts/MainLayout";
-import Colleges from "../pages/Colleges/Colleges";
-import AuthLayout from "../layouts/AuthLayout";
-import AuthenticatedLayout from "../components/layout/AuthenticatedLayout";
 import { ROUTES } from './routes';
-import ProfileCompletion from '../pages/ProfileCompletion/ProfileCompletion';
-import Feed from "../pages/Feed/Feed";
+
+// Import layouts and pages from the feature-based structure
+import MainLayout from "../features/common/layouts/MainLayout";
+import AuthLayout from "../features/common/layouts/AuthLayout";
+import AuthenticatedLayout from "../features/common/layouts/AuthenticatedLayout";
+import ProfileCompletion from "../features/profile/ProfileCompletion";
+import HomePage from "../features/home/HomePage";
+import CollegesPage from "../features/colleges/CollegesPage";
+import FeedPage from "../features/feed/FeedPage";
 
 // Placeholder components for authenticated routes
 const Applications = () => <div>Applications</div>;
@@ -21,15 +23,15 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Home />
+                element: <HomePage />
             },
             {
                 path: "feed",
-                element: <Feed />
+                element: <FeedPage />
             },
             {
                 path: "public/colleges",
-                element: <Colleges />
+                element: <CollegesPage />
             },
         ]
     },
@@ -62,15 +64,15 @@ const router = createBrowserRouter([
         children: [
             {
                 index: true,
-                element: <Feed />
+                element: <FeedPage />
             },
             {
                 path: "feed",
-                element: <Feed />
+                element: <FeedPage />
             },
             {
                 path: "colleges",
-                element: <Colleges />
+                element: <CollegesPage />
             },
             {
                 path: "applications",

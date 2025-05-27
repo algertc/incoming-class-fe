@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { 
   Group, 
   Button, 
@@ -20,6 +20,10 @@ import gsap from 'gsap';
 export const Header: React.FC = () => {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const theme = useMantineTheme();
+  const [loginHovered, setLoginHovered] = useState(false);
+  const [signupHovered, setSignupHovered] = useState(false);
+  const [mobileLoginHovered, setMobileLoginHovered] = useState(false);
+  const [mobileSignupHovered, setMobileSignupHovered] = useState(false);
   
   // Refs for animations
   const headerRef = useRef<HTMLDivElement>(null);
@@ -93,44 +97,145 @@ export const Header: React.FC = () => {
           
           {/* Desktop Action Buttons */}
           <Group ref={buttonsRef} align="center" gap={rem(16)} display={{ base: 'none', sm: 'flex' }}>
-            <Button 
-              variant="outline" 
-              color="red" 
-              radius="md" 
-              size="sm"
-              component={Link} 
-              to="/login"
-              style={{
-                fontWeight: 600,
-                borderColor: theme.colors.red[5],
-                color: theme.white,
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  backgroundColor: 'rgba(229, 56, 59, 0.1)',
-                  transform: 'translateY(-3px)'
-                }
+            <Box 
+              style={{ 
+                position: 'relative', 
+                overflow: 'hidden',
+                borderRadius: theme.radius.md
               }}
+              onMouseEnter={() => setLoginHovered(true)}
+              onMouseLeave={() => setLoginHovered(false)}
             >
-              Login
-            </Button>
-            <Button 
-              variant="filled" 
-              radius="md" 
-              size="sm"
-              component={Link} 
-              to="/signup"
-              style={{
-                fontWeight: 600,
-                backgroundColor: '#4361ee',
-                transition: 'all 0.3s ease',
-                '&:hover': {
-                  backgroundColor: '#3a0ca3',
-                  transform: 'translateY(-3px)'
-                }
+              <Button 
+                variant="outline" 
+                color="red" 
+                radius="md" 
+                size="sm"
+                component={Link} 
+                to="/login"
+                style={{
+                  fontWeight: 600,
+                  borderColor: loginHovered ? theme.colors.red[7] : theme.colors.red[5],
+                  borderWidth: '1.5px',
+                  color: loginHovered ? '#fff' : theme.white,
+                  transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                  transform: loginHovered ? 'translateY(-4px)' : 'translateY(0)',
+                  boxShadow: loginHovered 
+                    ? '0 10px 20px -10px rgba(229, 56, 59, 0.5)' 
+                    : 'none',
+                  position: 'relative',
+                  zIndex: 2,
+                  backgroundColor: 'transparent'
+                }}
+              >
+                Login
+              </Button>
+              
+              {/* Background animation */}
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  background: `linear-gradient(45deg, rgba(229, 56, 59, 0.1), rgba(229, 56, 59, 0.2))`,
+                  opacity: loginHovered ? 1 : 0,
+                  transform: loginHovered ? 'scale(1)' : 'scale(0.9)',
+                  transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                  zIndex: 0,
+                  borderRadius: theme.radius.md,
+                  pointerEvents: 'none'
+                }}
+              />
+              
+              {/* Shine effect */}
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: '-50%',
+                  left: '-50%',
+                  width: '200%',
+                  height: '200%',
+                  background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                  transform: loginHovered 
+                    ? 'translate(100%, 100%) rotate(45deg)' 
+                    : 'translate(-100%, -100%) rotate(45deg)',
+                  transition: 'transform 0.8s ease',
+                  zIndex: 2,
+                  pointerEvents: 'none',
+                }}
+              />
+            </Box>
+            
+            <Box 
+              style={{ 
+                position: 'relative', 
+                overflow: 'hidden',
+                borderRadius: theme.radius.md
               }}
+              onMouseEnter={() => setSignupHovered(true)}
+              onMouseLeave={() => setSignupHovered(false)}
             >
-              Sign Up
-            </Button>
+              <Button 
+                variant="filled" 
+                radius="md" 
+                size="sm"
+                component={Link} 
+                to="/signup"
+                style={{
+                  fontWeight: 600,
+                  background: signupHovered 
+                    ? 'linear-gradient(45deg, #3a0ca3, #4361ee)' 
+                    : 'linear-gradient(45deg, #4361ee, #4361ee)',
+                  transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                  transform: signupHovered ? 'translateY(-4px)' : 'translateY(0)',
+                  boxShadow: signupHovered 
+                    ? '0 10px 20px -10px rgba(67, 97, 238, 0.6)' 
+                    : 'none',
+                  position: 'relative',
+                  zIndex: 2,
+                }}
+              >
+                Sign Up
+              </Button>
+              
+              {/* Animated border */}
+              {signupHovered && (
+                <Box
+                  style={{
+                    position: 'absolute',
+                    top: '-2px',
+                    left: '-2px',
+                    right: '-2px',
+                    bottom: '-2px',
+                    background: 'linear-gradient(45deg, #4361ee, #3a0ca3, #4361ee)',
+                    backgroundSize: '200% 200%',
+                    animation: 'borderGradient 2s ease infinite',
+                    zIndex: 1,
+                    borderRadius: `calc(${theme.radius.md} + 2px)`,
+                  }}
+                />
+              )}
+              
+              {/* Shine effect */}
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: '-50%',
+                  left: '-50%',
+                  width: '200%',
+                  height: '200%',
+                  background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                  transform: signupHovered 
+                    ? 'translate(100%, 100%) rotate(45deg)' 
+                    : 'translate(-100%, -100%) rotate(45deg)',
+                  transition: 'transform 0.8s ease',
+                  zIndex: 3,
+                  pointerEvents: 'none',
+                }}
+              />
+            </Box>
           </Group>
           
           {/* Mobile Burger */}
@@ -175,41 +280,159 @@ export const Header: React.FC = () => {
           
           <Box h={20} />
           
-          <Button 
-            fullWidth
-            variant="outline" 
-            color="red" 
-            radius="md" 
-            size="md" 
-            component={Link} 
-            to="/login"
-            onClick={closeDrawer}
-            style={{
-              fontWeight: 600,
-              borderColor: theme.colors.red[5],
-              color: theme.white
+          <Box 
+            style={{ 
+              position: 'relative', 
+              overflow: 'hidden',
+              borderRadius: theme.radius.md,
+              width: '100%'
             }}
+            onMouseEnter={() => setMobileLoginHovered(true)}
+            onMouseLeave={() => setMobileLoginHovered(false)}
           >
-            Login
-          </Button>
+            <Button 
+              fullWidth
+              variant="outline" 
+              color="red" 
+              radius="md" 
+              size="md" 
+              component={Link} 
+              to="/login"
+              onClick={closeDrawer}
+              style={{
+                fontWeight: 600,
+                borderColor: mobileLoginHovered ? theme.colors.red[7] : theme.colors.red[5],
+                borderWidth: '1.5px',
+                color: mobileLoginHovered ? '#fff' : theme.white,
+                transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                transform: mobileLoginHovered ? 'translateY(-3px)' : 'translateY(0)',
+                boxShadow: mobileLoginHovered ? '0 8px 15px -8px rgba(229, 56, 59, 0.5)' : 'none',
+                position: 'relative',
+                zIndex: 2,
+                backgroundColor: 'transparent'
+              }}
+            >
+              Login
+            </Button>
+            
+            {/* Background animation */}
+            <Box
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: `linear-gradient(45deg, rgba(229, 56, 59, 0.1), rgba(229, 56, 59, 0.2))`,
+                opacity: mobileLoginHovered ? 1 : 0,
+                transform: mobileLoginHovered ? 'scale(1)' : 'scale(0.9)',
+                transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                zIndex: 0,
+                borderRadius: theme.radius.md,
+                pointerEvents: 'none'
+              }}
+            />
+            
+            {/* Shine effect */}
+            <Box
+              style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                transform: mobileLoginHovered 
+                  ? 'translate(100%, 100%) rotate(45deg)' 
+                  : 'translate(-100%, -100%) rotate(45deg)',
+                transition: 'transform 0.8s ease',
+                zIndex: 2,
+                pointerEvents: 'none',
+              }}
+            />
+          </Box>
           
-          <Button 
-            fullWidth
-            variant="filled" 
-            radius="md" 
-            size="md" 
-            component={Link} 
-            to="/signup"
-            onClick={closeDrawer}
-            style={{
-              fontWeight: 600,
-              backgroundColor: '#4361ee'
+          <Box 
+            style={{ 
+              position: 'relative', 
+              overflow: 'hidden',
+              borderRadius: theme.radius.md,
+              width: '100%'
             }}
+            onMouseEnter={() => setMobileSignupHovered(true)}
+            onMouseLeave={() => setMobileSignupHovered(false)}
           >
-            Sign Up
-          </Button>
+            <Button 
+              fullWidth
+              variant="filled" 
+              radius="md" 
+              size="md" 
+              component={Link} 
+              to="/signup"
+              onClick={closeDrawer}
+              style={{
+                fontWeight: 600,
+                background: mobileSignupHovered 
+                  ? 'linear-gradient(45deg, #3a0ca3, #4361ee)' 
+                  : 'linear-gradient(45deg, #4361ee, #4361ee)',
+                transition: 'all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                transform: mobileSignupHovered ? 'translateY(-3px)' : 'translateY(0)',
+                boxShadow: mobileSignupHovered ? '0 8px 15px -8px rgba(67, 97, 238, 0.6)' : 'none',
+                position: 'relative',
+                zIndex: 2,
+              }}
+            >
+              Sign Up
+            </Button>
+            
+            {/* Animated border */}
+            {mobileSignupHovered && (
+              <Box
+                style={{
+                  position: 'absolute',
+                  top: '-2px',
+                  left: '-2px',
+                  right: '-2px',
+                  bottom: '-2px',
+                  background: 'linear-gradient(45deg, #4361ee, #3a0ca3, #4361ee)',
+                  backgroundSize: '200% 200%',
+                  animation: 'borderGradient 2s ease infinite',
+                  zIndex: 1,
+                  borderRadius: `calc(${theme.radius.md} + 2px)`,
+                }}
+              />
+            )}
+            
+            {/* Shine effect */}
+            <Box
+              style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                transform: mobileSignupHovered 
+                  ? 'translate(100%, 100%) rotate(45deg)' 
+                  : 'translate(-100%, -100%) rotate(45deg)',
+                transition: 'transform 0.8s ease',
+                zIndex: 3,
+                pointerEvents: 'none',
+              }}
+            />
+          </Box>
         </Stack>
       </Drawer>
+      
+      <style>
+        {`
+          @keyframes borderGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `}
+      </style>
     </Box>
   );
 };

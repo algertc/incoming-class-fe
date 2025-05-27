@@ -10,6 +10,11 @@
   font-weight: 500;
   margin-bottom: 6px;
   color: #1a1b1e; // dark.9
+  
+  @media (max-width: 768px) {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
 }
 
 .inputWrapper {
@@ -22,6 +27,10 @@
 
 .inputWrapperOpen {
   transform: rotateX(5deg);
+  
+  @media (max-width: 768px) {
+    transform: rotateX(3deg);
+  }
 }
 
 .inputWrapperClosed {
@@ -38,6 +47,11 @@
   border-radius: 0 0 8px 8px;
   transform: translateZ(-1px);
   transition: opacity 0.3s ease;
+  
+  @media (max-width: 768px) {
+    bottom: -6px;
+    height: 6px;
+  }
 }
 
 .shadowVisible {
@@ -68,12 +82,22 @@
   &:hover {
     border-color: #4A90E2;
   }
+  
+  @media (max-width: 768px) {
+    padding: 10px 12px 10px 32px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
 }
 
 .inputFocused {
   background: linear-gradient(135deg, #FFE5E5 0%, #FFF5E5 50%, #E5F3FF 100%);
   border-color: #4A90E2;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  
+  @media (max-width: 768px) {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
 }
 
 .inputError {
@@ -87,21 +111,33 @@
 .leftSection {
   width: 36px;
   pointer-events: none;
+  
+  @media (max-width: 768px) {
+    width: 30px;
+  }
 }
 
 .section {
   width: 40px;
+  
+  @media (max-width: 768px) {
+    width: 32px;
+  }
 }
 
 .errorMessage {
   font-size: 12px;
   color: #fa5252;
   margin-top: 4px;
+  
+  @media (max-width: 768px) {
+    font-size: 10px;
+    margin-top: 2px;
+  }
 }
 
 .dropdown {
   position: absolute;
-  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: white;
@@ -110,6 +146,29 @@
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  @media (max-width: 768px) {
+    border-width: 1px;
+    border-radius: 6px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    max-height: 50vh;
+  }
+}
+
+.dropdownBottom {
+  top: calc(100% + 4px);
+  
+  @media (max-width: 768px) {
+    top: calc(100% + 2px);
+  }
+}
+
+.dropdownTop {
+  bottom: calc(100% + 4px);
+  
+  @media (max-width: 768px) {
+    bottom: calc(100% + 2px);
+  }
 }
 
 .dropdownVisible {
@@ -134,12 +193,22 @@
   &:hover {
     background: #F8F9FA;
   }
+  
+  @media (max-width: 768px) {
+    padding: 8px 10px;
+    border-radius: 4px;
+    margin-bottom: 1px;
+  }
 }
 
 .suggestionLabel {
   font-size: 14px;
   font-weight: 500;
   color: #1a1b1e; // dark.9
+  
+  @media (max-width: 768px) {
+    font-size: 13px;
+  }
 }
 
 .suggestionDescription {
@@ -148,4 +217,8 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  
+  @media (max-width: 768px) {
+    font-size: 11px;
+  }
 } 
