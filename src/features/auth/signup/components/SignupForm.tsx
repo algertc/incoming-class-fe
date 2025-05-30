@@ -112,9 +112,19 @@ const SignupForm: React.FC = () => {
     window.localStorage.removeItem(LS_KEYS.OTP);
   };
 
+  // Allow the user to edit their email after OTP is sent
+  const handleEditEmail = () => {
+    setIsOtpSent(false);
+    setOtp("");
+    setCountdown(0);
+  };
+
   // Handle verify email button click
   const handleVerifyEmail = async (values: typeof form.values) => {
     const { email } = values;
+
+    console.log("is continue clicked",values);
+    
 
     try {
       const response = await mutateAsync(email);
@@ -131,6 +141,8 @@ const SignupForm: React.FC = () => {
 
   // Form submission handler
   const handleSubmit = async (values: typeof form.values) => {
+    console.log("handle submit clicked",values);
+    
     if (!isOtpSent) {
       await handleVerifyEmail(values);
       return;
@@ -236,6 +248,13 @@ const SignupForm: React.FC = () => {
             {...form.getInputProps("email")}
           />
 
+          {/* Show email status when OTP is sent */}
+          {isOtpSent && (
+            <Text size="sm" color="dimmed" mt="-16px" mb="4px">
+              OTP sent to {form.values.email.replace(/(.{3})(.*)(@.*)/, '$1•••$3')}
+            </Text>
+          )}
+
           {/* Password */}
           <PasswordInput
             classNames={{ label: classes.label, input: classes.input }}
@@ -261,14 +280,29 @@ const SignupForm: React.FC = () => {
           {/* OTP Field */}
           {isOtpSent && (
             <Stack gap="xs">
-              <Text
-                fz={14}
-                fw={600}
-                className={classes.label}
-                style={{ marginBottom: 0 }}
-              >
-                Enter OTP sent to your email
-              </Text>
+              <Flex justify="space-between" align="center">
+                <Text
+                  fz={14}
+                  fw={600}
+                  className={classes.label}
+                  style={{ marginBottom: 0 }}
+                >
+                  Enter OTP sent to your email
+                </Text>
+                <Button
+                  variant="subtle"
+                  size="compact-sm"
+                  onClick={handleEditEmail}
+                  className={classes.linkText}
+                  style={{
+                    padding: '0 8px',
+                    height: 'auto',
+                    background: 'transparent',
+                  }}
+                >
+                  Edit Email
+                </Button>
+              </Flex>
               <Flex
                 gap={8}
                 direction="column"
@@ -336,7 +370,7 @@ const SignupForm: React.FC = () => {
               </Text>
             }
             required
-            {...form.getInputProps("agreeToTerms", { type: "checkbox" })}
+            {...form.getInputProps("termsAccepted", { type: "checkbox" })}
           />
 
           {/* Submit Button */}
@@ -363,6 +397,26 @@ const SignupForm: React.FC = () => {
               </Text>
             </Link>
           </Flex>
+
+          {/* Reset Form Button */}
+          <Button
+            variant="subtle"
+            size="sm"
+            onClick={() => {
+              form.reset();
+              setIsOtpSent(false);
+              setOtp("");
+              setCountdown(0);
+            }}
+            className={classes.linkText}
+            style={{
+              background: "transparent",
+              alignSelf: "center",
+              marginTop: 8
+            }}
+          >
+            Reset Form
+          </Button>
 
           {/* Social Login */}
           <Divider

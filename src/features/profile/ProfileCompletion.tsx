@@ -110,8 +110,8 @@ const ProfileCompletion: React.FC = () => {
 
   return (
     <Box className={styles.container}>
-      <Container size="md">
-        <Paper className={styles.paper} radius="lg" p="xl">
+      <Container size="xl" px="xl" style={{ width: '100%', maxWidth: '1100px' }}>
+        <Paper className={styles.paper} radius="lg">
           <Title order={1} className={styles.title}>
             Complete Your Profile
           </Title>
@@ -120,7 +120,7 @@ const ProfileCompletion: React.FC = () => {
             active={active}
             onStepClick={setActive}
             allowNextStepsSelect={false}
-            size="md"
+            size="lg"
             color="blue"
             styles={{
               stepBody: {
@@ -130,19 +130,19 @@ const ProfileCompletion: React.FC = () => {
                 borderColor: 'rgba(255, 255, 255, 0.2)',
                 backgroundColor: 'rgba(255, 255, 255, 0.05)',
                 color: theme.white,
-                '&[data-progress]': {
+                '[data-progress]': {
                   borderColor: theme.colors.blue[6],
                   backgroundColor: theme.colors.blue[6],
                 },
               },
               step: {
-                '&[data-progress]': {
+                '[data-progress]': {
                   color: theme.white,
                 },
               },
               separator: {
                 backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                '&[data-active]': {
+                '[data-active]': {
                   backgroundColor: theme.colors.blue[6],
                 },
               },
@@ -158,7 +158,7 @@ const ProfileCompletion: React.FC = () => {
             ))}
           </Stepper>
 
-          <Box mt={40}>
+          <Box mt={50} p="xl">
             {active === 0 && <PhotoUpload onComplete={() => handleStepComplete(0)} />}
             {active === 1 && <BasicInfo onComplete={() => handleStepComplete(1)} />}
             {active === 2 && <TraitsPreferences onComplete={() => handleStepComplete(2)} />}
@@ -172,6 +172,8 @@ const ProfileCompletion: React.FC = () => {
               onClick={prevStep}
               disabled={active === 0}
               className={styles.backButton}
+              size="lg"
+              c={"black"}
             >
               Back
             </Button>

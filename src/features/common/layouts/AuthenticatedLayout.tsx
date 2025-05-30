@@ -1,29 +1,26 @@
 import React from 'react';
-import { AppShell, Container } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { AppShell, useMantineTheme } from '@mantine/core';
 import { Outlet } from 'react-router';
 import { Header } from '../../../components/layout/Header/Header';
 import { withAuth } from '../../../components/auth/withAuth';
 
 export const AuthenticatedLayout: React.FC = () => {
-  const [opened] = useDisclosure();
+
+  const theme = useMantineTheme();
 
   return (
     <AppShell
-      header={{ height: 60 }}
-      navbar={{
-        width: 300,
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened },
-      }}
-      padding="md"
+      header={{ height: 60 }}      
+      padding={{ base: 16, sm: 32, md: 72 }}
+      bg={theme.colors.dark[8]}
     >
-      <Header />
-      <Container size="xl">
-        <AppShell.Main>
-          <Outlet />
-        </AppShell.Main>
-      </Container>
+      <AppShell.Header>
+        <Header />
+      </AppShell.Header>
+
+      <AppShell.Main>
+        <Outlet />
+      </AppShell.Main>
     </AppShell>
   );
 };

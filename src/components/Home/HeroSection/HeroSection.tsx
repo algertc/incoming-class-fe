@@ -98,7 +98,6 @@ export const HeroSection: React.FC = () => {
     // Set up initial states for hero elements
     gsap.set(".hero-title span", { opacity: 0, y: 50 });
     gsap.set(".hero-text", { opacity: 0, y: 30 });
-    gsap.set(".hero-buttons button", { opacity: 0, y: 20 });
     gsap.set(".hero-avatars", { opacity: 0, scale: 0.8 });
 
     // Create a master timeline
@@ -114,17 +113,24 @@ export const HeroSection: React.FC = () => {
       ease: "back.out(1.2)",
     });
     textTl.to(".hero-text", { opacity: 1, y: 0, duration: 0.7 }, "-=0.4");
-    textTl.to(
-      ".hero-buttons button",
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: "power2.out",
-      },
-      "-=0.4"
-    );
+    
+    if (heroButtonsRef.current) {
+      // Set initial state for heroButtonsRef
+      gsap.set(heroButtonsRef.current, { opacity: 0, y: 20 });
+      
+      // Animate heroButtonsRef
+      textTl.to(
+        heroButtonsRef.current,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          ease: "power2.out",
+        },
+        "-=0.4"
+      );
+    }
+    
     textTl.to(
       ".hero-avatars",
       { opacity: 1, scale: 1, duration: 0.6 },
@@ -236,16 +242,6 @@ export const HeroSection: React.FC = () => {
         { y: 20, opacity: 0 },
         { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
         "-=0.3"
-      );
-    }
-
-    // Buttons animation
-    if (heroButtonsRef.current) {
-      heroTimeline.fromTo(
-        heroButtonsRef.current,
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" },
-        "-=0.2"
       );
     }
 

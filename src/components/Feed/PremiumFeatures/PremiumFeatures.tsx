@@ -9,17 +9,24 @@ import {
   List,
   Badge,
   useMantineTheme,
+  Progress,
 } from "@mantine/core";
 import {
   IconStarFilled,
   IconCheck,
   IconCrown,
   IconRocket,
-  IconBrandTelegram,
+  IconFilter,
+  IconEye,
+  IconHeartHandshake,
+  IconLock,
 } from "@tabler/icons-react";
+import { useAuthStore } from "../../../store/auth.store";
 
 export const PremiumFeatures: React.FC = () => {
   const theme = useMantineTheme();
+  const { user } = useAuthStore();
+  const isPremium = user?.isPremium || false;
 
   return (
     <Box
@@ -63,7 +70,7 @@ export const PremiumFeatures: React.FC = () => {
           gradient={{ from: "indigo", to: "cyan" }}
           size="sm"
         >
-          Exclusive
+          {isPremium ? "Active" : "Upgrade"}
         </Badge>
       </Group>
 
@@ -88,10 +95,10 @@ export const PremiumFeatures: React.FC = () => {
           </ThemeIcon>
           <Box>
             <Text fw={600} size="sm" c={theme.white}>
-              Unlock Premium
+              {isPremium ? "Premium Active" : "Unlock Premium"}
             </Text>
             <Text size="xs" c="dimmed">
-              Enhance your college journey
+              {isPremium ? "Your premium benefits" : "Enhance your matching experience"}
             </Text>
           </Box>
         </Group>
@@ -112,72 +119,140 @@ export const PremiumFeatures: React.FC = () => {
             </ThemeIcon>
           }
         >
-          <List.Item>Access to exclusive college events</List.Item>
-          <List.Item>Connect with alumni network</List.Item>
-          <List.Item>Priority application support</List.Item>
-          <List.Item>Ad-free browsing experience</List.Item>
+          <List.Item icon={
+            <ThemeIcon color="blue" size="sm" radius="xl">
+              <IconFilter size={12} />
+            </ThemeIcon>
+          }>
+            Advanced matching filters
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="blue" size="sm" radius="xl">
+              <IconEye size={12} />
+            </ThemeIcon>
+          }>
+            View unlimited profiles
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="blue" size="sm" radius="xl">
+              <IconHeartHandshake size={12} />
+            </ThemeIcon>
+          }>
+            Priority matching algorithm
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="blue" size="sm" radius="xl">
+              <IconLock size={12} />
+            </ThemeIcon>
+          }>
+            Edit your profile anytime
+          </List.Item>
         </List>
 
-        <Button
-          fullWidth
-          variant="gradient"
-          gradient={{ from: "indigo", to: "cyan" }}
-          leftSection={<IconRocket size={16} />}
-        >
-          Upgrade Now
-        </Button>
+        {!isPremium && (
+          <Button
+            fullWidth
+            variant="gradient"
+            gradient={{ from: "indigo", to: "cyan" }}
+            leftSection={<IconRocket size={16} />}
+          >
+            Upgrade Now
+          </Button>
+        )}
       </Box>
 
-      {/* Featured Premium Content */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Featured Premium Content
-      </Text>
-      <Stack gap="sm">
-        <PremiumContentCard
-          title="Interview Preparation"
-          description="Exclusive tips from successful applicants"
-          badge="Popular"
-        />
-        <PremiumContentCard
-          title="Scholarship Guide"
-          description="Find scholarships matching your profile"
-          badge="New"
-        />
-        <PremiumContentCard
-          title="Housing Options"
-          description="Compare on and off-campus housing"
-        />
-      </Stack>
+      {/* Premium Status Summary */}
+      {isPremium ? (
+        <PremiumStatusSummary />
+      ) : (
+        <>
+          {/* Featured Premium Content */}
+          <Text size="sm" fw={500} c={theme.white} mb="xs">
+            What You're Missing
+          </Text>
+          <Stack gap="sm">
+            <PremiumContentCard
+              title="Advanced Filtering"
+              description="Filter by major, interests, and location"
+              badge="Popular"
+              icon={<IconFilter size={16} />}
+            />
+            <PremiumContentCard
+              title="Unlimited Profile Views"
+              description="Browse through all profiles without restrictions"
+              badge="Exclusive"
+              icon={<IconEye size={16} />}
+            />
+            <PremiumContentCard
+              title="Smart Matching"
+              description="Get matched with compatible classmates"
+              icon={<IconHeartHandshake size={16} />}
+            />
+            <PremiumContentCard
+              title="Profile Flexibility"
+              description="Edit your profile whenever you need to"
+              icon={<IconLock size={16} />}
+            />
+          </Stack>
+        </>
+      )}
+    </Box>
+  );
+};
 
-      {/* Newsletter Signup */}
+// Premium Status Summary for premium users
+const PremiumStatusSummary: React.FC = () => {
+  const theme = useMantineTheme();
+  
+  return (
+    <Stack gap="md">
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Your Premium Stats
+      </Text>
+      
+      <Box>
+        <Group justify="space-between" mb={5}>
+          <Text size="xs" c="dimmed">Profile Views</Text>
+          <Text size="xs" fw={500} c={theme.white}>24 this week</Text>
+        </Group>
+        <Progress value={65} color="cyan" size="sm" radius="xl" />
+      </Box>
+      
+      <Box>
+        <Group justify="space-between" mb={5}>
+          <Text size="xs" c="dimmed">Matches</Text>
+          <Text size="xs" fw={500} c={theme.white}>8 new</Text>
+        </Group>
+        <Progress value={40} color="indigo" size="sm" radius="xl" />
+      </Box>
+      
+      <Box>
+        <Group justify="space-between" mb={5}>
+          <Text size="xs" c="dimmed">Profiles Viewed</Text>
+          <Text size="xs" fw={500} c={theme.white}>Unlimited</Text>
+        </Group>
+        <Progress value={90} color="blue" size="sm" radius="xl" />
+      </Box>
+      
       <Box
         style={{
           backgroundColor: "rgba(255, 255, 255, 0.05)",
           borderRadius: theme.radius.md,
-          padding: theme.spacing.md,
-          marginTop: theme.spacing.md,
+          padding: theme.spacing.sm,
           border: "1px solid rgba(255, 255, 255, 0.1)",
         }}
       >
-        <Group mb="xs">
-          <IconBrandTelegram size={20} color={theme.colors.blue[5]} />
+        <Text size="xs" c="dimmed" mb={5}>Premium Status</Text>
+        <Group>
+          <ThemeIcon color="yellow" size="sm" radius="xl">
+            <IconCrown size={12} />
+          </ThemeIcon>
           <Text size="sm" fw={500} c={theme.white}>
-            Subscribe to Updates
+            Active until May 15, 2024
           </Text>
         </Group>
-        <Text size="xs" c="dimmed" mb="md">
-          Get notified about new premium features and exclusive content.
-        </Text>
-        <Button
-          variant="light"
-          color="blue"
-          fullWidth
-          size="sm"
-        >
-          Subscribe
-        </Button>
       </Box>
-    </Box>
+    </Stack>
   );
 };
 
@@ -186,7 +261,8 @@ const PremiumContentCard: React.FC<{
   title: string;
   description: string;
   badge?: string;
-}> = ({ title, description, badge }) => {
+  icon?: React.ReactNode;
+}> = ({ title, description, badge, icon }) => {
   const theme = useMantineTheme();
 
   return (
@@ -199,9 +275,16 @@ const PremiumContentCard: React.FC<{
       }}
     >
       <Group justify="space-between" mb="xs">
-        <Text size="sm" fw={500} c={theme.white}>
-          {title}
-        </Text>
+        <Group gap="xs">
+          {icon && (
+            <ThemeIcon size="sm" radius="xl" variant="light" color="blue">
+              {icon}
+            </ThemeIcon>
+          )}
+          <Text size="sm" fw={500} c={theme.white}>
+            {title}
+          </Text>
+        </Group>
         {badge && (
           <Badge size="xs" variant="filled" color="blue">
             {badge}

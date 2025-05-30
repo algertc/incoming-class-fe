@@ -24,6 +24,7 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   profileStage?: ProfileStage;
+  isPremium?: boolean;
 }
 
 /**

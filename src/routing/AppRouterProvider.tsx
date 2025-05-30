@@ -9,10 +9,10 @@ import ProfileCompletion from "../features/profile/ProfileCompletion";
 import HomePage from "../features/home/HomePage";
 import CollegesPage from "../features/colleges/CollegesPage";
 import FeedPage from "../features/feed/FeedPage";
+import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile";
 
 // Placeholder components for authenticated routes
 const Applications = () => <div>Applications</div>;
-const Profile = () => <div>Profile</div>;
 const Settings = () => <div>Settings</div>;
 
 const router = createBrowserRouter([
@@ -57,6 +57,11 @@ const router = createBrowserRouter([
         path: ROUTES.PROFILE_COMPLETION,
         element: <ProfileCompletion />,
     },
+    // Student profile page
+    {
+        path: "/profile/student/:id?",
+        element: <StudentProfilePage />,
+    },
     // Protected routes with authenticated layout
     {
         path: "/app",
@@ -80,7 +85,7 @@ const router = createBrowserRouter([
             },
             {
                 path: "profile",
-                element: <Profile />
+                element: <CurrentUserProfilePage />
             },
             {
                 path: "settings",

@@ -127,6 +127,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
           onClick={onComplete}
           disabled={photos.length === 0}
           className={styles.nextButton}
+          c={"white"}
         >
           Next Step
         </Button>
