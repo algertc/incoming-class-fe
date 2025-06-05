@@ -12,7 +12,7 @@ export const AuthenticatedLayout: React.FC = () => {
     <AppShell
       header={{ height: 60 }}      
       padding={{ base: 16, sm: 32, md: 72 }}
-      bg={theme.colors.dark[8]}
+      bg={"black"}
     >
       <AppShell.Header>
         <Header />

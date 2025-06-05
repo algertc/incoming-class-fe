@@ -8,8 +8,13 @@ import {
   Select,
   Box,
   ScrollArea,
+  LoadingOverlay,
 } from '@mantine/core';
-import { useForm } from '@mantine/form';
+import { useForm, yupResolver } from '@mantine/form';
+import { useUpdateCurrentUserProfile } from '../../../hooks/api';
+import { ProfileStage } from '../../../models/user.model';
+import { traitsPreferencesSchema, traitsPreferencesInitialValues } from '../../../forms';
+import { showSuccess, showError } from '../../../utils';
 import ChipGroup from '../../../components/ChipGroup/ChipGroup';
 import styles from './TraitsPreferences.module.css';
 
@@ -18,38 +23,46 @@ interface TraitsPreferencesProps {
 }
 
 const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => {
+  const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm({
-    initialValues: {
-      sleepSchedule: '',
-      cleanliness: '',
-      guests: '',
-      studying: '',
-      substances: '',
-      personality: [] as string[],
-      physicalActivity: [] as string[],
-      pastimes: [] as string[],
-      food: [] as string[],
-      other: [] as string[],
-    },
-    validate: {
-      sleepSchedule: (value) => (!value ? 'Sleep schedule is required' : null),
-      cleanliness: (value) => (!value ? 'Cleanliness preference is required' : null),
-      guests: (value) => (!value ? 'Guest preference is required' : null),
-      studying: (value) => (!value ? 'Studying preference is required' : null),
-      substances: (value) => (!value ? 'Substance preference is required' : null),
-    },
+    initialValues: traitsPreferencesInitialValues,
+    validate: yupResolver(traitsPreferencesSchema)
   });
 
   const handleSubmit = async (values: typeof form.values) => {
-    setIsSubmitting(true);
     try {
-      // TODO: Save to backend
-      console.log(values);
-      onComplete();
+      setIsSubmitting(true);
+      
+      const profileData = {
+        traits: {
+          sleepSchedule: values.sleepSchedule,
+          cleanliness: values.cleanliness,
+          guests: values.guests,
+          studying: values.studying,
+          substances: values.substances,
+          personality: values.personality,
+          physicalActivity: values.physicalActivity,
+          pastimes: values.pastimes,
+          food: values.food,
+          other: values.other
+        },
+        profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
+      };
+      
+      console.log("profile data ", profileData);
+      
+      const response = await updateProfile(profileData);
+
+      if (!response.status) {
+        throw new Error(response.errorMessage?.message || 'Failed to update preferences');
+      }
+      
+      showSuccess("Preferences saved successfully!");
+      onComplete(); // Move to next step in the UI
     } catch (error) {
-      console.error(error);
+      showError((error as Error).message);
     } finally {
       setIsSubmitting(false);
     }
@@ -57,9 +70,10 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
 
   return (
     <Paper className={styles.container} p="xl" radius="md">
+      <LoadingOverlay visible={isSubmitting || isPending} overlayProps={{ blur: 2 }} />
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="md">
-          <Text className={styles.title} size="lg" fw={600}>
+          <Text c={"white"} className={styles.title} size="lg" fw={600}>
             Tell Us About Your Preferences
           </Text>
 
@@ -84,8 +98,10 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     classNames={{
                       input: styles.input,
                       dropdown: styles.dropdown,
+                      label: styles.label,
                       option: styles.item,
                     }}
+                    c="white"
                   />
 
                   <Select
@@ -102,8 +118,10 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     classNames={{
                       input: styles.input,
                       dropdown: styles.dropdown,
+                      label: styles.label,
                       option: styles.item,
                     }}
+                    c="white"
                   />
 
                   <Select
@@ -119,8 +137,10 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     classNames={{
                       input: styles.input,
                       dropdown: styles.dropdown,
+                      label: styles.label,
                       option: styles.item,
                     }}
+                    c="white"
                   />
 
                   <Select
@@ -137,8 +157,10 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     classNames={{
                       input: styles.input,
                       dropdown: styles.dropdown,
+                      label: styles.label,
                       option: styles.item,
                     }}
+                    c="white"
                   />
 
                   <Select
@@ -155,19 +177,21 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     classNames={{
                       input: styles.input,
                       dropdown: styles.dropdown,
+                      label: styles.label,
                       option: styles.item,
                     }}
+                    c="white"
                   />
                 </Stack>
               </Box>
 
               {/* Personality Section */}
               <Box>
-                <Text className={styles.sectionTitle} fw={600}>
+                <Text className={styles.sectionTitle} fw={600} c="white">
                   Personality
                 </Text>
                 <Stack gap="xs">
-                  
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select your personality traits (at least one)</Text>
                   <ChipGroup
                     data={[
                       'Introvert',
@@ -181,17 +205,18 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     ]}
                     value={form.values.personality}
                     onChange={(value) => form.setFieldValue('personality', value)}
+                    error={form.errors.personality as string}
                   />
                 </Stack>
               </Box>
 
               {/* Physical Activity Section */}
               <Box>
-                <Text className={styles.sectionTitle} fw={600}>
+                <Text className={styles.sectionTitle} fw={600} c="white">
                   Physical Activity
                 </Text>
                 <Stack gap="xs">
-                 
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select your physical activities</Text>
                   <ChipGroup
                     data={[
                       'Working Out',
@@ -211,11 +236,11 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
 
               {/* Pastimes Section */}
               <Box>
-                <Text className={styles.sectionTitle} fw={600}>
+                <Text className={styles.sectionTitle} fw={600} c="white">
                   Pastimes
                 </Text>
                 <Stack gap="xs">
-                
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select your pastimes (at least one)</Text>
                   <ChipGroup
                     data={[
                       'Art',
@@ -231,17 +256,18 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     ]}
                     value={form.values.pastimes}
                     onChange={(value) => form.setFieldValue('pastimes', value)}
+                    error={form.errors.pastimes as string}
                   />
                 </Stack>
               </Box>
 
               {/* Food Section */}
               <Box>
-                <Text className={styles.sectionTitle} fw={600}>
+                <Text className={styles.sectionTitle} fw={600} c="white">
                   Food Preferences
                 </Text>
                 <Stack gap="xs">
-                
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select your food preferences</Text>
                   <ChipGroup
                     data={[
                       'Coffee',
@@ -263,11 +289,11 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
 
               {/* Other Section */}
               <Box>
-                <Text className={styles.sectionTitle} fw={600}>
+                <Text className={styles.sectionTitle} fw={600} c="white">
                   Other
                 </Text>
                 <Stack gap="xs">
-                  <Text size="sm" fw={500}>Select other preferences</Text>
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select other preferences</Text>
                   <ChipGroup
                     data={[
                       'Studying Abroad',
@@ -288,8 +314,9 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
             <Button
               type="submit"
               size="lg"
-              loading={isSubmitting}
               className={styles.nextButton}
+              loading={isSubmitting || isPending}
+              c="white"
             >
               Next Step
             </Button>

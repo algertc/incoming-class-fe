@@ -25,7 +25,7 @@ export const withProfileStageGuard = <P extends object>(
         });
       } else if (user && !isLoading) {
         // If user has completed profile, redirect to dashboard
-        if (!user.profileStage || user.profileStage === ProfileStage.PAYMENT) {
+        if (user.isProfileCompleted ) {
           navigate(ROUTES.DASHBOARD);
         }
       }
@@ -44,7 +44,7 @@ export const withProfileStageGuard = <P extends object>(
     }
 
     // Only render if user has an incomplete profile
-    if (user.profileStage !== ProfileStage.PAYMENT) {
+    if (!user.isProfileCompleted) {
       return <WrappedComponent {...props} />;
     }
 

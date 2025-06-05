@@ -24,6 +24,10 @@ const API_ENDPOINTS = {
     getById: (id: string) => `/users/${id}`,
     updateProfile: (id: string) => `/users/${id}`,
     deleteAccount: (id: string) => `/users/${id}`,
+    updateCurrentUserProfile: '/users/updateUserById',
+    uploadUserImages: '/users/upload-multiple',
+    uploadUserProfile: '/users/upload',
+    deleteCurrentUserAccount: '/users/me',
   },
 
   colleges: {

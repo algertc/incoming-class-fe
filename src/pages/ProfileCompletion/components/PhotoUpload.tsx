@@ -10,8 +10,12 @@ import {
   Image,
   ActionIcon,
   SimpleGrid,
+  LoadingOverlay,
 } from '@mantine/core';
 import { IconUpload, IconX, IconPlus } from '@tabler/icons-react';
+import { useUpdateCurrentUserProfile, useUploadMultipleImages, createImageFormData, validateImageFiles } from '../../../hooks/api';
+import { ProfileStage } from '../../../models/user.model';
+import { showSuccess, showError } from '../../../utils';
 import styles from './PhotoUpload.module.css';
 
 interface PhotoUploadProps {
@@ -20,8 +24,12 @@ interface PhotoUploadProps {
 
 const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const [photos, setPhotos] = useState<string[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useMantineTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
+  const { mutateAsync: uploadImages, isPending: isUploadingImages } = useUploadMultipleImages();
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -37,11 +45,18 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   };
 
   const handleFiles = (files: File[]) => {
-    if (photos.length + files.length > 10) {
-      alert('You can only upload up to 10 photos');
+    // Validate files before processing
+    const validation = validateImageFiles([...selectedFiles, ...files]);
+    if (!validation.isValid) {
+      showError(validation.error || 'Invalid files selected');
       return;
     }
 
+    // Add new files to selected files array
+    const newFiles = [...selectedFiles, ...files];
+    setSelectedFiles(newFiles);
+
+    // Create preview URLs for display
     files.forEach((file) => {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
@@ -58,10 +73,52 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
 
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const handleNext = async () => {
+    try {
+      setIsSubmitting(true);
+      
+      // Validate files before upload
+      const validation = validateImageFiles(selectedFiles);
+      if (!validation.isValid) {
+        showError(validation.error || 'Please select valid images');
+        return;
+      }
+
+      // Upload images to server
+      const formData = createImageFormData(selectedFiles);
+      const uploadResponse = await uploadImages(formData);
+
+      if (!uploadResponse.status) {
+        throw new Error(uploadResponse.message || 'Failed to upload images');
+      }
+      
+      // Update profile stage to move to next step
+      const profileResponse = await updateProfile({
+        profileStage: ProfileStage.ABOUT_YOU
+      });
+
+      if (!profileResponse.status) {
+        throw new Error(profileResponse.message || 'Failed to update profile stage');
+      }
+      
+      showSuccess("Photos uploaded successfully!");
+      onComplete(); // Move to next step in the UI
+    } catch (error) {
+      showError((error as Error).message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isLoading = isSubmitting || isUploadingImages || isUpdatingProfile;
 
   return (
     <Box className={styles.container}>
+      <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
+      
       <input
         type="file"
         ref={fileInputRef}
@@ -84,6 +141,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
         <IconUpload style={{ width: rem(48), height: rem(48), color: theme.white }} />
         <Text className={styles.dropzoneText}>
           Drag and drop photos here or click to select
+        </Text>
+        <Text size="sm" c="dimmed" mt="xs">
+          Upload up to 10 images (max 5MB each)
         </Text>
       </Paper>
 
@@ -124,12 +184,13 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
       <Group justify="center" mt="xl">
         <Button
           size="lg"
-          onClick={onComplete}
-          disabled={photos.length === 0}
+          onClick={handleNext}
+          disabled={selectedFiles.length === 0}
           className={styles.nextButton}
-          c={"white"}
+          c="white"
+          loading={isLoading}
         >
-          Next Step
+          Upload Photos & Continue
         </Button>
       </Group>
     </Box>

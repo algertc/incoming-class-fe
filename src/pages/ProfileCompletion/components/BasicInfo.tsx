@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   TextInput,
   Select,
@@ -11,8 +11,12 @@ import {
   rem,
   Paper,
 } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { useForm, yupResolver } from "@mantine/form";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
+import { useUpdateCurrentUserProfile } from "../../../hooks/api";
+import { ProfileStage } from "../../../models/user.model";
+import { profileBasicInfoSchema, profileBasicInfoInitialValues } from "../../../forms";
+import { showSuccess, showError } from "../../../utils";
 import styles from "./BasicInfo.module.css";
 
 interface BasicInfoProps {
@@ -20,38 +24,28 @@ interface BasicInfoProps {
 }
 
 const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
 
   const form = useForm({
-    initialValues: {
-      instagram: "",
-      snapchat: "",
-      major: "",
-      hometown: "",
-      bio: "",
-      lookingForRoommate: false,
-    },
-    validate: {
-      instagram: (value) => (!value ? "Instagram handle is required" : null),
-      major: (value) => (!value ? "Major is required" : null),
-      hometown: (value) => (!value ? "Hometown is required" : null),
-      bio: (value) => {
-        if (!value) return "Bio is required";
-        if (value.length < 20) return "Bio must be at least 20 characters";
-        return null;
-      },
-    },
+    initialValues: profileBasicInfoInitialValues,
+    validate: yupResolver(profileBasicInfoSchema)
   });
 
   const handleSubmit = async (values: typeof form.values) => {
-    setIsSubmitting(true);
     try {
-      console.log(values);
-      onComplete();
+      const profileData={...values,collegeGraduationYear:values.batch,profileStage:ProfileStage.PREFERENCES}
+      const response = await updateProfile(profileData);
+
+      if (!response.status) {
+        throw new Error(response.errorMessage?.message || 'Failed to update profile');
+      }
+      console.log("form stage 1 , ",values);
+      
+
+      showSuccess("Profile information saved successfully!");
+      onComplete(); // Move to next step in the UI
     } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
+      showError((error as Error).message);
     }
   };
 
@@ -100,9 +94,61 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
               "Engineering",
               "Psychology",
               "Biology",
+              "Mathematics",
+              "Economics",
+              "Marketing",
+              "Political Science",
+              "Communications",
+              "Education",
               "Other",
             ]}
             {...form.getInputProps("major")}
+            classNames={{
+              label: styles.label,
+              input: styles.input,
+              dropdown: styles.dropdown,
+              option: styles.item,
+            }}
+          />
+
+          <Select
+            required
+            label="University"
+            placeholder="Select your university"
+            searchable
+            data={[
+              "Harvard University",
+              "Stanford University",
+              "MIT",
+              "University of California, Berkeley",
+              "University of Michigan",
+              "New York University",
+              "Columbia University",
+              "Yale University",
+              "Princeton University",
+              "Other"
+            ]}
+            {...form.getInputProps("university")}
+            classNames={{
+              label: styles.label,
+              input: styles.input,
+              dropdown: styles.dropdown,
+              option: styles.item,
+            }}
+          />
+
+          <Select
+            required
+            label="Batch/Year"
+            placeholder="Select your year"
+            data={[
+              "2024",
+              "2025",
+              "2026", 
+              "2027",
+              "2028"
+            ]}
+            {...form.getInputProps("batch")}
             classNames={{
               label: styles.label,
               input: styles.input,
@@ -202,7 +248,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             <Button
               type="submit"
               size="lg"
-              loading={isSubmitting}
+              loading={isPending}
               className={styles.nextButton}
             >
               Next Step

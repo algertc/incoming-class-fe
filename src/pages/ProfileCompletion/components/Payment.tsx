@@ -4,274 +4,358 @@ import {
   Button,
   Stack,
   Text,
-  rem,
   useMantineTheme,
   Paper,
-  TextInput,
   Divider,
   Box,
-  Alert,
+  List,
+  ThemeIcon,
+  Card,
+  SimpleGrid,
+  LoadingOverlay,
 } from "@mantine/core";
-import { IconCreditCard, IconAlertCircle } from "@tabler/icons-react";
-import { useForm } from "@mantine/form";
+import {
+  IconCheck,
+  IconFilter,
+  IconEye,
+  IconHeartHandshake,
+  IconLock,
+  IconStar,
+  IconSparkles,
+  IconShield,
+  IconUserCheck,
+  IconGift,
+  IconRocket,
+} from "@tabler/icons-react";
+import { useUpdateCurrentUserProfile } from "../../../hooks/api";
+import { showSuccess, showError } from "../../../utils";
 
 interface PaymentProps {
   onComplete: () => void;
 }
 
+// Platform features data
+const PLATFORM_FEATURES = [
+  {
+    title: "Advanced Matching Filters",
+    description: "Filter by major, interests, location, and more",
+    icon: IconFilter,
+    color: "blue",
+  },
+  {
+    title: "Unlimited Profile Views",
+    description: "Browse through all profiles without restrictions",
+    icon: IconEye,
+    color: "cyan",
+  },
+  {
+    title: "Smart Matching Algorithm",
+    description: "Get matched with the most compatible classmates",
+    icon: IconHeartHandshake,
+    color: "indigo",
+  },
+  {
+    title: "Profile Flexibility",
+    description: "Edit and update your profile whenever you need",
+    icon: IconLock,
+    color: "violet",
+  },
+  {
+    title: "Priority Support",
+    description: "Get dedicated customer support when you need help",
+    icon: IconShield,
+    color: "green",
+  },
+  {
+    title: "Verified Profile Badge",
+    description: "Stand out with your verified student status",
+    icon: IconUserCheck,
+    color: "yellow",
+  },
+];
+
+const PRICING = {
+  monthlyPrice: 9.99,
+  tax: 0.00,
+};
+
 const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
   const theme = useMantineTheme();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
 
-  const form = useForm({
-    initialValues: {
-      cardNumber: "",
-      expiryDate: "",
-      cvc: "",
-      name: "",
-    },
-    validate: {
-      cardNumber: (value) => {
-        if (!value) return "Card number is required";
-        if (!/^\d{16}$/.test(value.replace(/\s/g, "")))
-          return "Invalid card number";
-        return null;
-      },
-      expiryDate: (value) => {
-        if (!value) return "Expiry date is required";
-        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value))
-          return "Invalid expiry date (MM/YY)";
-        return null;
-      },
-      cvc: (value) => {
-        if (!value) return "CVC is required";
-        if (!/^\d{3,4}$/.test(value)) return "Invalid CVC";
-        return null;
-      },
-      name: (value) => (!value ? "Name is required" : null),
-    },
-  });
+  const total = PRICING.monthlyPrice + PRICING.tax;
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const handleComplete = async () => {
     setIsProcessing(true);
-    setError(null);
     try {
-      // TODO: Integrate with Stripe
-      console.log(values);
-      onComplete();
+      // TODO: Integrate with payment processor
+      
+      // Update profile to mark as complete
+      const profileResponse = await updateProfile({
+        isProfileCompleted: true,
+      });
+
+      if (!profileResponse.status) {
+        throw new Error(profileResponse.message || 'Failed to complete profile setup');
+      }
+      
+      showSuccess("Profile setup completed successfully! Welcome to the platform!");
+      onComplete(); // Move to next step in the UI
     } catch (error) {
-      setError("Payment failed. Please try again.");
-      console.error(error);
+      showError((error as Error).message || 'Failed to complete profile setup');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || "";
-    const parts = [];
-
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-
-    if (parts.length) {
-      return parts.join(" ");
-    } else {
-      return value;
-    }
-  };
-
-  const formatExpiryDate = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    if (v.length >= 3) {
-      return `${v.substring(0, 2)}/${v.substring(2, 4)}`;
-    }
-    return v;
-  };
+  const isLoading = isProcessing || isUpdatingProfile;
 
   return (
-    <Stack gap="xl">
-      <Text
-        size="lg"
-        fw={600}
-        style={{
-          color: theme.white,
-          textAlign: "center",
-        }}
-      >
-        Complete Your Profile
-      </Text>
-
-      <Paper
-        p="xl"
-        radius="md"
-        style={{
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-        }}
-      >
-        <Stack gap="md">
-          <Group>
-            <IconCreditCard
-              style={{ width: rem(24), height: rem(24), color: theme.white }}
-            />
-            <Text fw={600} style={{ color: theme.white }}>
-              Payment Details
-            </Text>
-          </Group>
-
-          <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
-
-          {error && (
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              title="Error"
-              color="red"
-              variant="filled"
+    <Box pos="relative">
+      <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
+      
+      <Stack gap="xl">
+        {/* Header */}
+        <Box ta="center">
+          <Group justify="center" mb="sm">
+            <ThemeIcon
+              size="xl"
+              radius="md"
+              variant="gradient"
+              gradient={{ from: "blue", to: "cyan" }}
             >
-              {error}
-            </Alert>
-          )}
+              <IconRocket size={24} />
+            </ThemeIcon>
+          </Group>
+        <Text
+            size="xl"
+            fw={700}
+            style={{ color: theme.white }}
+            mb="xs"
+        >
+          Complete Your Profile
+        </Text>
+          <Text
+            size="sm"
+            style={{ color: theme.colors.gray[4] }}
+          >
+            Unlock all platform features and start connecting with classmates
+          </Text>
+        </Box>
 
-          <form onSubmit={form.onSubmit(handleSubmit)}>
+        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+          {/* Platform Features Section */}
+        <Paper
+          p="xl"
+            radius="lg"
+          style={{
+            background: "rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+          }}
+        >
+            <Group mb="lg">
+              <ThemeIcon
+                size="md"
+                radius="md"
+                variant="gradient"
+                gradient={{ from: "indigo", to: "cyan" }}
+              >
+                <IconSparkles size={18} />
+              </ThemeIcon>
+              <Text fw={600} style={{ color: theme.white }}>
+                What You Get
+              </Text>
+            </Group>
+
             <Stack gap="md">
-              <TextInput
-                required
-                label="Card Number"
-                placeholder="1234 5678 9012 3456"
-                leftSection={
-                  <IconCreditCard style={{ width: rem(16), height: rem(16) }} />
-                }
-                {...form.getInputProps("cardNumber")}
-                onChange={(event) => {
-                  const formatted = formatCardNumber(event.currentTarget.value);
-                  form.setFieldValue("cardNumber", formatted);
+            {PLATFORM_FEATURES.map((feature, index) => (
+              <Card
+                key={index}
+                p="md"
+                radius="md"
+                style={{
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
                 }}
-                maxLength={19}
-                styles={{
-                  label: { color: theme.white },
-                  input: {
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    borderColor: "rgba(255, 255, 255, 0.1)",
-                    color: theme.white,
-                    "&::placeholder": { color: theme.colors.gray[5] },
-                  },
-                }}
-              />
+              >
+                <Group gap="sm" mb="xs">
+                  <ThemeIcon
+                    size="sm"
+                    radius="xl"
+                    variant="light"
+                    color={feature.color}
+                  >
+                    <feature.icon size={14} />
+                  </ThemeIcon>
+                  <Text size="sm" fw={500} style={{ color: theme.white }}>
+                    {feature.title}
+                  </Text>
+                </Group>
+                <Text size="xs" style={{ color: theme.colors.gray[5] }}>
+                  {feature.description}
+                </Text>
+              </Card>
+            ))}
+          </Stack>
 
-              <Group grow>
-                <TextInput
-                  required
-                  label="Expiry Date"
-                  placeholder="MM/YY"
-                  {...form.getInputProps("expiryDate")}
-                  onChange={(event) => {
-                    const formatted = formatExpiryDate(
-                      event.currentTarget.value
-                    );
-                    form.setFieldValue("expiryDate", formatted);
-                  }}
-                  maxLength={5}
-                  styles={{
-                    label: { color: theme.white },
-                    input: {
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                      borderColor: "rgba(255, 255, 255, 0.1)",
-                      color: theme.white,
-                      "&::placeholder": { color: theme.colors.gray[5] },
-                    },
-                  }}
-                />
+          {/* What's Included Summary */}
+          <Box
+            p="md"
+            mt="lg"
+            style={{
+              background: "rgba(74, 93, 253, 0.1)",
+              borderRadius: theme.radius.md,
+              border: "1px solid rgba(74, 93, 253, 0.2)",
+            }}
+          >
+            <Text size="sm" fw={500} style={{ color: theme.white }} mb="sm">
+              Platform Access Includes
+            </Text>
+            <List
+              spacing="xs"
+              size="sm"
+              center
+              styles={{
+                itemWrapper: { color: theme.white },
+              }}
+              icon={
+                <ThemeIcon color="blue" size="xs" radius="xl">
+                  <IconCheck size={10} />
+                </ThemeIcon>
+              }
+            >
+              <List.Item>Advanced matching algorithms</List.Item>
+              <List.Item>Unlimited profile browsing</List.Item>
+              <List.Item>Smart filters and search</List.Item>
+              <List.Item>Priority customer support</List.Item>
+              <List.Item>Verified student badge</List.Item>
+            </List>
+          </Box>
+        </Paper>
 
-                <TextInput
-                  required
-                  label="CVC"
-                  placeholder="123"
-                  {...form.getInputProps("cvc")}
-                  maxLength={4}
-                  styles={{
-                    label: { color: theme.white },
-                    input: {
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                      borderColor: "rgba(255, 255, 255, 0.1)",
-                      color: theme.white,
-                      "&::placeholder": { color: theme.colors.gray[5] },
-                    },
-                  }}
-                />
+        {/* Billing Summary Section */}
+        <Paper
+          p="xl"
+          radius="lg"
+          style={{
+            background: "rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(10px)",
+          }}
+        >
+          <Group mb="lg">
+            <ThemeIcon
+              size="md"
+              radius="md"
+              variant="gradient"
+              gradient={{ from: "green", to: "teal" }}
+            >
+              <IconStar size={18} />
+            </ThemeIcon>
+                  <Text fw={600} style={{ color: theme.white }}>
+              Billing Summary
+                  </Text>
+                </Group>
+
+          {/* Subscription Plan */}
+          <Card
+            p="lg"
+            radius="md"
+            mb="xl"
+            style={{
+              background: "rgba(74, 93, 253, 0.2)",
+              border: "1px solid rgba(74, 93, 253, 0.4)",
+            }}
+          >
+            <Group justify="space-between" align="center">
+              <Box>
+                <Text fw={600} size="lg" style={{ color: theme.white }}>
+                  Monthly Access
+                  </Text>
+                <Text size="sm" style={{ color: theme.colors.gray[4] }}>
+                  Full platform access, billed monthly
+                  </Text>
+              </Box>
+              <Text fw={700} size="xl" style={{ color: theme.white }}>
+                ${PRICING.monthlyPrice}/mo
+              </Text>
+            </Group>
+          </Card>
+
+          {/* Order Summary */}
+          <Box
+            p="lg"
+                style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              borderRadius: theme.radius.md,
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <Text fw={600} style={{ color: theme.white }} mb="md">
+              Order Summary
+            </Text>
+
+            <Stack gap="sm">
+              <Group justify="space-between">
+                <Text style={{ color: theme.white }}>
+                  Monthly Access Plan
+                </Text>
+                <Text fw={500} style={{ color: theme.white }}>
+                  ${PRICING.monthlyPrice.toFixed(2)}
+                </Text>
               </Group>
 
-              <TextInput
-                required
-                label="Name on Card"
-                placeholder="John Doe"
-                {...form.getInputProps("name")}
-                styles={{
-                  label: { color: theme.white },
-                  input: {
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    borderColor: "rgba(255, 255, 255, 0.1)",
-                    color: theme.white,
-                    "&::placeholder": { color: theme.colors.gray[5] },
-                  },
-                }}
-              />
+              <Group justify="space-between">
+                <Text style={{ color: theme.colors.gray[5] }}>
+                  Tax
+                </Text>
+                <Text style={{ color: theme.colors.gray[5] }}>
+                  ${PRICING.tax.toFixed(2)}
+                </Text>
+              </Group>
 
-              <Box
-                p="md"
-                style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  borderRadius: theme.radius.md,
-                }}
-              >
-                <Group justify="space-between" mb="xs">
-                  <Text style={{ color: theme.white }}>Profile Completion</Text>
-                  <Text fw={600} style={{ color: theme.white }}>
-                    $9.99
-                  </Text>
-                </Group>
-                <Group justify="space-between">
-                  <Text style={{ color: theme.white }}>Tax</Text>
-                  <Text fw={600} style={{ color: theme.white }}>
-                    $0.00
-                  </Text>
-                </Group>
-                <Divider
-                  my="sm"
-                  style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
-                />
-                <Group justify="space-between">
-                  <Text fw={600} style={{ color: theme.white }}>
-                    Total
-                  </Text>
-                  <Text fw={600} style={{ color: theme.white }}>
-                    $9.99
-                  </Text>
-                </Group>
-              </Box>
+              <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
 
-              <Button
-                type="submit"
-                size="lg"
-                loading={isProcessing}
-                style={{
-                  background: "linear-gradient(45deg, #FF6B6B, #4ECDC4)",
-                  "&:hover": {
-                    background: "linear-gradient(45deg, #FF5252, #3DBEB6)",
-                  },
-                }}
-              >
-                Complete Payment
-              </Button>
+              <Group justify="space-between">
+                <Text fw={600} size="lg" style={{ color: theme.white }}>
+                  Total
+                </Text>
+                <Text fw={600} size="lg" style={{ color: theme.white }}>
+                  ${total.toFixed(2)}
+                </Text>
+              </Group>
             </Stack>
-          </form>
-        </Stack>
+          </Box>
+
+          {/* Payment Button */}
+          <Button
+            size="lg"
+            fullWidth
+            mt="xl"
+            loading={isLoading}
+            onClick={handleComplete}
+            variant="gradient"
+            gradient={{ from: "indigo", to: "cyan" }}
+            leftSection={<IconGift size={18} />}
+          >
+            {isLoading ? "Processing..." : "Complete Profile Setup"}
+          </Button>
+
+          {/* Money-back guarantee */}
+          <Text
+            size="xs"
+            ta="center"
+            mt="sm"
+            style={{ color: theme.colors.gray[5] }}
+          >
+            30-day money-back guarantee • Cancel anytime
+          </Text>
       </Paper>
+      </SimpleGrid>
     </Stack>
+  </Box>
   );
 };
 

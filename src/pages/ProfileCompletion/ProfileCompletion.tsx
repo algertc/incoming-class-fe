@@ -8,7 +8,8 @@ import {
   Title,
   rem,
   useMantineTheme,
-  Box
+  Box,
+  Text
 } from '@mantine/core';
 import { IconPhoto, IconUser, IconTags, IconEye, IconCreditCard } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
@@ -61,13 +62,25 @@ const ProfileCompletion: React.FC = () => {
     navigate(ROUTES.DASHBOARD);
   };
 
+  const getStepTitle = () => {
+    return steps[active].title;
+  };
+
+  const getStepDescription = () => {
+    return steps[active].description;
+  };
+
   return (
     <Box className={styles.container}>
-      <Container size="md">
-        <Paper className={styles.paper} radius="lg" p="xl">
+      <Container size="lg" className={styles.innerContainer}>
+        <Paper className={styles.paper} radius="lg">
           <Title order={1} className={styles.title}>
             Complete Your Profile
           </Title>
+          
+          <Text className={styles.subtitle}>
+            Let's create your amazing profile in just a few steps
+          </Text>
 
           <Stepper
             active={active}
@@ -75,20 +88,26 @@ const ProfileCompletion: React.FC = () => {
             allowNextStepsSelect={false}
             size="md"
             color="blue"
+            className={styles.stepper}
             styles={{
               stepBody: {
-                display: 'none',
+                display: active < 4 ? 'none' : 'flex',
               },
               stepIcon: {
                 borderColor: 'rgba(255, 255, 255, 0.2)',
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                backgroundColor: 'rgba(20, 20, 30, 0.6)',
                 color: theme.white,
                 '&[data-progress]': {
                   borderColor: theme.colors.blue[6],
                   backgroundColor: theme.colors.blue[6],
                 },
+                '&[data-completed]': {
+                  borderColor: theme.colors.blue[5],
+                  backgroundColor: theme.colors.blue[5],
+                },
               },
               step: {
+                padding: '0 10px',
                 '&[data-progress]': {
                   color: theme.white,
                 },
@@ -110,21 +129,32 @@ const ProfileCompletion: React.FC = () => {
               />
             ))}
           </Stepper>
-
-          <Box mt={40}>
-            {active === 0 && <PhotoUpload onComplete={nextStep} />}
-            {active === 1 && <BasicInfo onComplete={nextStep} />}
-            {active === 2 && <TraitsPreferences onComplete={nextStep} />}
-            {active === 3 && <ProfilePreview onComplete={nextStep} />}
-            {active === 4 && <Payment onComplete={handlePaymentComplete} />}
+          
+          <Box className={styles.stepHeader}>
+            <Title order={2} className={styles.stepTitle}>{getStepTitle()}</Title>
+            <Text className={styles.stepDescription}>{getStepDescription()}</Text>
           </Box>
 
-          <Group justify="space-between" mt="xl">
+          <Box className={styles.contentWrapper}>
+            <Box className={styles.stepContent}>
+              {active === 0 && <PhotoUpload onComplete={nextStep} />}
+              {active === 1 && <BasicInfo onComplete={nextStep} />}
+              {active === 2 && <TraitsPreferences onComplete={nextStep} />}
+              {active === 3 && <ProfilePreview onComplete={nextStep} />}
+              {active === 4 && <Payment onComplete={handlePaymentComplete} />}
+            </Box>
+          </Box>
+
+          <Group justify="space-between" className={styles.navigation}>
             <Button
-              variant="outline"
+              variant="filled"
               onClick={prevStep}
               disabled={active === 0}
               className={styles.backButton}
+              size="lg"
+              radius="md"
+              color="cyan"
+             
             >
               Back
             </Button>

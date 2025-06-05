@@ -451,7 +451,7 @@ export const HeroSection: React.FC = () => {
             style={{
               fontSize: "3.8rem",
               lineHeight: 1.1,
-              fontWeight: 800,
+              fontWeight: 500,
               maxWidth: 850,
             }}
           >

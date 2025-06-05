@@ -14,9 +14,18 @@ export {
 export {
   useUser,
   useUpdateProfile,
+  useUpdateCurrentUserProfile,
   useDeleteAccount,
+  useDeleteCurrentUserAccount,
   userKeys
 } from './useUsers';
+
+// Image upload hooks
+export {
+  useUploadMultipleImages,
+  createImageFormData,
+  validateImageFiles
+} from './useImageUpload';
 
 // College hooks
 export {

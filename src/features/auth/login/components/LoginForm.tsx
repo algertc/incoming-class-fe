@@ -44,7 +44,8 @@ const LoginForm: React.FC = () => {
 
         showSuccess("Login Successful!");
         const authResponse = response.data as AuthResponse;
-        navigate(authResponse.isProfileComplete ? ROUTES.APP : ROUTES.PROFILE_COMPLETION);
+        
+        navigate(authResponse.isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION);
       
     } catch (error) {
       showError((error as Error).message);

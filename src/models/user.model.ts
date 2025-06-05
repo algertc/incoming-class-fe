@@ -25,6 +25,7 @@ export interface User {
   updatedAt?: string;
   profileStage?: ProfileStage;
   isPremium?: boolean;
+  isProfileCompleted:boolean
 }
 
 /**
@@ -53,7 +54,19 @@ export interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
   bio?: string;
-  profileImage?: string;
+  profileImage?: string | File;
+  isProfileCompleted: boolean;
+  // Additional profile fields
+  major?: string;
+  hometown?: string;
+  university?: string;
+  batch?: string;
+  lookingForRoommate?: boolean;
+  instagram?: string;
+  snapchat?: string;
+  
+  // Profile stage information
+  profileStage?: ProfileStage;
 }
 
 /**
@@ -71,5 +84,5 @@ export interface ResetPasswordData {
 export interface AuthResponse {
   token: string;
   user: User;
-  isProfileComplete: boolean;
+  isProfileCompleted: boolean;
 } 
