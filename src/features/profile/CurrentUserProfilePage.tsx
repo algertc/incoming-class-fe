@@ -134,7 +134,7 @@ const CurrentUserProfilePage: React.FC = () => {
     bio: user?.bio || 'Add a bio to tell others about yourself.',
     designation: mockProfileData.academic.major ? `${mockProfileData.academic.major} Student` : 'University Student',
     isPremium: user?.isPremium || false,
-    profileCompletion: user?.isProfileComplete ? 100 : 75,
+    profileCompletion: user?.isProfileCompleted ? 100 : 75,
   };
 
   // Prepare contact data for the contact card

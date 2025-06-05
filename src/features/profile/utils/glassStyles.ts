@@ -2,7 +2,7 @@ import { rem } from '@mantine/core';
 import type { MantineTheme } from '@mantine/core';
 
 // Modern Glassmorphism styles for Gen-Z UI
-export const glassCardStyles = (theme: MantineTheme, variant: 'primary' | 'secondary' | 'accent' = 'primary') => {
+export const glassCardStyles = (_theme: MantineTheme, variant: 'primary' | 'secondary' | 'accent' = 'primary') => {
   const variants = {
     primary: {
       background: 'rgba(255, 255, 255, 0.08)',

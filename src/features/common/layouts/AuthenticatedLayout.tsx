@@ -1,12 +1,10 @@
 import React from 'react';
-import { AppShell, useMantineTheme } from '@mantine/core';
+import { AppShell } from '@mantine/core';
 import { Outlet } from 'react-router';
 import { Header } from '../../../components/layout/Header/Header';
 import { withAuth } from '../../../components/auth/withAuth';
 
 export const AuthenticatedLayout: React.FC = () => {
-
-  const theme = useMantineTheme();
 
   return (
     <AppShell

@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/auth.store';
-import { ProfileStage } from '../../models/user.model';
 import ROUTES from '../../constants/routes';
 import LoadingScreen from '../common/components/LoadingScreen';
 

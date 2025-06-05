@@ -55,7 +55,7 @@ export interface UpdateProfileData {
   lastName?: string;
   bio?: string;
   profileImage?: string | File;
-  isProfileCompleted: boolean;
+  isProfileCompleted?: boolean;
   // Additional profile fields
   major?: string;
   hometown?: string;
