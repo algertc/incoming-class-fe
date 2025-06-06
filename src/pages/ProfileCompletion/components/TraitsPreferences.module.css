@@ -3,15 +3,69 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+/* Mobile responsive container */
+.containerMobile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  height: 100%; /* Take full height of parent */
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar styling for mobile container */
+.containerMobile::-webkit-scrollbar {
+  width: 6px;
+}
+
+.containerMobile::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.containerMobile::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4361ee, #4cc9f0);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.containerMobile::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4cc9f0, #4361ee);
+}
+
+/* Firefox scrollbar styling for mobile container */
+.containerMobile {
+  scrollbar-width: thin;
+  scrollbar-color: #4361ee rgba(0, 0, 0, 0.2);
+}
+
 .title {
   color: white;
   text-align: center;
   margin-bottom: 20px;
 }
 
+/* Mobile responsive title */
+.titleMobile {
+  margin-bottom: 15px;
+  font-size: 18px !important;
+}
+
 .sectionTitle {
   color: white;
   margin-bottom: 16px;
+}
+
+/* Mobile responsive section title */
+@media (max-width: 768px) {
+  .sectionTitle {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
 }
 
 .input {
@@ -20,6 +74,25 @@
   color: white;
 }
 
+/* Mobile responsive input */
+@media (max-width: 768px) {
+  .input {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
+
+.label {
+  color: white;
+}
+
+/* Mobile responsive label */
+@media (max-width: 768px) {
+  .label {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+}
 
 .dropdown {
   background-color: var(--mantine-color-dark-7);
@@ -38,10 +111,37 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+.scrollAreaMobile {
+  /* Custom scrollbar for mobile */
+}
+
+.scrollAreaMobile::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollAreaMobile::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.scrollAreaMobile::-webkit-scrollbar-thumb {
+  background: rgba(67, 97, 238, 0.6);
+  border-radius: 2px;
+}
+
 .nextButton {
   background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  transition: all 0.3s ease;
 }
 
 .nextButton:hover {
   background: linear-gradient(45deg, #FF5252, #3DBEB6);
+  transform: translateY(-2px);
+}
+
+/* Mobile responsive next button */
+@media (max-width: 768px) {
+  .nextButton:hover {
+    transform: none;
+  }
 } 

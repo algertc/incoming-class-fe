@@ -13,7 +13,7 @@ import {
   Box,
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
-import { useMediaQuery, useLocalStorage } from '@mantine/hooks';
+import { useLocalStorage } from '@mantine/hooks';
 import classes from "./SignupForm.module.scss";
 import { Link, useNavigate } from "react-router";
 import icons from "../../../../assets/icons";
@@ -54,8 +54,6 @@ const SignupForm: React.FC = () => {
     key: LS_KEYS.OTP,
     defaultValue: ""
   });
-  
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const { mutateAsync, isPending } = useSendEmailOtp();
   const { mutateAsync: mutateVerifyOtp, isPending: isOtpVerificationPending } =
@@ -176,9 +174,6 @@ const SignupForm: React.FC = () => {
       style={{ 
         position: "relative",
         minHeight: "auto",
-        overflowY: isMobile ? "auto" : "visible",
-        overflowX: "hidden",
-        maxHeight: isMobile ? "100vh" : "none",
         width: "100%"
       }}
     >

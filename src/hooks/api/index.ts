@@ -24,7 +24,10 @@ export {
 export {
   useUploadMultipleImages,
   createImageFormData,
-  validateImageFiles
+  validateImageFiles,
+  useUploadProfilePicture,
+  createProfileImageFormData,
+  validateSingleImageFile
 } from './useImageUpload';
 
 // College hooks

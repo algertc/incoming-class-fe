@@ -8,8 +8,7 @@ export const AuthenticatedLayout: React.FC = () => {
 
   return (
     <AppShell
-      header={{ height: 60 }}      
-      padding={{ base: 16, sm: 32, md: 72 }}
+      header={{ height: 90 }}  // Match MainLayout header height
       bg={"black"}
     >
       <AppShell.Header>

@@ -27,7 +27,7 @@ const MainLayout: React.FC = () => {
   return (
     <AppShell
       header={{ height: 90 }}
-      bg="#f8f9fc"
+      bg="black"
     >
       <AppShell.Header 
         bg="linear-gradient(135deg, #000000 0%, #1a0030 100%)"

@@ -10,7 +10,7 @@ import { FeaturedSection } from "../../components/Home/FeaturedSection/FeaturedS
 import { HowItWorksSection } from "../../components/Home/HowItWorksSection/HowItWorksSection";
 import { CollegesSection } from "../../components/Home/CollegesSection/CollegesSection";
 import { CTASection } from "../../components/Home/CTASection/CTASection";
-import { AnimatedBackground } from "../../components/Feed/AnimatedBackground/AnimatedBackground";
+import AnimatedBackground from "../feed/components/AnimatedBackground";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);

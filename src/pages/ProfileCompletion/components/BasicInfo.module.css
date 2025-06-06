@@ -1,6 +1,48 @@
 .container {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile responsive container */
+.containerMobile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0;
+  position: relative;
+  z-index: 1;
+  height: 100%; /* Take full height of parent */
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Custom scrollbar styling for mobile container */
+.containerMobile::-webkit-scrollbar {
+  width: 6px;
+}
+
+.containerMobile::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+.containerMobile::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4361ee, #4cc9f0);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.containerMobile::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4cc9f0, #4361ee);
+}
+
+/* Firefox scrollbar styling for mobile container */
+.containerMobile {
+  scrollbar-width: thin;
+  scrollbar-color: #4361ee rgba(0, 0, 0, 0.2);
 }
 
 .title {
@@ -9,10 +51,22 @@
   margin-bottom: 20px;
 }
 
+/* Mobile responsive title */
+.titleMobile {
+  margin-bottom: 15px;
+  font-size: 18px !important;
+}
+
 .input {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: rgba(255, 255, 255, 0.1);
   color: white;
+}
+
+/* Mobile responsive input */
+.inputMobile {
+  font-size: 14px;
+  padding: 8px 12px;
 }
 
 .input::placeholder {
@@ -21,6 +75,14 @@
 
 .label {
   color: white;
+}
+
+/* Mobile responsive label */
+@media (max-width: 768px) {
+  .label {
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
 }
 
 .dropdown {
@@ -42,8 +104,17 @@
 
 .nextButton {
   background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+  transition: all 0.3s ease;
 }
 
 .nextButton:hover {
   background: linear-gradient(45deg, #FF5252, #3DBEB6);
+  transform: translateY(-2px);
+}
+
+/* Mobile responsive next button */
+@media (max-width: 768px) {
+  .nextButton:hover {
+    transform: none;
+  }
 } 

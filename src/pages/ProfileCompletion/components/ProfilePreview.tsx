@@ -16,6 +16,7 @@ import {
 } from '@mantine/core';
 import { IconBrandInstagram, IconBrandSnapchat } from '@tabler/icons-react';
 import { useForm, yupResolver } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { useUpdateCurrentUserProfile } from '../../../hooks/api';
 import { useCurrentUser } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
@@ -56,6 +57,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
   const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateCurrentUserProfile();
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   
   const form = useForm({
     initialValues: profilePreviewInitialValues,
@@ -123,153 +125,190 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
   }
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
+    <Paper 
+      className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`} 
+      p={isMobile ? "sm" : "xl"} 
+      radius="md"
+      style={{
+        ...(isMobile && {
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        })
+      }}
+    >
       <LoadingOverlay visible={isSubmitting || isUpdating} overlayProps={{ blur: 2 }} />
-      
-      <Stack gap="xl">
-        <Text className={styles.title} size="lg" fw={600}>
-          Preview Your Profile
-        </Text>
-
-        {/* Instagram Preview */}
-        <Paper className={styles.previewContainer} p="xl" radius="md">
-          <Text className={styles.sectionTitle} fw={600}>
-            Instagram Preview
+      <form 
+        onSubmit={form.onSubmit(handleSubmit)}
+        style={isMobile ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}
+      >
+        <Stack gap={isMobile ? "sm" : "xl"} style={isMobile ? { flex: 1 } : {}}>
+          <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
+            Preview Your Profile
           </Text>
-          <Box className={styles.instagramPreview}>
-            <Stack gap="md">
+
+          {/* Instagram Preview */}
+          <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
+            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
+              Instagram Preview
+            </Text>
+            <Box className={`${styles.instagramPreview} ${isMobile ? styles.instagramPreviewMobile : ''}`}>
+              <Stack gap={isMobile ? "sm" : "md"}>
+                <Group>
+                  <Avatar
+                    src={userData.profileImage || userData.photos?.[0]}
+                    size={isMobile ? "md" : "lg"}
+                    radius="xl"
+                    style={{ border: '2px solid white' }}
+                  />
+                  <div>
+                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} fw={600}>
+                      {userData.instagram}
+                    </Text>
+                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                      {userData.major} • {userData.hometown}
+                    </Text>
+                  </div>
+                </Group>
+                <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>{userData.bio}</Text>
+                <div className={`${styles.photoGrid} ${isMobile ? styles.photoGridMobile : ''}`}>
+                  {(userData.photos || []).map((photo, index) => (
+                    <Image
+                      key={index}
+                      src={photo}
+                      className={`${styles.photo} ${isMobile ? styles.photoMobile : ''}`}
+                    />
+                  ))}
+                </div>
+              </Stack>
+            </Box>
+          </Paper>
+
+          {/* College Feed Preview */}
+          <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
+            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
+              College Feed Preview
+            </Text>
+            <Stack gap={isMobile ? "sm" : "md"}>
               <Group>
                 <Avatar
                   src={userData.profileImage || userData.photos?.[0]}
-                  size="lg"
+                  size={isMobile ? "md" : "lg"}
                   radius="xl"
-                  style={{ border: '2px solid white' }}
                 />
-                <div>
-                  <Text className={styles.userInfo} fw={600}>
+                <div style={{ flex: 1 }}>
+                  <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} fw={600}>
                     {userData.instagram}
                   </Text>
-                  <Text className={styles.userInfo} size="sm">
-                    {userData.major} • {userData.hometown}
-                  </Text>
+                  <Group gap="xs">
+                    <Badge color="blue" variant="light" size={isMobile ? "xs" : "sm"}>
+                      {userData.major}
+                    </Badge>
+                    <Badge color="grape" variant="light" size={isMobile ? "xs" : "sm"}>
+                      {userData.hometown}
+                    </Badge>
+                  </Group>
                 </div>
               </Group>
-              <Text className={styles.userInfo}>{userData.bio}</Text>
-              <div className={styles.photoGrid}>
-                {(userData.photos || []).map((photo, index) => (
-                  <Image
-                    key={index}
-                    src={photo}
-                    className={styles.photo}
-                  />
-                ))}
-              </div>
-            </Stack>
-          </Box>
-        </Paper>
 
-        {/* College Feed Preview */}
-        <Paper className={styles.previewContainer} p="xl" radius="md">
-          <Text className={styles.sectionTitle} fw={600}>
-            College Feed Preview
-          </Text>
-          <Stack gap="md">
-            <Group>
-              <Avatar
-                src={userData.profileImage || userData.photos?.[0]}
-                size="lg"
-                radius="xl"
-              />
-              <div style={{ flex: 1 }}>
-                <Text className={styles.userInfo} fw={600}>
-                  {userData.instagram}
+              <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>{userData.bio}</Text>
+
+              <Divider className={styles.divider} />
+
+              <Stack gap="xs">
+                <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                  Lifestyle
                 </Text>
                 <Group gap="xs">
-                  <Badge color="blue" variant="light">
-                    {userData.major}
-                  </Badge>
-                  <Badge color="grape" variant="light">
-                    {userData.hometown}
-                  </Badge>
+                  {userData.traits && Object.entries(userData.traits)
+                    .filter(([key]) => ['sleepSchedule', 'cleanliness', 'guests', 'studying', 'substances'].includes(key))
+                    .map(([key, value]) => (
+                      <Badge key={key} color="blue" variant="light" size={isMobile ? "xs" : "sm"}>
+                        {value as string}
+                      </Badge>
+                    ))}
                 </Group>
-              </div>
-            </Group>
+              </Stack>
 
-            <Text className={styles.userInfo}>{userData.bio}</Text>
-
-            <Divider className={styles.divider} />
-
-            <Stack gap="xs">
-              <Text className={styles.sectionTitle} size="sm">
-                Lifestyle
-              </Text>
-              <Group gap="xs">
-                {userData.traits && Object.entries(userData.traits)
-                  .filter(([key]) => ['sleepSchedule', 'cleanliness', 'guests', 'studying', 'substances'].includes(key))
-                  .map(([key, value]) => (
-                    <Badge key={key} color="blue" variant="light">
-                      {value as string}
+              <Stack gap="xs">
+                <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                  Interests
+                </Text>
+                <Group gap="xs">
+                  {userData.traits && [
+                    ...(userData.traits.personality || []),
+                    ...(userData.traits.physicalActivity || []),
+                    ...(userData.traits.pastimes || []),
+                    ...(userData.traits.food || []),
+                  ].slice(0, isMobile ? 6 : undefined).map((trait) => (
+                    <Badge key={trait} color="grape" variant="light" size={isMobile ? "xs" : "sm"}>
+                      {trait}
                     </Badge>
                   ))}
-              </Group>
-            </Stack>
+                  {isMobile && userData.traits && [
+                    ...(userData.traits.personality || []),
+                    ...(userData.traits.physicalActivity || []),
+                    ...(userData.traits.pastimes || []),
+                    ...(userData.traits.food || []),
+                  ].length > 6 && (
+                    <Badge color="gray" variant="light" size="xs">
+                      +{[
+                        ...(userData.traits.personality || []),
+                        ...(userData.traits.physicalActivity || []),
+                        ...(userData.traits.pastimes || []),
+                        ...(userData.traits.food || []),
+                      ].length - 6} more
+                    </Badge>
+                  )}
+                </Group>
+              </Stack>
 
-            <Stack gap="xs">
-              <Text className={styles.sectionTitle} size="sm">
-                Interests
-              </Text>
               <Group gap="xs">
-                {userData.traits && [
-                  ...(userData.traits.personality || []),
-                  ...(userData.traits.physicalActivity || []),
-                  ...(userData.traits.pastimes || []),
-                  ...(userData.traits.food || []),
-                ].map((trait) => (
-                  <Badge key={trait} color="grape" variant="light">
-                    {trait}
-                  </Badge>
-                ))}
+                <IconBrandInstagram className={styles.socialIcon} style={{ width: rem(isMobile ? 16 : 20), height: rem(isMobile ? 16 : 20) }} />
+                <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                  {userData.instagram}
+                </Text>
+                {userData.snapchat && (
+                  <>
+                    <IconBrandSnapchat className={styles.socialIcon} style={{ width: rem(isMobile ? 16 : 20), height: rem(isMobile ? 16 : 20) }} />
+                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                      {userData.snapchat}
+                    </Text>
+                  </>
+                )}
               </Group>
             </Stack>
+          </Paper>
 
-            <Group gap="xs">
-              <IconBrandInstagram className={styles.socialIcon} style={{ width: rem(20), height: rem(20) }} />
-              <Text className={styles.userInfo} size="sm">
-                {userData.instagram}
-              </Text>
-              {userData.snapchat && (
-                <>
-                  <IconBrandSnapchat className={styles.socialIcon} style={{ width: rem(20), height: rem(20) }} />
-                  <Text className={styles.userInfo} size="sm">
-                    {userData.snapchat}
-                  </Text>
-                </>
-              )}
-            </Group>
-          </Stack>
-        </Paper>
+          <Checkbox
+            label="I confirm that I have reviewed my profile and it looks good"
+            color="blue"
+            {...form.getInputProps('reviewConfirmed', { type: 'checkbox' })}
+            styles={{ 
+              label: { 
+                color: 'white',
+                fontSize: isMobile ? '12px' : '14px'
+              } 
+            }}
+            size={isMobile ? "sm" : "md"}
+          />
 
-        <Checkbox
-          label="I confirm that I have reviewed my profile and it looks good"
-          color="blue"
-          {...form.getInputProps('reviewConfirmed', { type: 'checkbox' })}
-          styles={{ label: { color: 'white' } }}
-        />
-
-        <Group justify="center" mt="xl">
-          <Button
-            type="submit"
-            size="lg"
-            loading={isSubmitting || isUpdating}
-            className={styles.nextButton}
-            c="white"
-            disabled={!form.values.reviewConfirmed}
-          >
-            Continue to Payment
-          </Button>
-        </Group>
-      </Stack>
-    </form>
+          <Group justify="center" mt={isMobile ? "sm" : "xl"}>
+            <Button
+              type="submit"
+              size={isMobile ? "md" : "lg"}
+              loading={isSubmitting || isUpdating}
+              className={styles.nextButton}
+              c="white"
+              disabled={!form.values.reviewConfirmed}
+              fullWidth={isMobile}
+            >
+              Continue to Payment
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Paper>
   );
 };
 

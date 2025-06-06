@@ -14,6 +14,18 @@
     &:hover {
         transform: translateY(-5px);
     }
+    
+    // Mobile padding adjustment
+    @media (max-width: 768px) {
+        padding: 20px;
+        margin: 0;
+        border-radius: 12px;
+        transform: none;
+        
+        &:hover {
+            transform: none;
+        }
+    }
 }
 
 .label {
@@ -176,4 +188,54 @@
     background: radial-gradient(circle, rgba(25, 113, 194, 0.2) 0%, rgba(25, 113, 194, 0) 70%);
     border-radius: 50%;
     z-index: 0;
+}
+
+// Custom scrollbar styling for mobile
+:global(.mantine-ScrollArea-scrollbar) {
+    &[data-orientation="vertical"] {
+        width: 6px;
+        padding: 0 1px;
+        
+        .mantine-ScrollArea-thumb {
+            background: rgba(67, 97, 238, 0.6);
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            
+            &:hover {
+                background: rgba(67, 97, 238, 0.8);
+            }
+        }
+    }
+}
+
+// Webkit scrollbar styling for mobile browsers
+@media (max-width: 768px) {
+    :global(*) {
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        &::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        
+        &::-webkit-scrollbar-thumb {
+            background: rgba(67, 97, 238, 0.6);
+            border-radius: 3px;
+            transition: background-color 0.2s ease;
+            
+            &:hover {
+                background: rgba(67, 97, 238, 0.8);
+            }
+            
+            &:active {
+                background: rgba(67, 97, 238, 1);
+            }
+        }
+        
+        &::-webkit-scrollbar-corner {
+            background: transparent;
+        }
+    }
 } 

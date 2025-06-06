@@ -14,6 +14,7 @@ import {
   SimpleGrid,
   LoadingOverlay,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import {
   IconCheck,
   IconFilter,
@@ -83,6 +84,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
   const theme = useMantineTheme();
   const [isProcessing, setIsProcessing] = useState(false);
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const total = PRICING.monthlyPrice + PRICING.tax;
 
@@ -112,250 +114,264 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
   const isLoading = isProcessing || isUpdatingProfile;
 
   return (
-    <Box pos="relative">
+    <Paper 
+      p={isMobile ? "sm" : "xl"} 
+      radius="md"
+      style={{
+        background: "rgba(255, 255, 255, 0.05)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        position: "relative",
+        ...(isMobile && {
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'auto'
+        })
+      }}
+    >
       <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
       
-      <Stack gap="xl">
+      <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
         {/* Header */}
         <Box ta="center">
-          <Group justify="center" mb="sm">
+          <Group justify="center" mb={isMobile ? "xs" : "sm"}>
             <ThemeIcon
-              size="xl"
+              size={isMobile ? "lg" : "xl"}
               radius="md"
               variant="gradient"
               gradient={{ from: "blue", to: "cyan" }}
             >
-              <IconRocket size={24} />
+              <IconRocket size={isMobile ? 20 : 24} />
             </ThemeIcon>
           </Group>
-        <Text
-            size="xl"
+          <Text
+            size={isMobile ? "lg" : "xl"}
             fw={700}
             style={{ color: theme.white }}
             mb="xs"
-        >
-          Complete Your Profile
-        </Text>
+          >
+            Complete Your Profile
+          </Text>
           <Text
-            size="sm"
+            size={isMobile ? "xs" : "sm"}
             style={{ color: theme.colors.gray[4] }}
           >
             Unlock all platform features and start connecting with classmates
           </Text>
         </Box>
 
-        <SimpleGrid cols={{ base: 1, md: 2 }} spacing="xl">
+        <SimpleGrid cols={{ base: 1, md: isMobile ? 1 : 2 }} spacing={isMobile ? "md" : "xl"}>
           {/* Platform Features Section */}
-        <Paper
-          p="xl"
+          <Paper
+            p={isMobile ? "md" : "xl"}
             radius="lg"
-          style={{
-            background: "rgba(255, 255, 255, 0.05)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
+            style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
               backdropFilter: "blur(10px)",
-          }}
-        >
-            <Group mb="lg">
+            }}
+          >
+            <Group mb={isMobile ? "sm" : "lg"}>
               <ThemeIcon
-                size="md"
+                size={isMobile ? "sm" : "md"}
                 radius="md"
                 variant="gradient"
                 gradient={{ from: "indigo", to: "cyan" }}
               >
-                <IconSparkles size={18} />
+                <IconSparkles size={isMobile ? 16 : 18} />
               </ThemeIcon>
-              <Text fw={600} style={{ color: theme.white }}>
+              <Text fw={600} style={{ color: theme.white }} size={isMobile ? "sm" : "md"}>
                 What You Get
               </Text>
             </Group>
 
-            <Stack gap="md">
-            {PLATFORM_FEATURES.map((feature, index) => (
-              <Card
-                key={index}
-                p="md"
-                radius="md"
-                style={{
-                  background: "rgba(255, 255, 255, 0.03)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                }}
-              >
-                <Group gap="sm" mb="xs">
-                  <ThemeIcon
-                    size="sm"
-                    radius="xl"
-                    variant="light"
-                    color={feature.color}
-                  >
-                    <feature.icon size={14} />
-                  </ThemeIcon>
-                  <Text size="sm" fw={500} style={{ color: theme.white }}>
-                    {feature.title}
+            <Stack gap={isMobile ? "sm" : "md"}>
+              {PLATFORM_FEATURES.map((feature, index) => (
+                <Card
+                  key={index}
+                  p={isMobile ? "sm" : "md"}
+                  radius="md"
+                  style={{
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                  }}
+                >
+                  <Group gap="sm" mb={isMobile ? "4px" : "xs"}>
+                    <ThemeIcon
+                      size={isMobile ? "xs" : "sm"}
+                      radius="xl"
+                      variant="light"
+                      color={feature.color}
+                    >
+                      <feature.icon size={isMobile ? 12 : 14} />
+                    </ThemeIcon>
+                    <Text size={isMobile ? "xs" : "sm"} fw={500} style={{ color: theme.white }}>
+                      {feature.title}
+                    </Text>
+                  </Group>
+                  <Text size={isMobile ? "10px" : "xs"} style={{ color: theme.colors.gray[5] }}>
+                    {feature.description}
                   </Text>
-                </Group>
-                <Text size="xs" style={{ color: theme.colors.gray[5] }}>
-                  {feature.description}
-                </Text>
-              </Card>
-            ))}
-          </Stack>
+                </Card>
+              ))}
+            </Stack>
 
-          {/* What's Included Summary */}
-          <Box
-            p="md"
-            mt="lg"
-            style={{
-              background: "rgba(74, 93, 253, 0.1)",
-              borderRadius: theme.radius.md,
-              border: "1px solid rgba(74, 93, 253, 0.2)",
-            }}
-          >
-            <Text size="sm" fw={500} style={{ color: theme.white }} mb="sm">
-              Platform Access Includes
-            </Text>
-            <List
-              spacing="xs"
-              size="sm"
-              center
-              styles={{
-                itemWrapper: { color: theme.white },
+            {/* What's Included Summary */}
+            <Box
+              p={isMobile ? "sm" : "md"}
+              mt={isMobile ? "sm" : "lg"}
+              style={{
+                background: "rgba(74, 93, 253, 0.1)",
+                borderRadius: theme.radius.md,
+                border: "1px solid rgba(74, 93, 253, 0.2)",
               }}
-              icon={
-                <ThemeIcon color="blue" size="xs" radius="xl">
-                  <IconCheck size={10} />
-                </ThemeIcon>
-              }
             >
-              <List.Item>Advanced matching algorithms</List.Item>
-              <List.Item>Unlimited profile browsing</List.Item>
-              <List.Item>Smart filters and search</List.Item>
-              <List.Item>Priority customer support</List.Item>
-              <List.Item>Verified student badge</List.Item>
-            </List>
-          </Box>
-        </Paper>
+              <Text size={isMobile ? "xs" : "sm"} fw={500} style={{ color: theme.white }} mb={isMobile ? "xs" : "sm"}>
+                Platform Access Includes
+              </Text>
+              <List
+                spacing={isMobile ? "4px" : "xs"}
+                size={isMobile ? "xs" : "sm"}
+                center
+                styles={{
+                  itemWrapper: { color: theme.white },
+                }}
+                icon={
+                  <ThemeIcon color="blue" size={isMobile ? "xs" : "xs"} radius="xl">
+                    <IconCheck size={isMobile ? 8 : 10} />
+                  </ThemeIcon>
+                }
+              >
+                <List.Item>Advanced matching algorithms</List.Item>
+                <List.Item>Unlimited profile browsing</List.Item>
+                <List.Item>Smart filters and search</List.Item>
+                <List.Item>Priority customer support</List.Item>
+                <List.Item>Verified student badge</List.Item>
+              </List>
+            </Box>
+          </Paper>
 
-        {/* Billing Summary Section */}
-        <Paper
-          p="xl"
-          radius="lg"
-          style={{
-            background: "rgba(255, 255, 255, 0.05)",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            backdropFilter: "blur(10px)",
-          }}
-        >
-          <Group mb="lg">
-            <ThemeIcon
-              size="md"
-              radius="md"
-              variant="gradient"
-              gradient={{ from: "green", to: "teal" }}
-            >
-              <IconStar size={18} />
-            </ThemeIcon>
-                  <Text fw={600} style={{ color: theme.white }}>
-              Billing Summary
-                  </Text>
-                </Group>
-
-          {/* Subscription Plan */}
-          <Card
-            p="lg"
-            radius="md"
-            mb="xl"
+          {/* Billing Summary Section */}
+          <Paper
+            p={isMobile ? "md" : "xl"}
+            radius="lg"
             style={{
-              background: "rgba(74, 93, 253, 0.2)",
-              border: "1px solid rgba(74, 93, 253, 0.4)",
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
             }}
           >
-            <Group justify="space-between" align="center">
-              <Box>
-                <Text fw={600} size="lg" style={{ color: theme.white }}>
-                  Monthly Access
-                  </Text>
-                <Text size="sm" style={{ color: theme.colors.gray[4] }}>
-                  Full platform access, billed monthly
-                  </Text>
-              </Box>
-              <Text fw={700} size="xl" style={{ color: theme.white }}>
-                ${PRICING.monthlyPrice}/mo
+            <Group mb={isMobile ? "sm" : "lg"}>
+              <ThemeIcon
+                size={isMobile ? "sm" : "md"}
+                radius="md"
+                variant="gradient"
+                gradient={{ from: "green", to: "teal" }}
+              >
+                <IconStar size={isMobile ? 16 : 18} />
+              </ThemeIcon>
+              <Text fw={600} style={{ color: theme.white }} size={isMobile ? "sm" : "md"}>
+                Billing Summary
               </Text>
             </Group>
-          </Card>
 
-          {/* Order Summary */}
-          <Box
-            p="lg"
-                style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              borderRadius: theme.radius.md,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            }}
-          >
-            <Text fw={600} style={{ color: theme.white }} mb="md">
-              Order Summary
+            {/* Subscription Plan */}
+            <Card
+              p={isMobile ? "md" : "lg"}
+              radius="md"
+              mb={isMobile ? "md" : "xl"}
+              style={{
+                background: "rgba(74, 93, 253, 0.2)",
+                border: "1px solid rgba(74, 93, 253, 0.4)",
+              }}
+            >
+              <Group justify="space-between" align="center">
+                <Box>
+                  <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    Monthly Access
+                  </Text>
+                  <Text size={isMobile ? "xs" : "sm"} style={{ color: theme.colors.gray[4] }}>
+                    Full platform access, billed monthly
+                  </Text>
+                </Box>
+                <Text fw={700} size={isMobile ? "lg" : "xl"} style={{ color: theme.white }}>
+                  ${PRICING.monthlyPrice}/mo
+                </Text>
+              </Group>
+            </Card>
+
+            {/* Order Summary */}
+            <Box
+              p={isMobile ? "md" : "lg"}
+              style={{
+                background: "rgba(255, 255, 255, 0.05)",
+                borderRadius: theme.radius.md,
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              }}
+            >
+              <Text fw={600} style={{ color: theme.white }} mb={isMobile ? "sm" : "md"} size={isMobile ? "sm" : "md"}>
+                Order Summary
+              </Text>
+
+              <Stack gap={isMobile ? "xs" : "sm"}>
+                <Group justify="space-between">
+                  <Text style={{ color: theme.white }} size={isMobile ? "xs" : "sm"}>
+                    Monthly Access Plan
+                  </Text>
+                  <Text fw={500} style={{ color: theme.white }} size={isMobile ? "xs" : "sm"}>
+                    ${PRICING.monthlyPrice.toFixed(2)}
+                  </Text>
+                </Group>
+
+                <Group justify="space-between">
+                  <Text style={{ color: theme.colors.gray[5] }} size={isMobile ? "xs" : "sm"}>
+                    Tax
+                  </Text>
+                  <Text style={{ color: theme.colors.gray[5] }} size={isMobile ? "xs" : "sm"}>
+                    ${PRICING.tax.toFixed(2)}
+                  </Text>
+                </Group>
+
+                <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
+
+                <Group justify="space-between">
+                  <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    Total
+                  </Text>
+                  <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    ${total.toFixed(2)}
+                  </Text>
+                </Group>
+              </Stack>
+            </Box>
+
+            {/* Payment Button */}
+            <Button
+              size={isMobile ? "md" : "lg"}
+              fullWidth
+              mt={isMobile ? "md" : "xl"}
+              loading={isLoading}
+              onClick={handleComplete}
+              variant="gradient"
+              gradient={{ from: "indigo", to: "cyan" }}
+              leftSection={<IconGift size={isMobile ? 16 : 18} />}
+            >
+              {isLoading ? "Processing..." : "Complete Profile Setup"}
+            </Button>
+
+            {/* Money-back guarantee */}
+            <Text
+              size={isMobile ? "10px" : "xs"}
+              ta="center"
+              mt="sm"
+              style={{ color: theme.colors.gray[5] }}
+            >
+              30-day money-back guarantee • Cancel anytime
             </Text>
-
-            <Stack gap="sm">
-              <Group justify="space-between">
-                <Text style={{ color: theme.white }}>
-                  Monthly Access Plan
-                </Text>
-                <Text fw={500} style={{ color: theme.white }}>
-                  ${PRICING.monthlyPrice.toFixed(2)}
-                </Text>
-              </Group>
-
-              <Group justify="space-between">
-                <Text style={{ color: theme.colors.gray[5] }}>
-                  Tax
-                </Text>
-                <Text style={{ color: theme.colors.gray[5] }}>
-                  ${PRICING.tax.toFixed(2)}
-                </Text>
-              </Group>
-
-              <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
-
-              <Group justify="space-between">
-                <Text fw={600} size="lg" style={{ color: theme.white }}>
-                  Total
-                </Text>
-                <Text fw={600} size="lg" style={{ color: theme.white }}>
-                  ${total.toFixed(2)}
-                </Text>
-              </Group>
-            </Stack>
-          </Box>
-
-          {/* Payment Button */}
-          <Button
-            size="lg"
-            fullWidth
-            mt="xl"
-            loading={isLoading}
-            onClick={handleComplete}
-            variant="gradient"
-            gradient={{ from: "indigo", to: "cyan" }}
-            leftSection={<IconGift size={18} />}
-          >
-            {isLoading ? "Processing..." : "Complete Profile Setup"}
-          </Button>
-
-          {/* Money-back guarantee */}
-          <Text
-            size="xs"
-            ta="center"
-            mt="sm"
-            style={{ color: theme.colors.gray[5] }}
-          >
-            30-day money-back guarantee • Cancel anytime
-          </Text>
-      </Paper>
-      </SimpleGrid>
-    </Stack>
-  </Box>
+          </Paper>
+        </SimpleGrid>
+      </Stack>
+    </Paper>
   );
 };
 

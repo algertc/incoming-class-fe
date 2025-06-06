@@ -27,6 +27,19 @@ class UsersService {
   }
   
   /**
+   * Fetch user by ID using specific endpoint
+   * 
+   * @param userId - The ID of the user to retrieve
+   * @returns Promise with the user data
+   */
+  async fetchUserById(userId: string): Promise<IServerResponse<User>> {
+    return request<User>({
+      url: API_ENDPOINTS.users.fetchUserById(userId),
+      method: 'GET'
+    });
+  }
+  
+  /**
    * Update user profile by ID
    * 
    * @param userId - The ID of the user to update

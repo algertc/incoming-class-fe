@@ -11,6 +11,7 @@ import {
   LoadingOverlay,
 } from '@mantine/core';
 import { useForm, yupResolver } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import { useUpdateCurrentUserProfile } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
 import { traitsPreferencesSchema, traitsPreferencesInitialValues } from '../../../forms';
@@ -25,6 +26,7 @@ interface TraitsPreferencesProps {
 const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const form = useForm({
     initialValues: traitsPreferencesInitialValues,
@@ -69,16 +71,35 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
   };
 
   return (
-    <Paper className={styles.container} p="xl" radius="md">
+    <Paper 
+      className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`} 
+      p={isMobile ? "md" : "xl"} 
+      radius="md"
+      style={{
+        ...(isMobile && {
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        })
+      }}
+    >
       <LoadingOverlay visible={isSubmitting || isPending} overlayProps={{ blur: 2 }} />
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md">
-          <Text c={"white"} className={styles.title} size="lg" fw={600}>
+      <form 
+        onSubmit={form.onSubmit(handleSubmit)}
+        style={isMobile ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}
+      >
+        <Stack gap={isMobile ? "sm" : "md"} style={isMobile ? { flex: 1, overflow: 'hidden' } : {}}>
+          <Text c={"white"} className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
             Tell Us About Your Preferences
           </Text>
 
-          <ScrollArea h={400} type="auto">
-            <Stack gap="xl">
+          <ScrollArea 
+            h={isMobile ? 300 : undefined} 
+            type="auto" 
+            className={isMobile ? styles.scrollAreaMobile : ''}
+            style={isMobile ? { flex: 1 } : {}}
+          >
+            <Stack gap={isMobile ? "lg" : "xl"}>
               {/* Lifestyle Section */}
               <Box>
                 <Text className={styles.sectionTitle} fw={600}>
@@ -310,13 +331,14 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
             </Stack>
           </ScrollArea>
 
-          <Group justify="center" mt="xl">
+          <Group justify="center" mt={isMobile ? "md" : "xl"}>
             <Button
               type="submit"
-              size="lg"
+              size={isMobile ? "md" : "lg"}
               className={styles.nextButton}
               loading={isSubmitting || isPending}
               c="white"
+              fullWidth={isMobile}
             >
               Next Step
             </Button>

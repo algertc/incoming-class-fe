@@ -9,6 +9,16 @@
   overflow: hidden; /* Prevent container from scrolling */
 }
 
+/* Mobile responsive container */
+@media (max-width: 768px) {
+  .container {
+    height: 100vh;
+    padding: 10px;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+}
+
 .container::before {
   content: "";
   position: absolute;
@@ -44,31 +54,6 @@
   width: 100%;
   height: 100%;
   overflow: hidden; /* Prevent container from scrolling */
-  
-  /* Firefox scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: #4361ee rgba(0, 0, 0, 0.2);
-}
-
-/* WebKit scrollbar styling for innerContainer */
-.innerContainer::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-
-.innerContainer::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-}
-
-.innerContainer::-webkit-scrollbar-thumb {
-  background: linear-gradient(45deg, #4361ee, #4cc9f0);
-  border-radius: 10px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-}
-
-.innerContainer::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(45deg, #4cc9f0, #4361ee);
 }
 
 .paper {
@@ -86,33 +71,7 @@
   z-index: 10;
   display: flex;
   flex-direction: column;
-  overflow-y: scroll; /* Hide overflow on the paper itself */
-  
-  /* Firefox scrollbar styling */
-  scrollbar-width: thin;
-  scrollbar-color: #4361ee rgba(0, 0, 0, 0.2);
-}
-
-/* WebKit scrollbar styling for paper */
-.paper::-webkit-scrollbar {
-  width: 8px;
-}
-
-.paper::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 10px;
-  margin: 10px 0;
-}
-
-.paper::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, #4361ee, #4cc9f0);
-  border-radius: 10px;
-  border: 2px solid rgba(0, 0, 0, 0.2);
-  box-shadow: 0 0 5px rgba(67, 97, 238, 0.3);
-}
-
-.paper::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, #4cc9f0, #4361ee);
+  overflow: hidden; /* Remove scroll from paper itself */
 }
 
 .paper::before {
@@ -127,6 +86,17 @@
   z-index: -1;
 }
 
+/* Mobile responsive paper */
+.paperMobile {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 20px 15px;
+  border-radius: 12px;
+  max-height: calc(100vh - 20px);
+  overflow: hidden; /* Remove scroll from paper on mobile */
+}
+
 .title {
   background: linear-gradient(45deg, #4361ee, #4cc9f0);
   -webkit-background-clip: text;
@@ -138,6 +108,13 @@
   letter-spacing: -0.5px;
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   flex-shrink: 0; /* Prevent title from shrinking */
+}
+
+/* Mobile responsive title */
+.titleMobile {
+  font-size: 24px;
+  margin-bottom: 15px;
+  letter-spacing: -0.3px;
 }
 
 .subtitle {
@@ -154,6 +131,110 @@
   max-width: 900px;
   margin: 0 auto;
   flex-shrink: 0; /* Prevent stepper from shrinking */
+}
+
+/* Mobile responsive stepper */
+.stepperMobile {
+  margin: 0 auto 15px;
+  max-width: 100%;
+  overflow: hidden; /* Remove scroll from stepper container */
+  position: relative;
+  z-index: 10;
+  background: rgba(20, 20, 30, 0.95);
+  padding: 15px 10px; /* Increase padding to prevent icon cutoff */
+  border-radius: 8px;
+  min-height: 60px; /* Ensure minimum height for icons */
+}
+
+@media (max-width: 768px) {
+  .stepperMobile .mantine-Stepper-root {
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 0; /* Add padding to prevent cutoff */
+  }
+  
+  .stepperMobile .mantine-Stepper-step {
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    padding: 5px 2px; /* Add padding around each step */
+  }
+  
+  .stepperMobile .mantine-Stepper-stepIcon {
+    margin-bottom: 0;
+    width: 28px !important;
+    height: 28px !important;
+    min-width: 28px !important;
+    font-size: 12px !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
+  
+  .stepperMobile .mantine-Stepper-stepBody {
+    display: block;
+    margin-top: 4px;
+  }
+  
+  .stepperMobile .mantine-Stepper-stepLabel {
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    color: white !important;
+    margin: 2px 0 0 0 !important;
+    line-height: 1.1 !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60px;
+  }
+  
+  .stepperMobile .mantine-Stepper-stepDescription {
+    display: none !important;
+  }
+  
+  .stepperMobile .mantine-Stepper-separator {
+    margin: 0 8px !important;
+    height: 2px !important;
+    flex: 1;
+    min-width: 12px;
+    max-width: 30px;
+  }
+  
+  .stepperMobile .mantine-Stepper-steps {
+    justify-content: space-between;
+    width: 100%;
+    gap: 4px;
+  }
+  
+  /* Make container smaller on very small screens */
+  @media (max-width: 480px) {
+    .stepperMobile .mantine-Stepper-stepLabel {
+      font-size: 9px !important;
+      max-width: 45px;
+    }
+    
+    .stepperMobile .mantine-Stepper-stepIcon {
+      width: 26px !important;
+      height: 26px !important;
+      min-width: 26px !important;
+      font-size: 11px !important;
+      border-radius: 50% !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .stepperMobile .mantine-Stepper-separator {
+      margin: 0 6px !important;
+      min-width: 8px;
+      max-width: 20px;
+    }
+  }
 }
 
 .stepHeader {
@@ -178,10 +259,14 @@
 
 .contentWrapper {
   flex: 1;
-  overflow-y: auto; /* Only add scroll to content */
+  overflow-y: auto; /* Restore scroll for desktop */
+  overflow-x: hidden;
   margin: 0 -20px; /* Negative margin to allow padding inside */
   padding: 0 20px; /* Padding to prevent content touching the edges */
-  /* Custom scrollbar styling */
+  display: flex;
+  flex-direction: column;
+  
+  /* Custom scrollbar styling for desktop */
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.2);
 }
@@ -200,6 +285,22 @@
   border-radius: 10px;
 }
 
+.contentWrapper::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Mobile responsive content */
+.contentMobile {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Remove scroll from mobile content wrapper */
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .stepContent {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
@@ -214,6 +315,14 @@
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0; /* Prevent navigation from shrinking */
+}
+
+/* Mobile responsive navigation */
+.navigationMobile {
+  margin-top: 15px;
+  padding-top: 15px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .backButton {
@@ -262,6 +371,13 @@
   box-shadow: none;
   transform: none;
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile responsive back button */
+@media (max-width: 768px) {
+  .backButton:hover {
+    transform: none;
+  }
 }
 
 .stepIcon {

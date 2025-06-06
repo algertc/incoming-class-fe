@@ -1,58 +1,141 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   Box,
   Avatar,
   Title,
   Text,
   Group,
-  Button,
   ActionIcon,
   Badge,
   Progress,
   Stack,
   rem,
+  LoadingOverlay,
 } from '@mantine/core';
 import {
-  IconSettings,
-  IconShare,
+  IconCopy,
   IconMapPin,
   IconCamera,
   IconSchool as IconGraduation,
   IconSparkles,
 } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { useUploadProfilePicture, createProfileImageFormData, validateSingleImageFile } from '../../../hooks/api';
 
 interface ModernProfileHeaderProps {
   name: string;
   designation: string;
-  profileImage: string;
+  profilePicture: string;
   hometown: string;
   bio: string;
   isPremium: boolean;
   profileCompletion: number;
-  onSettingsClick: () => void;
+  userId?: string;
 }
 
 const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
   name,
   designation,
-  profileImage,
+  profilePicture,
   hometown,
   bio,
   isPremium,
   profileCompletion,
-  onSettingsClick,
+  userId,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutateAsync: uploadProfilePicture, isPending: isUploading } = useUploadProfilePicture();
+  
+  const handleCopyProfile = async () => {
+    try {
+      const profileUrl = `http://localhost:5173/profile/student/${userId || '68344dbaac71a85065c347af'}`;
+      await navigator.clipboard.writeText(profileUrl);
+      
+      notifications.show({
+        title: 'Copied!',
+        message: 'Profile link copied to clipboard',
+        color: 'green',
+        autoClose: 3000,
+      });
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Failed to copy profile link',
+        color: 'red',
+        autoClose: 3000,
+      });
+    }
+  };
+
+  const handleProfileImageUpload = async (file: File) => {
+    try {
+      // Validate file first
+      const validation = validateSingleImageFile(file);
+      if (!validation.isValid) {
+        notifications.show({
+          title: 'Invalid File',
+          message: validation.error || 'Please select a valid image file',
+          color: 'red',
+          autoClose: 5000,
+        });
+        return;
+      }
+
+      // Create FormData and upload
+      const formData = createProfileImageFormData(file);
+      const response = await uploadProfilePicture(formData);
+
+      if (response.status) {
+        notifications.show({
+          title: 'Success!',
+          message: 'Profile picture updated successfully',
+          color: 'green',
+          autoClose: 3000,
+        });
+      } else {
+        throw new Error(response.message || 'Failed to upload profile picture');
+      }
+    } catch (error) {
+      notifications.show({
+        title: 'Upload Failed',
+        message: error instanceof Error ? error.message : 'Failed to upload profile picture',
+        color: 'red',
+        autoClose: 5000,
+      });
+    }
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleProfileImageUpload(file);
+    }
+    // Reset the file input so the same file can be selected again
+    event.target.value = '';
+  };
+
   return (
     <Box
       style={{
         position: 'relative',
         marginBottom: rem(16),
         minHeight: rem(180),
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
         borderRadius: rem(20),
         overflow: 'hidden',
       }}
     >
+      <LoadingOverlay visible={isUploading} overlayProps={{ blur: 2 }} />
+      
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/jpg,image/png,image/webp"
+        style={{ display: 'none' }}
+      />
+
       {/* Animated background elements */}
       <Box
         style={{
@@ -62,8 +145,8 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
           right: 0,
           bottom: 0,
           background: `
-            radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 20% 80%, rgba(67, 97, 238, 0.3) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(76, 201, 240, 0.3) 0%, transparent 50%),
             radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%)
           `,
           animation: 'pulse 4s ease-in-out infinite alternate',
@@ -75,7 +158,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
           {/* Avatar with modern styling */}
           <Box style={{ position: 'relative' }}>
             <Avatar
-              src={profileImage}
+              src={profilePicture}
               size={100}
               radius="50%"
               style={{
@@ -89,14 +172,19 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               variant="filled"
               radius="xl"
               size="md"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
               style={{
                 position: 'absolute',
                 bottom: -4,
                 right: -4,
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
                 border: '2px solid rgba(255, 255, 255, 0.3)',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                cursor: isUploading ? 'not-allowed' : 'pointer',
+                opacity: isUploading ? 0.7 : 1,
               }}
+              title="Change profile picture"
             >
               <IconCamera size={16} />
             </ActionIcon>
@@ -153,38 +241,23 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
             </Group>
           </Stack>
 
-          {/* Action Buttons */}
-          <Group gap="xs">
-            <Button
-              leftSection={<IconSettings size={16} />}
-              variant="light"
-              size="sm"
-              radius="xl"
-              color="blue"
-              style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: 'white',
-              }}
-              onClick={onSettingsClick}
-            >
-              Settings
-            </Button>
-            <ActionIcon
-              variant="light"
-              size="lg"
-              radius="xl"
-              style={{
-                background: 'rgba(255, 255, 255, 0.15)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                color: 'white',
-              }}
-            >
-              <IconShare size={18} />
-            </ActionIcon>
-          </Group>
+          {/* Copy Profile Link Button */}
+          <ActionIcon
+            variant="light"
+            size="lg"
+            radius="xl"
+            onClick={handleCopyProfile}
+            style={{
+              background: 'rgba(255, 255, 255, 0.15)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              cursor: 'pointer',
+            }}
+            title="Copy profile link"
+          >
+            <IconCopy size={18} />
+          </ActionIcon>
         </Group>
       </Box>
     </Box>

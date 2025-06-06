@@ -148,7 +148,7 @@ export const Header: React.FC = () => {
                 >
                   <Group gap={12}>
                     <Avatar
-                      src={user?.profileImage}
+                      src={user?.profilePicture}
                       alt={fullName}
                       radius="xl"
                       size={36}

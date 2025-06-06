@@ -1,5 +1,6 @@
 import React from "react";
 import { Flex, Box } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import LoginPage from "../../auth/login/LoginPage";
 import SignupPage from "../../auth/signup/SignupPage";
 import ForgotPasswordPage from "../../auth/forgot-password/ForgotPasswordPage";
@@ -12,6 +13,8 @@ interface IProps {
 }
 
 const AuthLayout: React.FC<IProps> = ({ formType }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const renderForm = () => {
     switch (formType) {
       case "login":
@@ -101,7 +104,7 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
         <FeatureSlideshow />
       </Flex>
       
-      {/* Form section - full height and width */}
+      {/* Form section */}
       <Flex
         justify={"center"}
         align={"center"}
@@ -113,7 +116,8 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
           backdropFilter: "blur(15px)",
           position: "relative",
           zIndex: 1,
-          padding: "40px 30px",
+          // Different padding for mobile vs desktop
+          padding: isMobile ? "0" : "40px 30px",
         }}
       >
         {/* Glass overlay for enhanced effect */}
@@ -125,33 +129,36 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
             right: 0,
             bottom: 0,
             background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
-            borderLeft: "1px solid rgba(255, 255, 255, 0.08)",
+            borderLeft: isMobile ? "none" : "1px solid rgba(255, 255, 255, 0.08)",
             zIndex: 0,
           }}
         />
 
-        {/* Logo at the top */}
-        <Flex
-          justify={"center"}
-          mb={30}
-          style={{
-            position: "absolute",
-            top: "30px",
-            left: 0,
-            right: 0,
-            zIndex: 2,
-          }}
-        >
-          <Logo darkMode />
-        </Flex>
+        {/* Logo at the top - only show on desktop as mobile will have it in forms */}
+        {!isMobile && (
+          <Flex
+            justify={"center"}
+            mb={30}
+            style={{
+              position: "absolute",
+              top: "30px",
+              left: 0,
+              right: 0,
+              zIndex: 2,
+            }}
+          >
+            <Logo darkMode />
+          </Flex>
+        )}
 
         {/* Form content */}
         <Flex
           style={{
             width: "100%",
-            maxWidth: "650px",
+            maxWidth: isMobile ? "100%" : "650px",
+            height: isMobile ? "100%" : "auto",
             margin: "0 auto",
-            marginTop: "80px", // Add space for the logo
+            marginTop: isMobile ? "0" : "80px", // Remove top margin on mobile
             position: "relative",
             zIndex: 2,
           }}

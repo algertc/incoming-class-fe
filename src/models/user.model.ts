@@ -19,7 +19,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  profileImage?: string;
+  profilePicture?: string;
   bio?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -64,6 +64,31 @@ export interface UpdateProfileData {
   lookingForRoommate?: boolean;
   instagram?: string;
   snapchat?: string;
+  
+  // Traits and preferences
+  sleepSchedule?: string;
+  cleanliness?: string;
+  guests?: string;
+  studying?: string;
+  substances?: string;
+  personality?: string[];
+  physicalActivity?: string[];
+  pastimes?: string[];
+  food?: string[];
+  
+  // Nested traits object (alternative structure for certain components)
+  traits?: {
+    sleepSchedule?: string;
+    cleanliness?: string;
+    guests?: string;
+    studying?: string;
+    substances?: string;
+    personality?: string[];
+    physicalActivity?: string[];
+    pastimes?: string[];
+    food?: string[];
+    other?: string | string[];
+  };
   
   // Profile stage information
   profileStage?: ProfileStage;

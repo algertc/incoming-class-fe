@@ -2,9 +2,20 @@
   text-align: center;
 }
 
+/* Mobile responsive container */
+.containerMobile {
+  padding: 0 10px;
+}
+
 .title {
   color: white;
   margin-bottom: 20px;
+}
+
+/* Mobile responsive title */
+.titleMobile {
+  margin-bottom: 15px;
+  font-size: 18px !important;
 }
 
 .dropzone {
@@ -14,6 +25,12 @@
   padding: 20px;
   cursor: pointer;
   transition: background-color 0.2s;
+}
+
+/* Mobile responsive dropzone */
+.dropzoneMobile {
+  padding: 15px;
+  border-radius: 6px;
 }
 
 .dropzone:hover {
@@ -27,6 +44,11 @@
 
 .photoGrid {
   margin-top: 20px;
+}
+
+/* Mobile responsive photo grid */
+.photoGridMobile {
+  margin-top: 15px;
 }
 
 .photoItem {
@@ -46,13 +68,37 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+/* Mobile responsive add photo button */
+.addPhotoButtonMobile {
+  border-radius: 6px;
+}
+
+.addPhotoButton:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .nextButton {
   background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
   margin-top: 20px;
+  transition: all 0.3s ease;
 }
 
 .nextButton:hover {
   background: linear-gradient(45deg, #FF5252, #3DBEB6);
+  transform: translateY(-2px);
+}
+
+/* Mobile responsive next button */
+@media (max-width: 768px) {
+  .nextButton:hover {
+    transform: none;
+  }
+  
+  .nextButton {
+    margin-top: 15px;
+  }
 } 

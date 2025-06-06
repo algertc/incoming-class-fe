@@ -22,6 +22,7 @@ const API_ENDPOINTS = {
   users: {
     base: '/users',
     getById: (id: string) => `/users/${id}`,
+    fetchUserById: (id: string) => `/users/fetchUserById/${id}`,
     updateProfile: (id: string) => `/users/${id}`,
     deleteAccount: (id: string) => `/users/${id}`,
     updateCurrentUserProfile: '/users/updateUserById',

@@ -12,6 +12,7 @@ import {
   SimpleGrid,
   LoadingOverlay,
 } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import { IconUpload, IconX, IconPlus } from '@tabler/icons-react';
 import { useUpdateCurrentUserProfile, useUploadMultipleImages, createImageFormData, validateImageFiles } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
@@ -28,6 +29,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const theme = useMantineTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
   const { mutateAsync: uploadImages, isPending: isUploadingImages } = useUploadMultipleImages();
 
@@ -116,7 +118,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const isLoading = isSubmitting || isUploadingImages || isUpdatingProfile;
 
   return (
-    <Box className={styles.container}>
+    <Box className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`}>
       <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
       
       <input
@@ -128,27 +130,31 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
         style={{ display: 'none' }}
       />
 
-      <Text className={styles.title} size="lg" fw={600}>
+      <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
         Upload Your Photos
       </Text>
 
       <Paper
-        className={styles.dropzone}
+        className={`${styles.dropzone} ${isMobile ? styles.dropzoneMobile : ''}`}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => fileInputRef.current?.click()}
       >
-        <IconUpload style={{ width: rem(48), height: rem(48), color: theme.white }} />
-        <Text className={styles.dropzoneText}>
-          Drag and drop photos here or click to select
+        <IconUpload style={{ width: rem(isMobile ? 32 : 48), height: rem(isMobile ? 32 : 48), color: theme.white }} />
+        <Text className={styles.dropzoneText} size={isMobile ? "sm" : "md"}>
+          {isMobile ? "Tap to select photos" : "Drag and drop photos here or click to select"}
         </Text>
-        <Text size="sm" c="dimmed" mt="xs">
+        <Text size={isMobile ? "xs" : "sm"} c="dimmed" mt="xs">
           Upload up to 10 images (max 5MB each)
         </Text>
       </Paper>
 
       {photos.length > 0 && (
-        <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} className={styles.photoGrid}>
+        <SimpleGrid 
+          cols={{ base: 2, sm: 3, md: 4 }} 
+          className={`${styles.photoGrid} ${isMobile ? styles.photoGridMobile : ''}`}
+          spacing={isMobile ? "sm" : "md"}
+        >
           {photos.map((photo, index) => (
             <Box key={index} className={styles.photoItem}>
               <Image
@@ -159,23 +165,23 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
               <ActionIcon
                 variant="filled"
                 color="red"
-                size="sm"
+                size={isMobile ? "xs" : "sm"}
                 radius="xl"
                 pos="absolute"
                 top={-8}
                 right={-8}
                 onClick={() => removePhoto(index)}
               >
-                <IconX style={{ width: rem(14), height: rem(14) }} />
+                <IconX style={{ width: rem(isMobile ? 12 : 14), height: rem(isMobile ? 12 : 14) }} />
               </ActionIcon>
             </Box>
           ))}
           {photos.length < 10 && (
             <Paper
-              className={styles.addPhotoButton}
+              className={`${styles.addPhotoButton} ${isMobile ? styles.addPhotoButtonMobile : ''}`}
               onClick={() => fileInputRef.current?.click()}
             >
-              <IconPlus style={{ width: rem(32), height: rem(32), color: theme.white }} />
+              <IconPlus style={{ width: rem(isMobile ? 24 : 32), height: rem(isMobile ? 24 : 32), color: theme.white }} />
             </Paper>
           )}
         </SimpleGrid>
@@ -183,14 +189,15 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
 
       <Group justify="center" mt="xl">
         <Button
-          size="lg"
+          size={isMobile ? "md" : "lg"}
           onClick={handleNext}
           disabled={selectedFiles.length === 0}
           className={styles.nextButton}
           c="white"
           loading={isLoading}
+          fullWidth={isMobile}
         >
-          Upload Photos & Continue
+        Continue
         </Button>
       </Group>
     </Box>

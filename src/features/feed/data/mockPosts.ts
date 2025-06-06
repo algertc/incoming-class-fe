@@ -71,6 +71,49 @@ export const MOCK_POSTS: Post[] = [
     likes: 211,
     comments: 45,
     shares: 18
+  },
+  {
+    id: '6',
+    author: {
+      id: 'user6',
+      name: 'Jessica Taylor',
+      avatar: 'https://i.pravatar.cc/150?img=15',
+      verified: false
+    },
+    content: 'Finally finished my economics midterm! That was brutal. Time to relax with some Netflix and pizza. What are your favorite study snacks?',
+    timestamp: new Date(Date.now() - 30 * 60 * 60 * 1000), // 30 hours ago
+    likes: 64,
+    comments: 12,
+    shares: 1
+  },
+  {
+    id: '7',
+    author: {
+      id: 'user7',
+      name: 'Ryan Foster',
+      avatar: 'https://i.pravatar.cc/150?img=20',
+      verified: true
+    },
+    content: 'Campus coffee shop is having a flash sale! 50% off all drinks for the next 2 hours. Perfect timing for finals week caffeine addiction.',
+    images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80'],
+    timestamp: new Date(Date.now() - 36 * 60 * 60 * 1000), // 36 hours ago
+    likes: 129,
+    comments: 28,
+    shares: 15
+  },
+  {
+    id: '8',
+    author: {
+      id: 'user8',
+      name: 'Maya Patel',
+      avatar: 'https://i.pravatar.cc/150?img=25',
+      verified: false
+    },
+    content: 'Just got back from the career fair! So many amazing opportunities. Pro tip: bring multiple copies of your resume and practice your elevator pitch beforehand.',
+    timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
+    likes: 95,
+    comments: 16,
+    shares: 8
   }
 ];
 

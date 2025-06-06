@@ -34,7 +34,6 @@ const FeedPage: React.FC = () => {
         backgroundColor: "#101720",
         minHeight: "100vh",
         position: "relative",
-        paddingTop: 90, // Account for fixed header
       }}
     >
       {/* Add responsive CSS */}
@@ -43,7 +42,7 @@ const FeedPage: React.FC = () => {
       {/* Animated background for visual appeal */}
       <AnimatedBackground />
 
-      <Container size="xl" px={{ base: 16, sm: 32, md: 32 }} py={40}>
+      <Container size="xl" px={{ base: 16, sm: 32, md: 32 }} py={{ base: 20, sm: 30, md: 40 }}>
         {!user ? (
           // Unauthenticated view - Show limited feed with login prompt
           <Box>
@@ -54,7 +53,7 @@ const FeedPage: React.FC = () => {
                 borderRadius: "8px",
                 border: "1px solid rgba(255, 255, 255, 0.1)",
                 padding: "24px",
-                marginBottom: 40,
+                marginBottom: 32,
                 textAlign: "center",
               }}
             >
@@ -85,7 +84,7 @@ const FeedPage: React.FC = () => {
             </Box>
             
             {/* Three column layout for unauthenticated users */}
-            <Grid gutter={{ base: 24, sm: 32, md: 48 }}>
+            <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
               {/* Left Column - Filters & Search - Hidden on mobile */}
               <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
                 <FiltersSidebar />
@@ -104,11 +103,11 @@ const FeedPage: React.FC = () => {
           </Box>
         ) : (
           // Authenticated view - Show full feed with sidebars
-          <Grid gutter={{ base: 24, sm: 32, md: 48 }}>
+          <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
             {/* Left Column - Filters & Search - Hidden on mobile */}
             <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
               <FiltersSidebar />
-              <Box mt={40}>
+              <Box mt={32}>
                 <LeftSidebar user={user} />
               </Box>
             </Grid.Col>
@@ -121,7 +120,7 @@ const FeedPage: React.FC = () => {
             {/* Right Column - Premium Features & Network - Hidden on mobile */}
             <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
               <PremiumFeatures />
-              <Box mt={40}>
+              <Box mt={32}>
                 <RightSidebar />
               </Box>
             </Grid.Col>

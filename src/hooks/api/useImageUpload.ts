@@ -10,7 +10,7 @@ import { authKeys } from './useAuth';
  */
 interface ImageUploadResponse {
   images: string[];
-  profileImage?: string;
+  profilePicture?: string;
   message: string;
 }
 
@@ -90,7 +90,7 @@ export const useUploadMultipleImages = () => {
               data: {
                 ...currentUser.data,
                 images: data.data.images,
-                profileImage: data.data.profileImage || currentUser.data?.profileImage,
+                profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
               },
             };
           }
@@ -176,6 +176,153 @@ export const validateImageFiles = (files: File[]): { isValid: boolean; error?: s
         error: `Image "${file.name}" is too large. Maximum size is 5MB` 
       };
     }
+  }
+
+  return { isValid: true };
+};
+
+/**
+ * Hook for uploading single profile picture
+ * 
+ * This hook handles the file upload for profile picture updates.
+ * It automatically updates the user's cache data after successful upload.
+ * 
+ * @example
+ * ```tsx
+ * import { useUploadProfilePicture, createProfileImageFormData, validateSingleImageFile } from '../hooks/api';
+ * 
+ * const MyComponent = () => {
+ *   const { mutateAsync: uploadProfilePicture, isPending, error } = useUploadProfilePicture();
+ *   
+ *   const handleUpload = async (file: File) => {
+ *     // Validate file first
+ *     const validation = validateSingleImageFile(file);
+ *     if (!validation.isValid) {
+ *       alert(validation.error);
+ *       return;
+ *     }
+ *     
+ *     // Create FormData and upload
+ *     const formData = createProfileImageFormData(file);
+ *     try {
+ *       const response = await uploadProfilePicture(formData);
+ *       console.log('Profile picture uploaded:', response.data.profileImage);
+ *     } catch (error) {
+ *       console.error('Upload failed:', error);
+ *     }
+ *   };
+ *   
+ *   return (
+ *     <input 
+ *       type="file" 
+ *       accept="image/*"
+ *       onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
+ *     />
+ *   );
+ * };
+ * ```
+ */
+export const useUploadProfilePicture = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    IServerResponse<ImageUploadResponse>,
+    Error,
+    FormData
+  >({
+    mutationFn: async (formData: FormData) => {
+      return request<ImageUploadResponse>({
+        url: API_ENDPOINTS.users.uploadUserProfile,
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: (data) => {
+      if (data.status && data.data) {
+        // Invalidate and refetch current user data to update the profile
+        queryClient.invalidateQueries({
+          queryKey: authKeys.currentUser(),
+        });
+        
+        // Optionally update the cache directly if we want immediate updates
+        queryClient.setQueryData(authKeys.currentUser(), (oldData: unknown) => {
+          if (oldData && typeof oldData === 'object' && 'data' in oldData) {
+            const currentUser = oldData as IServerResponse<User>;
+            return {
+              ...currentUser,
+              data: {
+                ...currentUser.data,
+                profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
+              },
+            };
+          }
+          return oldData;
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Helper function to create FormData for single profile image
+ * 
+ * @param file - Single File object to upload as profile picture
+ * @returns FormData ready for upload
+ * 
+ * @example
+ * ```tsx
+ * const file = fileInput.files[0];
+ * const formData = createProfileImageFormData(file);
+ * ```
+ */
+export const createProfileImageFormData = (file: File): FormData => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('isProfileImage', 'true');
+  return formData;
+};
+
+/**
+ * Validation helper for single image file
+ * 
+ * Validates file size and type according to platform requirements.
+ * 
+ * @param file - File to validate
+ * @returns Object with isValid boolean and error message if invalid
+ * 
+ * @example
+ * ```tsx
+ * const validation = validateSingleImageFile(selectedFile);
+ * if (!validation.isValid) {
+ *   showError(validation.error);
+ *   return;
+ * }
+ * // Proceed with upload
+ * ```
+ */
+export const validateSingleImageFile = (file: File): { isValid: boolean; error?: string } => {
+  const maxFileSize = 5 * 1024 * 1024; // 5MB
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  if (!file) {
+    return { isValid: false, error: 'Please select an image file' };
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return { 
+      isValid: false, 
+      error: 'Please only upload JPEG, PNG, or WebP images' 
+    };
+  }
+
+  if (file.size > maxFileSize) {
+    return { 
+      isValid: false, 
+      error: `Image "${file.name}" is too large. Maximum size is 5MB` 
+    };
   }
 
   return { isValid: true };

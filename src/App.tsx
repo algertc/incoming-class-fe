@@ -3,6 +3,7 @@ import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+import { ModalsProvider } from "@mantine/modals";
 import "./index.css";
 import THEME from "./theme";
 import AppRouterProvider from "./routing/AppRouterProvider";
@@ -23,8 +24,10 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={THEME}>
-        <Notifications position="top-right" zIndex={2000} limit={1} />
-        <AppRouterProvider />
+        <ModalsProvider>
+          <Notifications position="top-right" zIndex={2000} limit={1} />
+          <AppRouterProvider />
+        </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>
   );

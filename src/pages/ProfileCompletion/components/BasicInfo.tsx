@@ -12,6 +12,7 @@ import {
   Paper,
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { ProfileStage } from "../../../models/user.model";
@@ -25,6 +26,7 @@ interface BasicInfoProps {
 
 const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const form = useForm({
     initialValues: profileBasicInfoInitialValues,
@@ -50,10 +52,21 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
   };
 
   return (
-    <Paper className={styles.container} p="xl" radius="md">
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md">
-          <Text className={styles.title} size="lg" fw={600}>
+    <Paper 
+      className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`} 
+      p={isMobile ? "sm" : "xl"} 
+      radius="md"
+      style={{
+        ...(isMobile && {
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column'
+        })
+      }}
+    >
+      <form onSubmit={form.onSubmit(handleSubmit)} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Stack gap={isMobile ? "xs" : "md"} style={{ flex: 1 }}>
+          <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
             Tell Us About Yourself
           </Text>
 
@@ -67,8 +80,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("instagram")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <TextInput
@@ -80,8 +94,9 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("snapchat")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Select
@@ -105,10 +120,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("major")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
               dropdown: styles.dropdown,
               option: styles.item,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Select
@@ -131,10 +147,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("university")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
               dropdown: styles.dropdown,
               option: styles.item,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Select
@@ -151,10 +168,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("batch")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
               dropdown: styles.dropdown,
               option: styles.item,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Select
@@ -217,22 +235,24 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             {...form.getInputProps("hometown")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
               dropdown: styles.dropdown,
               option: styles.item,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Textarea
             required
             label="Short Bio"
             placeholder="Tell us about yourself..."
-            minRows={4}
+            minRows={isMobile ? 3 : 4}
             {...form.getInputProps("bio")}
             classNames={{
               label: styles.label,
-              input: styles.input,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
           <Checkbox
@@ -242,14 +262,16 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
               label: styles.label,
               input: styles.input,
             }}
+            size={isMobile ? "sm" : "md"}
           />
 
-          <Group justify="center" mt="xl">
+          <Group justify="center" mt={isMobile ? "md" : "xl"} mb={isMobile ? "sm" : 0}>
             <Button
               type="submit"
-              size="lg"
+              size={isMobile ? "md" : "lg"}
               loading={isPending}
               className={styles.nextButton}
+              fullWidth={isMobile}
             >
               Next Step
             </Button>

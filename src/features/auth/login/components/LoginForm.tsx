@@ -55,6 +55,7 @@ const LoginForm: React.FC = () => {
   return (
     <Box 
       w={{ base: '100%', xs: '100%', sm: '520px' }}
+      maw="100%"
       mx="auto"
       className={classes.formContainer}
       style={{ 
