@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Paper, 
@@ -12,116 +12,69 @@ import {
   Modal,
   Divider,
   Loader,
-  Center
+  Center,
+  Badge,
+  ActionIcon,
 } from '@mantine/core';
-import { IconLock } from '@tabler/icons-react';
+import { IconLock, IconRefresh, IconX, IconAlertCircle } from '@tabler/icons-react';
 import { useAuthStore } from '../../../store/auth.store';
+import { useFeedStore } from '../../../store/feed.store';
 import { useNavigate } from 'react-router';
 import PostCard from './PostCard';
 import type { Post } from './PostCard';
-import { MOCK_POSTS } from '../data/mockPosts';
 
 const FeedContent: React.FC = () => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const [loginModalOpened, setLoginModalOpened] = useState(false);
+  const isAuthenticated = !!user;
   
-  // Infinite scroll state for unauthenticated users
-  const [visiblePosts, setVisiblePosts] = useState<Post[]>([]);
-  const [hasReachedLimit, setHasReachedLimit] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  // Use feed store
+  const {
+    posts,
+    isLoading,
+    isLoadingMore,
+    hasMore,
+    hasReachedLimit,
+    maxPostsWithoutLogin,
+    filters,
+    error,
+    totalCount,
+    initializeFeed,
+    loadMorePosts,
+    refreshFeed,
+    resetFilters,
+    setCategories,
+  } = useFeedStore();
+  
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  
-  // Configuration
-  const POSTS_PER_LOAD = 3;
-  const MAX_POSTS_WITHOUT_LOGIN = 6;
 
-  // Simulate initial loading
+  // Categories mapping for display
+  const categoryLabels = {
+    academic: "Academic",
+    social: "Social Life", 
+    housing: "Housing",
+    career: "Career",
+    events: "Events",
+    advice: "Advice",
+  };
+
+  // Initialize feed on component mount
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-      // Initialize with first batch of posts for unauthenticated users
-      if (!user) {
-        setVisiblePosts(MOCK_POSTS.slice(0, POSTS_PER_LOAD));
-      }
-    }, 1500);
+    initializeFeed(isAuthenticated);
+  }, [user, initializeFeed]);
 
-    return () => clearTimeout(timer);
-  }, [user]);
-
-  // Load more posts function
-  const loadMorePosts = useCallback(() => {
-    if (hasReachedLimit || isLoadingMore || user) {
-      console.log('Load more blocked:', { hasReachedLimit, isLoadingMore, user: !!user });
+  // Intersection Observer for infinite scroll
+  useEffect(() => {
+    if (!hasMore || isLoading || hasReachedLimit) {
       return;
     }
-
-    console.log('Loading more posts, current length:', visiblePosts.length);
-    setIsLoadingMore(true);
-    
-    // Simulate loading delay
-    setTimeout(() => {
-      const currentLength = visiblePosts.length;
-      
-      // Check if we'll exceed the limit with the next batch
-      if (currentLength >= MAX_POSTS_WITHOUT_LOGIN) {
-        console.log('Already at limit, triggering modal');
-        setHasReachedLimit(true);
-        setLoginModalOpened(true);
-        setIsLoadingMore(false);
-        return;
-      }
-      
-      // Calculate how many posts we can still show
-      const remainingSlots = MAX_POSTS_WITHOUT_LOGIN - currentLength;
-      const postsToLoad = Math.min(POSTS_PER_LOAD, remainingSlots);
-      const nextBatch = MOCK_POSTS.slice(currentLength, currentLength + postsToLoad);
-      
-      console.log('Next batch:', { currentLength, postsToLoad, batchSize: nextBatch.length });
-      
-      if (nextBatch.length === 0) {
-        // No more posts available, trigger modal
-        console.log('No more posts available, triggering modal');
-        setHasReachedLimit(true);
-        setLoginModalOpened(true);
-        setIsLoadingMore(false);
-        return;
-      }
-      
-      // Add the posts
-      setVisiblePosts(prev => {
-        const newPosts = [...prev, ...nextBatch];
-        console.log('Updated posts count:', newPosts.length);
-        return newPosts;
-      });
-      
-      // Check if we've reached the limit after adding posts
-      if (currentLength + nextBatch.length >= MAX_POSTS_WITHOUT_LOGIN) {
-        console.log('Reached limit after adding posts, triggering modal');
-        setHasReachedLimit(true);
-        setLoginModalOpened(true);
-      }
-      
-      setIsLoadingMore(false);
-    }, 800);
-  }, [visiblePosts.length, hasReachedLimit, isLoadingMore, user, MAX_POSTS_WITHOUT_LOGIN, POSTS_PER_LOAD]);
-
-  // Intersection Observer setup
-  useEffect(() => {
-    if (user || hasReachedLimit || isLoading) {
-      console.log('Observer blocked:', { user: !!user, hasReachedLimit, isLoading });
-      return;
-    }
-
-    console.log('Setting up intersection observer');
 
     const observer = new IntersectionObserver(
       (entries) => {
         const [entry] = entries;
-        console.log('Intersection observed:', { isIntersecting: entry.isIntersecting, isLoadingMore });
         if (entry.isIntersecting && !isLoadingMore) {
-          loadMorePosts();
+          loadMorePosts(isAuthenticated);
         }
       },
       {
@@ -132,16 +85,15 @@ const FeedContent: React.FC = () => {
 
     const currentTarget = loadMoreRef.current;
     if (currentTarget) {
-      console.log('Observing target element');
       observer.observe(currentTarget);
     }
 
     return () => {
-      console.log('Cleaning up intersection observer');
       observer.disconnect();
     };
-  }, [user, hasReachedLimit, isLoading, isLoadingMore, loadMorePosts]);
+  }, [hasMore, isLoading, isLoadingMore, hasReachedLimit, loadMorePosts, isAuthenticated]);
 
+  // Handle modal actions
   const handleModalLogin = () => {
     setLoginModalOpened(false);
     navigate('/login');
@@ -152,10 +104,124 @@ const FeedContent: React.FC = () => {
     navigate('/signup');
   };
 
-  const renderAuthenticatedContent = () => (
+  // Handle reaching limit for unauthenticated users
+  useEffect(() => {
+    if (hasReachedLimit && !isAuthenticated) {
+      setLoginModalOpened(true);
+    }
+  }, [hasReachedLimit, isAuthenticated]);
+
+  // Remove a category filter
+  const removeCategory = (categoryToRemove: string) => {
+    const newCategories = filters.categories.filter(cat => cat !== categoryToRemove);
+    setCategories(newCategories, isAuthenticated);
+  };
+
+  // Check if any filters are active
+  const hasActiveFilters = filters.searchQuery || 
+                          filters.categories.length > 0 || 
+                          filters.sortBy !== 'newest' ||
+                          filters.lastDays !== 30 ||
+                          (filters.college && filters.college !== 'all');
+
+  const renderFilterStatus = () => {
+    if (!hasActiveFilters && !isLoading) return null;
+
+    return (
+      <Paper shadow="sm" p="md" radius="md" withBorder mb="md" style={{
+        backgroundColor: "rgba(67, 97, 238, 0.1)",
+        borderColor: "rgba(67, 97, 238, 0.3)",
+      }}>
+        <Group justify="space-between" align="center">
+          <Group gap="xs">
+            <Text size="sm" fw={500} c="white">
+              {isLoading ? 'Loading...' : `Showing ${posts.length} of ${totalCount} posts`}
+            </Text>
+            
+            {/* Active filter badges */}
+            {filters.searchQuery && (
+              <Badge variant="light" color="blue" size="sm">
+                Search: "{filters.searchQuery}"
+              </Badge>
+            )}
+            
+            {filters.categories.map((category) => (
+              <Badge 
+                key={category} 
+                variant="light" 
+                color="cyan" 
+                size="sm"
+                rightSection={
+                  <ActionIcon size="xs" color="cyan" variant="transparent" onClick={() => removeCategory(category)}>
+                    <IconX size={10} />
+                  </ActionIcon>
+                }
+              >
+                {categoryLabels[category as keyof typeof categoryLabels]}
+              </Badge>
+            ))}
+            
+            {filters.sortBy !== 'newest' && (
+              <Badge variant="light" color="indigo" size="sm">
+                Sort: {filters.sortBy === 'popular' ? 'Popular' : 'Most Comments'}
+              </Badge>
+            )}
+          </Group>
+          
+          <Group gap="xs">
+            <ActionIcon 
+              variant="light" 
+              color="blue" 
+              onClick={() => refreshFeed(isAuthenticated)}
+              loading={isLoading}
+            >
+              <IconRefresh size={16} />
+            </ActionIcon>
+            
+            {hasActiveFilters && (
+              <Button variant="light" color="gray" size="xs" onClick={() => resetFilters(isAuthenticated)}>
+                Clear All
+              </Button>
+            )}
+          </Group>
+        </Group>
+      </Paper>
+    );
+  };
+
+  const renderErrorMessage = () => {
+    if (!error) return null;
+
+    return (
+      <Paper shadow="sm" p="md" radius="md" withBorder mb="md" style={{
+        backgroundColor: "rgba(229, 56, 59, 0.1)",
+        borderColor: "rgba(229, 56, 59, 0.3)",
+      }}>
+        <Group justify="space-between" align="center">
+          <Group gap="xs">
+            <IconAlertCircle size={16} color="#e5383b" />
+            <Text size="sm" fw={500} c="white">
+              Error loading posts: {error}
+            </Text>
+          </Group>
+          <Button variant="light" color="red" size="xs" onClick={() => refreshFeed(isAuthenticated)}>
+            Retry
+          </Button>
+        </Group>
+      </Paper>
+    );
+  };
+
+  const renderPosts = () => (
     <>
-      {/* Feed - Post creation removed since posts are created by backend */}
-      {isLoading ? (
+      {/* Filter Status Bar */}
+      {renderFilterStatus()}
+      
+      {/* Error Message */}
+      {renderErrorMessage()}
+      
+      {/* Posts Feed */}
+      {isLoading && posts.length === 0 ? (
         <Stack>
           {Array(3).fill(0).map((_, index) => (
             <Paper key={index} shadow="sm" p="md" radius="md" withBorder>
@@ -180,52 +246,25 @@ const FeedContent: React.FC = () => {
         </Stack>
       ) : (
         <Stack>
-          {MOCK_POSTS.map((post: Post) => (
+          {/* Render posts */}
+          {posts.map((post: Post) => (
             <PostCard 
               key={post.id} 
               post={post} 
             />
           ))}
-        </Stack>
-      )}
-    </>
-  );
-
-  const renderUnauthenticatedContent = () => (
-    <>
-      {/* Limited Feed for Unauthenticated Users with Infinite Scroll */}
-      {isLoading ? (
-        <Stack>
-          {Array(3).fill(0).map((_, index) => (
-            <Paper key={index} shadow="sm" p="md" radius="md" withBorder mb="md">
-              <Group mb="md">
-                <Skeleton height={40} circle />
-                <Box style={{ flex: 1 }}>
-                  <Skeleton height={12} width="40%" mb="xs" />
-                  <Skeleton height={10} width="20%" />
-                </Box>
-              </Group>
-              <Skeleton height={12} mb="xs" />
-              <Skeleton height={12} mb="xs" />
-              <Skeleton height={12} width="80%" mb="md" />
-              <Skeleton height={200} mb="md" />
-              <Group>
-                <Skeleton height={30} width="30%" />
-                <Skeleton height={30} width="30%" />
-                <Skeleton height={30} width="30%" />
-              </Group>
+          
+          {/* No posts found */}
+          {posts.length === 0 && !error && !isLoading && (
+            <Paper shadow="sm" p="xl" radius="md" withBorder style={{ textAlign: 'center' }}>
+              <Text size="lg" c="dimmed">
+                No posts found matching your filters.
+              </Text>
+              <Text size="sm" c="dimmed" mt="xs">
+                Try adjusting your search criteria or filters.
+              </Text>
             </Paper>
-          ))}
-        </Stack>
-      ) : (
-        <Stack>
-          {/* Render visible posts */}
-          {visiblePosts.map((post: Post) => (
-            <PostCard 
-              key={post.id} 
-              post={post} 
-            />
-          ))}
+          )}
           
           {/* Loading indicator for infinite scroll */}
           {isLoadingMore && (
@@ -237,8 +276,17 @@ const FeedContent: React.FC = () => {
             </Center>
           )}
           
-          {/* Intersection observer target */}
-          {!hasReachedLimit && (
+          {/* Error during load more */}
+          {error && posts.length > 0 && (
+            <Center py="md">
+              <Button variant="light" color="red" onClick={() => loadMorePosts(isAuthenticated)}>
+                Retry loading more posts
+              </Button>
+            </Center>
+          )}
+          
+          {/* Intersection observer target for infinite scroll */}
+          {hasMore && !hasReachedLimit && !error && (
             <div
               ref={loadMoreRef}
               style={{
@@ -249,8 +297,8 @@ const FeedContent: React.FC = () => {
             />
           )}
 
-          {/* End of free content message */}
-          {hasReachedLimit && (
+          {/* End of free content message for unauthenticated users */}
+          {hasReachedLimit && !isAuthenticated && (
             <Paper 
               shadow="sm" 
               p="xl" 
@@ -283,7 +331,7 @@ const FeedContent: React.FC = () => {
                 </Title>
                 
                 <Text size="md" c="dimmed" mb="xl" style={{ maxWidth: '400px', margin: '0 auto' }}>
-                  You've viewed {MAX_POSTS_WITHOUT_LOGIN} posts. Join our community to see unlimited content and connect with your classmates.
+                  You've viewed {maxPostsWithoutLogin} posts. Join our community to see unlimited content and connect with your classmates.
                 </Text>
                 
                 <Button 
@@ -302,6 +350,18 @@ const FeedContent: React.FC = () => {
               </Box>
             </Paper>
           )}
+
+          {/* End of all posts message for authenticated users */}
+          {!hasMore && !hasReachedLimit && isAuthenticated && posts.length > 0 && (
+            <Paper shadow="sm" p="lg" radius="md" withBorder style={{ textAlign: 'center', marginTop: '20px' }}>
+              <Text size="md" c="dimmed">
+                You've reached the end! 🎉
+              </Text>
+              <Text size="sm" c="dimmed" mt="xs">
+                No more posts to load. Check back later for new content.
+              </Text>
+            </Paper>
+          )}
         </Stack>
       )}
     </>
@@ -310,7 +370,7 @@ const FeedContent: React.FC = () => {
   return (
     <>
       <Container size="md" py="md">
-        {user ? renderAuthenticatedContent() : renderUnauthenticatedContent()}
+        {renderPosts()}
       </Container>
 
       {/* Login/Signup Modal */}
@@ -349,13 +409,10 @@ const FeedContent: React.FC = () => {
               style={{ marginBottom: '16px' }}
             />
             <Title order={2} mb="md" style={{ color: 'white' }}>
-              {hasReachedLimit ? 'Continue Reading' : 'Join the Conversation'}
+              Continue Reading
             </Title>
             <Text size="md" c="dimmed" style={{ maxWidth: '350px', margin: '0 auto' }}>
-              {hasReachedLimit 
-                ? `You've enjoyed ${MAX_POSTS_WITHOUT_LOGIN} posts! Create an account to see unlimited content and connect with your classmates.`
-                : 'Create an account or sign in to see more posts, connect with classmates, and share your own updates.'
-              }
+              You've enjoyed {maxPostsWithoutLogin} posts! Create an account to see unlimited content and connect with your classmates.
             </Text>
           </Box>
 

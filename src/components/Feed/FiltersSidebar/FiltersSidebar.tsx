@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   TextInput,
@@ -6,7 +6,7 @@ import {
   Text,
   Divider,
   Checkbox,
-  RangeSlider,
+  Slider,
   Select,
   Button,
   Group,
@@ -20,13 +20,29 @@ import {
   IconCalendarEvent,
   IconSchool,
 } from "@tabler/icons-react";
+import { useFeedStore } from "../../../store/feed.store";
+import { useDebouncedValue } from "@mantine/hooks";
+import { useAuthStore } from "../../../store/auth.store";
 
 export const FiltersSidebar: React.FC = () => {
   const theme = useMantineTheme();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [dateRange, setDateRange] = useState<[number, number]>([0, 30]);
-  const [sortBy, setSortBy] = useState<string | null>("newest");
+  const { user } = useAuthStore();
+  const isAuthenticated = !!user;
+  
+  // Get feed store state and actions
+  const {
+    filters,
+    searchPosts,
+    setSortBy,
+    setCategories,
+    setDateRange,
+    setCollege,
+    resetFilters,
+  } = useFeedStore();
+
+  // Local state for debounced search
+  const [searchQuery, setSearchQuery] = useState(filters.searchQuery);
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
 
   // Categories for filtering
   const categories = [
@@ -38,21 +54,32 @@ export const FiltersSidebar: React.FC = () => {
     { value: "advice", label: "Advice" },
   ];
 
+  // College options
+  const collegeOptions = [
+    { value: "all", label: "All Colleges" },
+    { value: "stanford", label: "Stanford University" },
+    { value: "mit", label: "MIT" },
+    { value: "harvard", label: "Harvard University" },
+    { value: "berkeley", label: "UC Berkeley" },
+  ];
+
+  // Handle debounced search
+  useEffect(() => {
+    searchPosts(debouncedSearchQuery, isAuthenticated);
+  }, [debouncedSearchQuery, searchPosts, isAuthenticated]);
+
   // Handle category selection
   const handleCategoryChange = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((c) => c !== category)
-        : [...prev, category]
-    );
+    const newCategories = filters.categories.includes(category)
+      ? filters.categories.filter((c) => c !== category)
+      : [...filters.categories, category];
+    setCategories(newCategories, isAuthenticated);
   };
 
-  // Reset all filters
+  // Handle reset
   const handleReset = () => {
     setSearchQuery("");
-    setSelectedCategories([]);
-    setDateRange([0, 30]);
-    setSortBy("newest");
+    resetFilters(isAuthenticated);
   };
 
   return (
@@ -100,8 +127,8 @@ export const FiltersSidebar: React.FC = () => {
         Sort By
       </Text>
       <Select
-        value={sortBy}
-        onChange={setSortBy}
+        value={filters.sortBy}
+        onChange={(value) => setSortBy(value as 'newest' | 'popular' | 'comments', isAuthenticated)}
         data={[
           { value: "newest", label: "Newest First" },
           { value: "popular", label: "Most Popular" },
@@ -143,7 +170,7 @@ export const FiltersSidebar: React.FC = () => {
           <Checkbox
             key={category.value}
             label={category.label}
-            checked={selectedCategories.includes(category.value)}
+            checked={filters.categories.includes(category.value)}
             onChange={() => handleCategoryChange(category.value)}
             styles={{
               label: { color: theme.white },
@@ -162,25 +189,30 @@ export const FiltersSidebar: React.FC = () => {
 
       <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
 
-      {/* Date Range */}
+      {/* Time Period */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Time Period
       </Text>
       <Box mb="md">
         <Group mb="xs" justify="space-between">
           <Text size="xs" c="dimmed">
-            Last {dateRange[1]} days
+            Last {filters.lastDays} days
           </Text>
           <IconCalendarEvent size={16} color={theme.colors.dark[2]} />
         </Group>
-        <RangeSlider
-          value={dateRange}
-          onChange={setDateRange}
-          min={0}
+        <Slider
+          value={filters.lastDays}
+          onChange={(value) => setDateRange(value, isAuthenticated)}
+          min={1}
           max={90}
           step={1}
-          minRange={1}
           label={(value) => `${value} days`}
+          marks={[
+            { value: 1, label: '1d' },
+            { value: 7, label: '1w' },
+            { value: 30, label: '1m' },
+            { value: 90, label: '3m' },
+          ]}
           styles={{
             track: {
               backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -191,6 +223,13 @@ export const FiltersSidebar: React.FC = () => {
             thumb: {
               borderColor: theme.colors.blue[5],
               backgroundColor: theme.colors.dark[9],
+            },
+            mark: {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+            },
+            markLabel: {
+              color: theme.colors.dark[2],
+              fontSize: theme.fontSizes.xs,
             },
           }}
         />
@@ -204,13 +243,9 @@ export const FiltersSidebar: React.FC = () => {
       </Text>
       <Select
         placeholder="Filter by college"
-        data={[
-          { value: "all", label: "All Colleges" },
-          { value: "stanford", label: "Stanford University" },
-          { value: "mit", label: "MIT" },
-          { value: "harvard", label: "Harvard University" },
-          { value: "berkeley", label: "UC Berkeley" },
-        ]}
+        value={filters.college}
+        onChange={(value) => setCollege(value, isAuthenticated)}
+        data={collegeOptions}
         leftSection={<IconSchool size={16} />}
         mb="md"
         styles={{
@@ -240,13 +275,13 @@ export const FiltersSidebar: React.FC = () => {
       />
 
       {/* Active Filters */}
-      {selectedCategories.length > 0 && (
+      {filters.categories.length > 0 && (
         <Box mb="md">
           <Text size="xs" c="dimmed" mb="xs">
             Active Filters:
           </Text>
           <Group gap="xs">
-            {selectedCategories.map((category) => (
+            {filters.categories.map((category) => (
               <Badge
                 key={category}
                 color="blue"
@@ -279,9 +314,6 @@ export const FiltersSidebar: React.FC = () => {
           }}
         >
           Reset
-        </Button>
-        <Button variant="filled" color="blue" size="sm">
-          Apply Filters
         </Button>
       </Group>
     </Box>

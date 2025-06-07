@@ -22,6 +22,10 @@ export interface Post {
   content: string;
   images?: string[];
   timestamp: Date;
+  likes: number;
+  comments: number;
+  shares: number;
+  isLiked: boolean;
 }
 
 interface PostCardProps {
