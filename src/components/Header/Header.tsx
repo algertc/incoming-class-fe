@@ -93,6 +93,8 @@ export const Header: React.FC = () => {
           <Flex ref={navLinksRef} display={{ base: 'none', sm: 'flex' }} gap={rem(5)} direction="row">
             <NavLink to="/" label="Home" darkMode displayMode="horizontal" />
             <NavLink to="/feed" label="Feed" darkMode displayMode="horizontal" />
+            <NavLink to="/about" label="About" darkMode displayMode="horizontal" />
+            <NavLink to="/contact" label="Contact" darkMode displayMode="horizontal" />
           </Flex>
           
           {/* Desktop Action Buttons */}
@@ -276,7 +278,8 @@ export const Header: React.FC = () => {
         <Stack align='center' gap="xl" mt={20}>
           <NavLink to="/" label="Home" darkMode displayMode="vertical" onClick={closeDrawer} />
           <NavLink to="/feed" label="Feed" darkMode displayMode="vertical" onClick={closeDrawer} />
-         
+          <NavLink to="/about" label="About" darkMode displayMode="vertical" onClick={closeDrawer} />
+          <NavLink to="/contact" label="Contact" darkMode displayMode="vertical" onClick={closeDrawer} />
           
           <Box h={20} />
           

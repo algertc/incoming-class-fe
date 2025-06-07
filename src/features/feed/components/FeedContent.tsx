@@ -142,26 +142,6 @@ const FeedContent: React.FC = () => {
     };
   }, [user, hasReachedLimit, isLoading, isLoadingMore, loadMorePosts]);
 
-  const handleLike = (postId: string) => {
-    console.log('Liked post:', postId);
-    // In a real app, this would call an API to like a post
-  };
-
-  const handleComment = (postId: string, comment: string) => {
-    console.log('Comment on post:', postId, comment);
-    // In a real app, this would call an API to add a comment
-  };
-
-  const handleShare = (postId: string) => {
-    console.log('Shared post:', postId);
-    // In a real app, this would open a share dialog
-  };
-
-  const handleBookmark = (postId: string) => {
-    console.log('Bookmarked post:', postId);
-    // In a real app, this would call an API to bookmark a post
-  };
-
   const handleModalLogin = () => {
     setLoginModalOpened(false);
     navigate('/login');
@@ -204,10 +184,6 @@ const FeedContent: React.FC = () => {
             <PostCard 
               key={post.id} 
               post={post} 
-              onLike={handleLike}
-              onComment={handleComment}
-              onShare={handleShare}
-              onBookmark={handleBookmark}
             />
           ))}
         </Stack>
@@ -248,10 +224,6 @@ const FeedContent: React.FC = () => {
             <PostCard 
               key={post.id} 
               post={post} 
-              onLike={handleLike}
-              onComment={handleComment}
-              onShare={handleShare}
-              onBookmark={handleBookmark}
             />
           ))}
           

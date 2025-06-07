@@ -14,13 +14,13 @@ import {
   UnstyledButton,
   Text,
 } from "@mantine/core";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconChevronDown,
-  IconSettings,
   IconLogout,
   IconUser,
+  IconCreditCard,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
 import { showSuccess } from "../../../utils";
@@ -102,7 +102,9 @@ export const Header: React.FC = () => {
         <Group justify="space-between" style={{ height: "100%" }}>
           {/* Logo */}
           <Box ref={logoRef}>
-            <Logo darkMode />
+            <Link to="/app">
+              <Logo darkMode />
+            </Link>
           </Box>
 
           {/* Desktop Navigation */}
@@ -112,9 +114,7 @@ export const Header: React.FC = () => {
             display={{ base: "none", sm: "flex" }}
             gap={rem(5)}
           >
-            <NavLink to="/app" label="Dashboard" darkMode />
-            <NavLink to="/app/colleges" label="Colleges" darkMode />
-            <NavLink to="/app/applications" label="Applications" darkMode />
+            {/* <NavLink to="/app" label="Feed" darkMode /> */}
           </Group>
 
           {/* Desktop User Menu */}
@@ -188,14 +188,14 @@ export const Header: React.FC = () => {
                 </Menu.Item>
                 <Menu.Item
                   leftSection={
-                    <IconSettings
+                    <IconCreditCard
                       style={{ width: rem(16), height: rem(16) }}
                       stroke={1.5}
                     />
                   }
-                  onClick={() => navigate("/app/settings")}
+                  onClick={() => navigate("/app/subscription")}
                 >
-                  Settings
+                  Subscription
                 </Menu.Item>
 
                 <Menu.Divider />
@@ -288,20 +288,20 @@ export const Header: React.FC = () => {
           <Button
             fullWidth
             variant="outline"
-            color="red"
+            color="blue"
             radius="md"
             size="md"
             onClick={() => {
               close();
-              navigate("/app/settings");
+              navigate("/app/subscription");
             }}
             style={{
               fontWeight: 600,
-              borderColor: theme.colors.red[5],
+              borderColor: theme.colors.blue[5],
               color: theme.white,
             }}
           >
-            Settings
+            Subscription
           </Button>
 
           <Button

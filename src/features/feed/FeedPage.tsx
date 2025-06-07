@@ -2,8 +2,6 @@ import React from "react";
 import { Box, Container, Grid, Stack, Button, Text, Group } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
 import { useNavigate } from "react-router";
-import { LeftSidebar } from "../../components/Feed/LeftSidebar/LeftSidebar";
-import { RightSidebar } from "../../components/Feed/RightSidebar/RightSidebar";
 import { FiltersSidebar } from "../../components/Feed/FiltersSidebar/FiltersSidebar";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
@@ -107,9 +105,6 @@ const FeedPage: React.FC = () => {
             {/* Left Column - Filters & Search - Hidden on mobile */}
             <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
               <FiltersSidebar />
-              <Box mt={32}>
-                <LeftSidebar user={user} />
-              </Box>
             </Grid.Col>
 
             {/* Middle Column - Feed Content */}
@@ -117,12 +112,9 @@ const FeedPage: React.FC = () => {
               <FeedContent />
             </Grid.Col>
 
-            {/* Right Column - Premium Features & Network - Hidden on mobile */}
+            {/* Right Column - Premium Features - Hidden on mobile */}
             <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
               <PremiumFeatures />
-              <Box mt={32}>
-                <RightSidebar />
-              </Box>
             </Grid.Col>
           </Grid>
         )}

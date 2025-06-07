@@ -7,8 +7,12 @@ import AuthLayout from "../features/common/layouts/AuthLayout";
 import AuthenticatedLayout from "../features/common/layouts/AuthenticatedLayout";
 import ProfileCompletion from "../features/profile/ProfileCompletion";
 import HomePage from "../features/home/HomePage";
+import AboutPage from "../features/about/AboutPage";
+import ContactPage from "../features/contact/ContactPage";
+import PrivacyPage from "../features/privacy/PrivacyPage";
 import CollegesPage from "../features/colleges/CollegesPage";
 import FeedPage from "../features/feed/FeedPage";
+import SubscriptionPage from "../features/subscription/SubscriptionPage";
 import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile";
 
 // Placeholder components for authenticated routes
@@ -24,6 +28,18 @@ const router = createBrowserRouter([
             {
                 index: true,
                 element: <HomePage />
+            },
+            {
+                path: "about",
+                element: <AboutPage />
+            },
+            {
+                path: "contact",
+                element: <ContactPage />
+            },
+            {
+                path: "privacy",
+                element: <PrivacyPage />
             },
             {
                 path: "feed",
@@ -86,6 +102,10 @@ const router = createBrowserRouter([
             {
                 path: "profile",
                 element: <CurrentUserProfilePage />
+            },
+            {
+                path: "subscription",
+                element: <SubscriptionPage />
             },
             {
                 path: "settings",

@@ -13,7 +13,6 @@ import {
 } from "@mantine/core";
 import {
   IconHome2,
-  IconUsers,
   IconMessageCircle,
   IconBell,
   IconBookmark,
@@ -40,7 +39,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ user }) => {
   // Navigation items for the sidebar
   const navItems = [
     { icon: <IconHome2 size={20} />, label: "Home", path: "/feed" },
-    { icon: <IconUsers size={20} />, label: "My Network", path: "/network" },
     { icon: <IconMessageCircle size={20} />, label: "Messages", path: "/messages", badge: "3" },
     { icon: <IconBell size={20} />, label: "Notifications", path: "/notifications", badge: "5" },
     { icon: <IconBookmark size={20} />, label: "Saved", path: "/saved" },
@@ -91,15 +89,6 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ user }) => {
         </Group>
         
         <Group>
-          <Box>
-            <Text size="xs" c="dimmed">
-              Connections
-            </Text>
-            <Text fw={600} size="sm" c={theme.white}>
-              124
-            </Text>
-          </Box>
-          
           <Box>
             <Text size="xs" c="dimmed">
               Posts

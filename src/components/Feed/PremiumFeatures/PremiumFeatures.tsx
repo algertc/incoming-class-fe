@@ -22,11 +22,13 @@ import {
   IconLock,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
+import { useNavigate } from "react-router";
 
 export const PremiumFeatures: React.FC = () => {
   const theme = useMantineTheme();
   const { user } = useAuthStore();
   const isPremium = user?.isPremium || false;
+  const navigate = useNavigate();
 
   return (
     <Box
@@ -155,6 +157,9 @@ export const PremiumFeatures: React.FC = () => {
             variant="gradient"
             gradient={{ from: "indigo", to: "cyan" }}
             leftSection={<IconRocket size={16} />}
+            onClick={() => {
+              navigate('/signup');
+            }}
           >
             Upgrade Now
           </Button>

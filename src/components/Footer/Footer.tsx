@@ -138,32 +138,7 @@ export const Footer: React.FC = () => {
                 About
               </Text>
             </Link>
-            <Link to="/features" style={{ textDecoration: 'none' }}>
-              <Text 
-                size="sm" 
-                c="dimmed" 
-                style={{ 
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  '&:hover': { color: theme.white }
-                }}
-              >
-                Features
-              </Text>
-            </Link>
-            <Link to="/schools" style={{ textDecoration: 'none' }}>
-              <Text 
-                size="sm" 
-                c="dimmed" 
-                style={{ 
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  '&:hover': { color: theme.white }
-                }}
-              >
-                Schools
-              </Text>
-            </Link>
+
             <Link to="/contact" style={{ textDecoration: 'none' }}>
               <Text 
                 size="sm" 
