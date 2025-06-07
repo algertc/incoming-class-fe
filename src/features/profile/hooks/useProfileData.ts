@@ -10,6 +10,9 @@ interface ExtendedUser {
   instagram?: string;
   snapchat?: string;
   lookingForRoommate?: boolean;
+  firstName?: string;
+  lastName?: string;
+  profilePicture?: string;
 }
 
 // Profile data interface
@@ -64,31 +67,33 @@ export const useProfileData = () => {
     {
       id: 'user-post-1',
       author: {
-        id: user?.id || 'current-user',
-        name: user ? `${user.firstName} ${user.lastName}` : 'Your Name',
-        avatar: user?.profilePicture || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop',
+        id: 'current-user',
+        name: user?.firstName + ' ' + user?.lastName || 'Current User',
+        avatar: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
         verified: true
       },
-      content: 'Looking for roommates for the upcoming semester! I\'m a CS major and I\'m clean, organized, and respectful of quiet hours. DM me if interested!',
-      timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      likes: 15,
-      comments: 3,
-      shares: 2
+      content: 'Excited to start my college journey! Looking forward to meeting new people and exploring all the opportunities ahead. Any tips for incoming freshmen?',
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+      likes: 42,
+      comments: 12,
+      shares: 2,
+      isLiked: false,
     },
     {
       id: 'user-post-2',
       author: {
-        id: user?.id || 'current-user',
-        name: user ? `${user.firstName} ${user.lastName}` : 'Your Name',
-        avatar: user?.profilePicture || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop',
+        id: 'current-user',
+        name: user?.firstName + ' ' + user?.lastName || 'Current User',
+        avatar: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
         verified: true
       },
-      content: 'Just aced my final exams! So ready for summer break. Anyone planning to take summer courses?',
-      images: ['https://images.unsplash.com/photo-1623966759174-3b464b0bd50c?q=80&w=1000&auto=format&fit=crop'],
-      timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      likes: 42,
+      content: 'Just finished my campus tour! The facilities are amazing, especially the new library and student center. Can\'t wait to start classes here!',
+      images: ['https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'],
+      timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+      likes: 28,
       comments: 8,
-      shares: 1
+      shares: 1,
+      isLiked: true,
     }
   ]);
 

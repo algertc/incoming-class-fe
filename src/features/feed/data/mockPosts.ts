@@ -12,6 +12,10 @@ export const MOCK_POSTS: Post[] = [
     content: 'Just submitted my final project for CS50! The course was challenging but incredibly rewarding. Anyone else taking it this semester?',
     images: ['https://images.unsplash.com/photo-1461749280684-dccba630e2f6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1169&q=80'],
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
+    likes: 24,
+    comments: 8,
+    shares: 3,
+    isLiked: false,
   },
   {
     id: '2',
@@ -23,6 +27,10 @@ export const MOCK_POSTS: Post[] = [
     },
     content: 'Looking for study partners for the upcoming MCAT exam! I\'m focusing on biochemistry and organic chemistry sections. DM me if interested in forming a virtual study group.',
     timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000), // 5 hours ago
+    likes: 12,
+    comments: 15,
+    shares: 5,
+    isLiked: true,
   },
   {
     id: '3',
@@ -34,6 +42,10 @@ export const MOCK_POSTS: Post[] = [
     content: 'Just accepted my summer internship offer at Google! So excited to be joining the Android development team. Any tips from people who\'ve interned there before?',
     images: ['https://images.unsplash.com/photo-1521737852567-6949f3f9f2b5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1047&q=80'],
     timestamp: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+    likes: 45,
+    comments: 22,
+    shares: 8,
+    isLiked: false,
   },
   {
     id: '4',
@@ -48,6 +60,10 @@ export const MOCK_POSTS: Post[] = [
       'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
     ],
     timestamp: new Date(Date.now() - 18 * 60 * 60 * 1000), // 18 hours ago
+    likes: 18,
+    comments: 6,
+    shares: 2,
+    isLiked: true,
   },
   {
     id: '5',
@@ -60,6 +76,10 @@ export const MOCK_POSTS: Post[] = [
     content: 'Just published my first research paper in the Journal of Computational Biology! It\'s been a long journey, but so worth it. Thanks to everyone who supported me through this process.',
     images: ['https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80'],
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
+    likes: 67,
+    comments: 18,
+    shares: 12,
+    isLiked: false,
   },
   {
     id: '6',
@@ -76,6 +96,10 @@ export const MOCK_POSTS: Post[] = [
       'https://images.unsplash.com/photo-1497633762265-9d179a990aa6?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
     ],
     timestamp: new Date(Date.now() - 30 * 60 * 60 * 1000), // 30 hours ago
+    likes: 31,
+    comments: 9,
+    shares: 4,
+    isLiked: true,
   },
   {
     id: '7',
@@ -88,6 +112,10 @@ export const MOCK_POSTS: Post[] = [
     content: 'Campus coffee shop is having a flash sale! 50% off all drinks for the next 2 hours. Perfect timing for finals week caffeine addiction.',
     images: ['https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80'],
     timestamp: new Date(Date.now() - 36 * 60 * 60 * 1000), // 36 hours ago
+    likes: 89,
+    comments: 23,
+    shares: 15,
+    isLiked: false,
   },
   {
     id: '8',
@@ -105,6 +133,10 @@ export const MOCK_POSTS: Post[] = [
       'https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'
     ],
     timestamp: new Date(Date.now() - 48 * 60 * 60 * 1000), // 2 days ago
+    likes: 52,
+    comments: 14,
+    shares: 7,
+    isLiked: true,
   },
   {
     id: '9',
@@ -125,6 +157,10 @@ export const MOCK_POSTS: Post[] = [
       'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'  // Vienna
     ],
     timestamp: new Date(Date.now() - 72 * 60 * 60 * 1000), // 3 days ago
+    likes: 128,
+    comments: 35,
+    shares: 24,
+    isLiked: false,
   },
   {
     id: '10',
@@ -148,6 +184,10 @@ export const MOCK_POSTS: Post[] = [
       'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'  // Group photo
     ],
     timestamp: new Date(Date.now() - 96 * 60 * 60 * 1000), // 4 days ago
+    likes: 76,
+    comments: 19,
+    shares: 11,
+    isLiked: true,
   }
 ];
 

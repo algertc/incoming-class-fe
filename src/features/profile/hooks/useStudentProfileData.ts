@@ -121,6 +121,7 @@ export const useStudentProfileData = () => {
           likes: Math.floor(Math.random() * 50) + 5,
           comments: Math.floor(Math.random() * 15) + 1,
           shares: Math.floor(Math.random() * 5),
+          isLiked: Math.random() > 0.5,
           ...(Math.random() > 0.7 && {
             images: [`https://images.unsplash.com/photo-${1434030216411 + index}?q=80&w=1000&auto=format&fit=crop`]
           })
