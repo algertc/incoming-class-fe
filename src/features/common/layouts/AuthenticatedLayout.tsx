@@ -1,7 +1,8 @@
 import React from 'react';
-import { AppShell } from '@mantine/core';
+import { AppShell, Box } from '@mantine/core';
 import { Outlet } from 'react-router';
 import { Header } from '../../../components/layout/Header/Header';
+import { BottomNavigation } from '../../../components/layout/BottomNavigation/BottomNavigation';
 import { withAuth } from '../../../components/auth/withAuth';
 
 export const AuthenticatedLayout: React.FC = () => {
@@ -16,8 +17,16 @@ export const AuthenticatedLayout: React.FC = () => {
       </AppShell.Header>
 
       <AppShell.Main>
-        <Outlet />
+        {/* Add bottom padding on mobile to prevent content from being hidden behind bottom navigation */}
+        <Box pb={{ base: 80, sm: 0 }}>
+          <Outlet />
+        </Box>
       </AppShell.Main>
+
+      {/* Bottom Navigation - Only visible on mobile */}
+      <Box display={{ base: "block", sm: "none" }}>
+        <BottomNavigation />
+      </Box>
     </AppShell>
   );
 };

@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import type { IServerResponse } from '../../models/serverResponse.model';
 
-const baseURL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000/api/v1';
+const baseURL = import.meta.env.VITE_API_URL ?? 'http://192.168.1.10:4000/api/v1';
 // const baseURL='http://165.227.29.169/api/v1/'
 
 const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServerResponse<T>> => {

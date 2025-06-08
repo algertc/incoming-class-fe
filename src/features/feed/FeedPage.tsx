@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Box, Container, Grid, Stack, Button, Text, Group } from "@mantine/core";
+import React, { useEffect, useState } from "react";
+import { Box, Container, Grid, Button, Text, Group } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
 import { useFeedStore } from "../../store/feed.store";
 import { useNavigate } from "react-router";
@@ -7,6 +7,8 @@ import { FiltersSidebar } from "../../components/Feed/FiltersSidebar/FiltersSide
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
+import { MobileSearchBar } from "./components/MobileSearchBar";
+import { MobileFiltersDrawer } from "./components/MobileFiltersDrawer";
 
 // CSS for responsive design
 const responsiveStyles = `
@@ -27,6 +29,7 @@ const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
   const { initializeFeed } = useFeedStore();
   const navigate = useNavigate();
+  const [mobileFiltersOpened, setMobileFiltersOpened] = useState(false);
 
   // Reinitialize feed when authentication state changes
   useEffect(() => {
@@ -88,6 +91,11 @@ const FeedPage: React.FC = () => {
               </Group>
             </Box>
             
+            {/* Mobile Search Bar - Only shown on mobile */}
+            <Box className="mobile-only">
+              <MobileSearchBar onFiltersClick={() => setMobileFiltersOpened(true)} />
+            </Box>
+            
             {/* Three column layout for unauthenticated users */}
             <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
               {/* Left Column - Filters & Search - Hidden on mobile */}
@@ -108,46 +116,43 @@ const FeedPage: React.FC = () => {
           </Box>
         ) : (
           // Authenticated view - Show full feed with sidebars
-          <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
-            {/* Left Column - Filters & Search - Hidden on mobile */}
-            <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
-              <FiltersSidebar />
-            </Grid.Col>
+          <Box>
+            {/* Mobile Search Bar - Only shown on mobile */}
+            <Box className="mobile-only">
+              <MobileSearchBar onFiltersClick={() => setMobileFiltersOpened(true)} />
+            </Box>
+            
+            <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
+              {/* Left Column - Filters & Search - Hidden on mobile */}
+              <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
+                <FiltersSidebar />
+              </Grid.Col>
 
-            {/* Middle Column - Feed Content */}
-            <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
-              <FeedContent />
-            </Grid.Col>
+              {/* Middle Column - Feed Content */}
+              <Grid.Col span={{ base: 12, md: 6, lg: 6 }}>
+                <FeedContent />
+              </Grid.Col>
 
-            {/* Right Column - Premium Features - Hidden on mobile */}
-            <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
-              <PremiumFeatures />
-            </Grid.Col>
-          </Grid>
-        )}
-
-        {/* Mobile Bottom Navigation - Only shown on mobile for authenticated users */}
-        {user && (
-          <Box
-            className="mobile-only"
-            style={{
-              position: "fixed",
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: "12px 0",
-              backgroundColor: "rgba(0, 0, 0, 0.9)",
-              backdropFilter: "blur(10px)",
-              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
-              zIndex: 100,
-            }}
-          >
-            <Stack>
-              {/* Mobile navigation will be added here */}
-            </Stack>
+              {/* Right Column - Premium Features - Hidden on mobile */}
+              <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
+                <PremiumFeatures />
+              </Grid.Col>
+            </Grid>
           </Box>
         )}
+
+        {/* Mobile Filters Drawer */}
+        <MobileFiltersDrawer
+          opened={mobileFiltersOpened}
+          onClose={() => setMobileFiltersOpened(false)}
+        />
       </Container>
+
+      {/* Mobile Filters Drawer */}
+      <MobileFiltersDrawer
+        opened={mobileFiltersOpened}
+        onClose={() => setMobileFiltersOpened(false)}
+      />
     </Box>
   );
 };

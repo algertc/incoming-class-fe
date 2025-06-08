@@ -1,13 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import {
   Group,
-  Button,
   Box,
   rem,
   Container,
-  Burger,
-  Drawer,
-  Stack,
   useMantineTheme,
   Avatar,
   Menu,
@@ -15,7 +11,6 @@ import {
   Text,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router";
-import { useDisclosure } from "@mantine/hooks";
 import {
   IconChevronDown,
   IconLogout,
@@ -24,12 +19,10 @@ import {
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
 import { showSuccess } from "../../../utils";
-import NavLink from "../../Header/HeaderNavLink";
 import Logo from "../../Header/Logo";
 import gsap from "gsap";
 
 export const Header: React.FC = () => {
-  const [opened, { close }] = useDisclosure(false);
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
@@ -117,7 +110,7 @@ export const Header: React.FC = () => {
             {/* <NavLink to="/app" label="Feed" darkMode /> */}
           </Group>
 
-          {/* Desktop User Menu */}
+          {/* Desktop User Menu - Only shown on desktop */}
           <Group
             ref={buttonsRef}
             align="center"
@@ -128,8 +121,6 @@ export const Header: React.FC = () => {
               width={280}
               position="bottom-end"
               transitionProps={{ transition: "pop-top-right" }}
-              onClose={close}
-              onOpen={close}
             >
               <Menu.Target>
                 <UnstyledButton
@@ -216,113 +207,25 @@ export const Header: React.FC = () => {
             </Menu>
           </Group>
 
-          {/* Mobile Burger */}
-          <Burger
-            opened={opened}
-            onClick={close}
-            color={theme.white}
-            display={{ sm: "none" }}
-            size="md"
-          />
+          {/* Mobile - Only show user avatar without menu */}
+          <Group
+            align="center"
+            display={{ base: "flex", sm: "none" }}
+          >
+            <Avatar
+              src={user?.profilePicture}
+              alt={fullName}
+              radius="xl"
+              size={36}
+              styles={{
+                root: {
+                  border: "2px solid rgba(255, 255, 255, 0.2)",
+                },
+              }}
+            />
+          </Group>
         </Group>
       </Container>
-
-      {/* Mobile Drawer */}
-      <Drawer
-        opened={opened}
-        onClose={close}
-        size="100%"
-        padding="md"
-        title="Menu"
-        hiddenFrom="sm"
-        zIndex={1000}
-        styles={{
-          title: { fontSize: rem(20), fontWeight: 700, color: theme.white },
-          header: {
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
-            borderBottom: `1px solid ${theme.colors.dark[6]}`,
-          },
-          body: {
-            backgroundColor: "rgba(0, 0, 0, 0.9)",
-            padding: rem(32),
-          },
-          close: { color: theme.white },
-        }}
-      >
-        <Stack gap="xl">
-          <NavLink to="/app" label="Dashboard" darkMode onClick={close} />
-          <NavLink
-            to="/app/colleges"
-            label="Colleges"
-            darkMode
-            onClick={close}
-          />
-          <NavLink
-            to="/app/applications"
-            label="Applications"
-            darkMode
-            onClick={close}
-          />
-
-          <Box h={20} />
-
-          <Button
-            fullWidth
-            variant="outline"
-            color="red"
-            radius="md"
-            size="md"
-            onClick={() => {
-              close();
-              navigate("/app/profile");
-            }}
-            style={{
-              fontWeight: 600,
-              borderColor: theme.colors.red[5],
-              color: theme.white,
-            }}
-          >
-            Profile
-          </Button>
-
-          <Button
-            fullWidth
-            variant="outline"
-            color="blue"
-            radius="md"
-            size="md"
-            onClick={() => {
-              close();
-              navigate("/app/subscription");
-            }}
-            style={{
-              fontWeight: 600,
-              borderColor: theme.colors.blue[5],
-              color: theme.white,
-            }}
-          >
-            Subscription
-          </Button>
-
-          <Button
-            fullWidth
-            variant="filled"
-            color="red"
-            radius="md"
-            size="md"
-            onClick={() => {
-              close();
-              handleLogout();
-            }}
-            style={{
-              fontWeight: 600,
-              backgroundColor: theme.colors.red[6],
-            }}
-          >
-            Logout
-          </Button>
-        </Stack>
-      </Drawer>
     </Box>
   );
 };
