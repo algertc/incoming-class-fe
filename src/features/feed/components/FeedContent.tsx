@@ -369,9 +369,9 @@ const FeedContent: React.FC = () => {
 
   return (
     <>
-      <Container size="md" py="md">
+    <Container size="md" py="md">
         {renderPosts()}
-      </Container>
+    </Container>
 
       {/* Login/Signup Modal */}
       <Modal

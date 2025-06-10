@@ -50,7 +50,7 @@ interface ApiPost {
 }
 
 interface GetAllPostsApiResponse {
-  posts: ApiPost[];
+  data: ApiPost[];
   pagination?: {
     currentPage: number;
     totalPages: number;
@@ -118,7 +118,7 @@ class FeedService {
         throw new Error(response.message || 'Failed to fetch posts');
       }
 
-      const transformedPosts = response.data.posts.map(this.transformApiPost);
+      const transformedPosts = response.data.map(this.transformApiPost);
       
       // Use pagination info from backend if available, otherwise create basic response
       const pagination = response.data.pagination || {

@@ -1,7 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { Box, Container, Grid, Stack, Title, Badge, useMantineTheme } from '@mantine/core';
 import gsap from 'gsap';
 import { CollegeCard } from '../CollegeCard/CollegeCard';
+import { useFeaturedColleges } from '../../../hooks/api';
+import type { College } from '../../../hooks/api/types';
 
 // Mock data for colleges
 const COLLEGES = [
@@ -18,6 +20,18 @@ const COLLEGES = [
 export const CollegesSection: React.FC = () => {
   const theme = useMantineTheme();
   const sectionTitleRef = useRef<HTMLHeadingElement>(null);
+
+  const {data} = useFeaturedColleges();
+
+  const colleges=useMemo(()=>{
+    if(!data) return [];
+    if(data.data.length===0) return COLLEGES;
+    return data?.data.map((college:College)=>({
+      id:college.name,
+      label:college.name,
+      description:college.location,
+    })) || [];
+  },[data]);
 
   useEffect(() => {
     // Set up scroll animations for section title
@@ -65,11 +79,11 @@ export const CollegesSection: React.FC = () => {
         </Stack>
         
         <Grid>
-          {COLLEGES.map((college, index) => (
-            <Grid.Col span={{ base: 6, sm: 4, md: 3 }} key={college.value}>
+          {colleges.map((college, index) => (
+            <Grid.Col span={{ base: 6, sm: 4, md: 3 }} key={college.label}>
               <CollegeCard 
                 name={college.label}
-                count={college.count}
+                count={college.label.length}
                 index={index}
               />
             </Grid.Col>

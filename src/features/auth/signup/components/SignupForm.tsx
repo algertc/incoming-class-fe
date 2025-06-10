@@ -2,9 +2,7 @@ import React, { useEffect } from "react";
 import {
   Button,
   Checkbox,
-  Divider,
   Flex,
-  Image,
   Text,
   TextInput,
   PasswordInput,
@@ -13,10 +11,9 @@ import {
   Box,
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
-import { useLocalStorage } from '@mantine/hooks';
+import { useLocalStorage } from "@mantine/hooks";
 import classes from "./SignupForm.module.scss";
 import { Link, useNavigate } from "react-router";
-import icons from "../../../../assets/icons";
 import type { SignupData } from "../../../../models/user.model";
 import { signupSchema, signupInitialValues } from "../../../../forms";
 import { showError, showSuccess } from "../../../../utils";
@@ -25,34 +22,34 @@ import ROUTES from "../../../../constants/routes";
 
 // Keys for localStorage
 const LS_KEYS = {
-  FORM_DATA: 'signup_form_data',
-  IS_OTP_SENT: 'signup_is_otp_sent',
-  COUNTDOWN: 'signup_countdown',
-  OTP: 'signup_otp'
+  FORM_DATA: "signup_form_data",
+  IS_OTP_SENT: "signup_is_otp_sent",
+  COUNTDOWN: "signup_countdown",
+  OTP: "signup_otp",
 };
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
-  
+
   // Use localStorage for persistent state
   const [storedFormData, setStoredFormData] = useLocalStorage({
     key: LS_KEYS.FORM_DATA,
-    defaultValue: signupInitialValues
+    defaultValue: signupInitialValues,
   });
-  
+
   const [isOtpSent, setIsOtpSent] = useLocalStorage({
     key: LS_KEYS.IS_OTP_SENT,
-    defaultValue: false
+    defaultValue: false,
   });
-  
+
   const [countdown, setCountdown] = useLocalStorage({
     key: LS_KEYS.COUNTDOWN,
-    defaultValue: 0
+    defaultValue: 0,
   });
-  
+
   const [otp, setOtp] = useLocalStorage({
     key: LS_KEYS.OTP,
-    defaultValue: ""
+    defaultValue: "",
   });
 
   const { mutateAsync, isPending } = useSendEmailOtp();
@@ -64,17 +61,17 @@ const SignupForm: React.FC = () => {
     initialValues: { ...storedFormData },
     validate: yupResolver(signupSchema),
   });
-  
+
   // Sync form values with localStorage
   const updateStoredFormData = (values: typeof signupInitialValues) => {
     setStoredFormData(values);
   };
-  
+
   // Update localStorage whenever form values change
   useEffect(() => {
     updateStoredFormData(form.values);
   }, [form.values]);
-  
+
   // Set form values from localStorage on mount
   useEffect(() => {
     // Set initial form values from localStorage
@@ -89,7 +86,7 @@ const SignupForm: React.FC = () => {
         setCountdown(countdown - 1);
       }, 1000);
     }
-    
+
     return () => {
       if (timerId) window.clearTimeout(timerId);
     };
@@ -99,7 +96,9 @@ const SignupForm: React.FC = () => {
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    return `${mins.toString().padStart(2, "0")}:${secs
+      .toString()
+      .padStart(2, "0")}`;
   };
 
   // Clear all stored signup data
@@ -121,8 +120,7 @@ const SignupForm: React.FC = () => {
   const handleVerifyEmail = async (values: typeof form.values) => {
     const { email } = values;
 
-    console.log("is continue clicked",values);
-    
+    console.log("is continue clicked", values);
 
     try {
       const response = await mutateAsync(email);
@@ -139,8 +137,8 @@ const SignupForm: React.FC = () => {
 
   // Form submission handler
   const handleSubmit = async (values: typeof form.values) => {
-    console.log("handle submit clicked",values);
-    
+    console.log("handle submit clicked", values);
+
     if (!isOtpSent) {
       await handleVerifyEmail(values);
       return;
@@ -171,10 +169,10 @@ const SignupForm: React.FC = () => {
       w={{ base: "100%", xs: "100%", sm: "650px" }}
       mx="auto"
       className={classes.formContainer}
-      style={{ 
+      style={{
         position: "relative",
         minHeight: "auto",
-        width: "100%"
+        width: "100%",
       }}
     >
       {/* Decorative elements */}
@@ -245,8 +243,9 @@ const SignupForm: React.FC = () => {
 
           {/* Show email status when OTP is sent */}
           {isOtpSent && (
-            <Text size="sm" color="dimmed" mt="-16px" mb="4px">
-              OTP sent to {form.values.email.replace(/(.{3})(.*)(@.*)/, '$1•••$3')}
+            <Text size="sm" c="dimmed" mt="-16px" mb="4px">
+              OTP sent to{" "}
+              {form.values.email.replace(/(.{3})(.*)(@.*)/, "$1•••$3")}
             </Text>
           )}
 
@@ -290,19 +289,15 @@ const SignupForm: React.FC = () => {
                   onClick={handleEditEmail}
                   className={classes.linkText}
                   style={{
-                    padding: '0 8px',
-                    height: 'auto',
-                    background: 'transparent',
+                    padding: "0 8px",
+                    height: "auto",
+                    background: "transparent",
                   }}
                 >
                   Edit Email
                 </Button>
               </Flex>
-              <Flex
-                gap={8}
-                direction="column"
-                style={{ marginTop: 0 }}
-              >
+              <Flex gap={8} direction="column" style={{ marginTop: 0 }}>
                 <PinInput
                   length={6}
                   size="md"
@@ -407,33 +402,10 @@ const SignupForm: React.FC = () => {
             style={{
               background: "transparent",
               alignSelf: "center",
-              marginTop: 8
+              marginTop: 8,
             }}
           >
             Reset Form
-          </Button>
-
-          {/* Social Login */}
-          <Divider
-            label="Or continue with"
-            labelPosition="center"
-            classNames={{
-              root: classes.divider,
-              label: classes.divLabel,
-            }}
-            my={{ base: 10, sm: 15 }}
-          />
-
-          <Button
-            w="100%"
-            h={{ base: 42, sm: 48 }}
-            leftSection={<Image h={20} w={20} src={icons.GOOGLE} />}
-            variant="default"
-            radius="xl"
-            className={classes.socialButton}
-            onClick={() => showError("Social login is not implemented yet")}
-          >
-            Google
           </Button>
         </Flex>
       </form>
@@ -441,4 +413,4 @@ const SignupForm: React.FC = () => {
   );
 };
 
-export default SignupForm; 
+export default SignupForm;

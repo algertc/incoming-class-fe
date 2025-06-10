@@ -19,7 +19,7 @@ export const collegeKeys = {
 export const useFeaturedColleges = () => {
   return useQuery<IServerResponse<College[]>>({
     queryKey: collegeKeys.featured(),
-    queryFn: async () => await request({url:'/colleges/featured'}),
+    queryFn: async () => await request({url:'/colleges/getPopularColleges'}),
     staleTime: 1000 * 60 * 10, // 10 minutes
   });
 };
@@ -30,7 +30,7 @@ export const useFeaturedColleges = () => {
 export const useCollegeSearch = (params: CollegeSearchParams) => {
   return useQuery<IServerResponse<College[]>>({
     queryKey: collegeKeys.list(params),
-    queryFn: async () => await request({url:'/colleges', params }),
+    queryFn: async () => await request({url:'/colleges/getAllColleges', params }),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 };

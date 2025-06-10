@@ -54,8 +54,7 @@ export interface College {
 }
 
 export interface CollegeSearchParams {
-  query?: string;
-  location?: string;
-  limit?: number;
-  page?: number;
+  search?: string;
+  limit: number;
+  page: number;
 } 
