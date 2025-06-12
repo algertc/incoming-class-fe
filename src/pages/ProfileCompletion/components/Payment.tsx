@@ -32,14 +32,11 @@ import {
   IconCreditCard,
   IconAlertCircle,
 } from "@tabler/icons-react";
-import {
-  useStripe,
-  useElements,
-  CardElement,
-} from "@stripe/react-stripe-js";
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { showSuccess, showError } from "../../../utils";
 import axios from "axios";
+import type { StripeCardElementChangeEvent } from "@stripe/stripe-js";
 
 interface PaymentProps {
   onComplete: () => void;
@@ -98,32 +95,32 @@ const PLATFORM_FEATURES = [
 
 const PRICING = {
   monthlyPrice: 9.99,
-  tax: 0.00,
+  tax: 0.0,
 };
 
 // Stripe Card Element styling
-const cardElementOptions = {
-  style: {
-    base: {
-      fontSize: '16px',
-      color: '#ffffff',
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      '::placeholder': {
-        color: '#9ca3af',
-      },
-      backgroundColor: 'transparent',
-    },
-    invalid: {
-      color: '#ef4444',
-      iconColor: '#ef4444',
-    },
-    complete: {
-      color: '#10b981',
-      iconColor: '#10b981',
-    },
-  },
-  hidePostalCode: true,
-};
+// const cardElementOptions = {
+//   style: {
+//     base: {
+//       fontSize: "16px",
+//       color: "#ffffff",
+//       fontFamily: "system-ui, -apple-system, sans-serif",
+//       "::placeholder": {
+//         color: "#9ca3af",
+//       },
+//       backgroundColor: "transparent",
+//     },
+//     invalid: {
+//       color: "#ef4444",
+//       iconColor: "#ef4444",
+//     },
+//     complete: {
+//       color: "#10b981",
+//       iconColor: "#10b981",
+//     },
+//   },
+//   hidePostalCode: true,
+// };
 
 const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
   const theme = useMantineTheme();
@@ -133,40 +130,45 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const [cardComplete, setCardComplete] = useState(false);
-  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateCurrentUserProfile();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const total = PRICING.monthlyPrice + PRICING.tax;
 
-  const createPaymentIntent = async (amount: number): Promise<PaymentIntentResponse> => {
+  const createPaymentIntent = async (
+    amount: number
+  ): Promise<PaymentIntentResponse> => {
     try {
       const response = await axios.post<PaymentIntentResponse>(
-        `${process.env.REACT_APP_API_URL}/payments/create-payment-intent`,
+        `${"process.env.REACT_APP_API_URL"}/payments/create-payment-intent`,
         {
           amount,
-          currency: 'usd',
+          currency: "usd",
           metadata: {
-            service: 'profile_completion',
-            plan: 'monthly_access',
+            service: "profile_completion",
+            plan: "monthly_access",
           },
         }
       );
       return response.data;
     } catch (error) {
-      console.error('Error creating payment intent:', error);
-      throw new Error('Failed to initialize payment. Please try again.');
+      console.error("Error creating payment intent:", error);
+      throw new Error("Failed to initialize payment. Please try again.");
     }
   };
 
   const handleComplete = async () => {
     if (!stripe || !elements) {
-      showError('Payment system is not ready. Please try again.');
+      showError("Payment system is not ready. Please try again.");
       return;
     }
 
     const cardElement = elements.getElement(CardElement);
     if (!cardElement) {
-      showError('Card information is not available. Please refresh and try again.');
+      showError(
+        "Card information is not available. Please refresh and try again."
+      );
       return;
     }
 
@@ -177,34 +179,44 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
       const { clientSecret } = await createPaymentIntent(total);
 
       // Confirm payment
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-          billing_details: {},
-        },
-      });
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+            billing_details: {},
+          },
+        }
+      );
 
       if (error) {
         const stripeError = error as StripeError;
-        throw new Error(stripeError.message || 'Payment failed. Please try again.');
+        throw new Error(
+          stripeError.message || "Payment failed. Please try again."
+        );
       }
 
-      if (paymentIntent && paymentIntent.status === 'succeeded') {
+      if (paymentIntent && paymentIntent.status === "succeeded") {
         // Payment successful, update profile
         const profileResponse = await updateProfile({
           isProfileCompleted: true,
         });
 
         if (!profileResponse.status) {
-          throw new Error(profileResponse.message || 'Failed to complete profile setup');
+          throw new Error(
+            profileResponse.message || "Failed to complete profile setup"
+          );
         }
 
-        showSuccess("Payment successful! Profile setup completed. Welcome to the platform!");
+        showSuccess(
+          "Payment successful! Profile setup completed. Welcome to the platform!"
+        );
         setShowPaymentModal(false);
         onComplete();
       }
     } catch (error) {
-      const errorMessage = (error as Error).message || 'Payment failed. Please try again.';
+      const errorMessage =
+        (error as Error).message || "Payment failed. Please try again.";
       setPaymentError(errorMessage);
       showError(errorMessage);
     } finally {
@@ -212,7 +224,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
     }
   };
 
-  const handleCardChange = (event: any) => {
+  const handleCardChange = (event: StripeCardElementChangeEvent) => {
     setCardComplete(event.complete);
     if (event.error) {
       setPaymentError(event.error.message);
@@ -230,23 +242,23 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
 
   return (
     <>
-      <Paper 
-        p={isMobile ? "sm" : "xl"} 
+      <Paper
+        p={isMobile ? "sm" : "xl"}
         radius="md"
         style={{
           background: "rgba(255, 255, 255, 0.05)",
           border: "1px solid rgba(255, 255, 255, 0.1)",
           position: "relative",
           ...(isMobile && {
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'auto'
-          })
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "auto",
+          }),
         }}
       >
         <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
-        
+
         <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
           {/* Header */}
           <Box ta="center">
@@ -276,7 +288,10 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
             </Text>
           </Box>
 
-          <SimpleGrid cols={{ base: 1, md: isMobile ? 1 : 2 }} spacing={isMobile ? "md" : "xl"}>
+          <SimpleGrid
+            cols={{ base: 1, md: isMobile ? 1 : 2 }}
+            spacing={isMobile ? "md" : "xl"}
+          >
             {/* Platform Features Section */}
             <Paper
               p={isMobile ? "md" : "xl"}
@@ -296,7 +311,11 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                 >
                   <IconSparkles size={isMobile ? 16 : 18} />
                 </ThemeIcon>
-                <Text fw={600} style={{ color: theme.white }} size={isMobile ? "sm" : "md"}>
+                <Text
+                  fw={600}
+                  style={{ color: theme.white }}
+                  size={isMobile ? "sm" : "md"}
+                >
                   What You Get
                 </Text>
               </Group>
@@ -304,7 +323,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
               <Stack gap={isMobile ? "sm" : "md"}>
                 {PLATFORM_FEATURES.map((feature, index) => (
                   <Card
-                    key={index}
+                    key={index + "randoki"}
                     p={isMobile ? "sm" : "md"}
                     radius="md"
                     style={{
@@ -321,11 +340,18 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                       >
                         <feature.icon size={isMobile ? 12 : 14} />
                       </ThemeIcon>
-                      <Text size={isMobile ? "xs" : "sm"} fw={500} style={{ color: theme.white }}>
+                      <Text
+                        size={isMobile ? "xs" : "sm"}
+                        fw={500}
+                        style={{ color: theme.white }}
+                      >
                         {feature.title}
                       </Text>
                     </Group>
-                    <Text size={isMobile ? "10px" : "xs"} style={{ color: theme.colors.gray[5] }}>
+                    <Text
+                      size={isMobile ? "10px" : "xs"}
+                      style={{ color: theme.colors.gray[5] }}
+                    >
                       {feature.description}
                     </Text>
                   </Card>
@@ -342,7 +368,12 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                   border: "1px solid rgba(74, 93, 253, 0.2)",
                 }}
               >
-                <Text size={isMobile ? "xs" : "sm"} fw={500} style={{ color: theme.white }} mb={isMobile ? "xs" : "sm"}>
+                <Text
+                  size={isMobile ? "xs" : "sm"}
+                  fw={500}
+                  style={{ color: theme.white }}
+                  mb={isMobile ? "xs" : "sm"}
+                >
                   Platform Access Includes
                 </Text>
                 <List
@@ -353,7 +384,11 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                     itemWrapper: { color: theme.white },
                   }}
                   icon={
-                    <ThemeIcon color="blue" size={isMobile ? "xs" : "xs"} radius="xl">
+                    <ThemeIcon
+                      color="blue"
+                      size={isMobile ? "xs" : "xs"}
+                      radius="xl"
+                    >
                       <IconCheck size={isMobile ? 8 : 10} />
                     </ThemeIcon>
                   }
@@ -386,7 +421,11 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                 >
                   <IconStar size={isMobile ? 16 : 18} />
                 </ThemeIcon>
-                <Text fw={600} style={{ color: theme.white }} size={isMobile ? "sm" : "md"}>
+                <Text
+                  fw={600}
+                  style={{ color: theme.white }}
+                  size={isMobile ? "sm" : "md"}
+                >
                   Billing Summary
                 </Text>
               </Group>
@@ -403,14 +442,25 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
               >
                 <Group justify="space-between" align="center">
                   <Box>
-                    <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    <Text
+                      fw={600}
+                      size={isMobile ? "md" : "lg"}
+                      style={{ color: theme.white }}
+                    >
                       Monthly Access
                     </Text>
-                    <Text size={isMobile ? "xs" : "sm"} style={{ color: theme.colors.gray[4] }}>
+                    <Text
+                      size={isMobile ? "xs" : "sm"}
+                      style={{ color: theme.colors.gray[4] }}
+                    >
                       Full platform access, billed monthly
                     </Text>
                   </Box>
-                  <Text fw={700} size={isMobile ? "lg" : "xl"} style={{ color: theme.white }}>
+                  <Text
+                    fw={700}
+                    size={isMobile ? "lg" : "xl"}
+                    style={{ color: theme.white }}
+                  >
                     ${PRICING.monthlyPrice}/mo
                   </Text>
                 </Group>
@@ -425,36 +475,64 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                   border: "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
-                <Text fw={600} style={{ color: theme.white }} mb={isMobile ? "sm" : "md"} size={isMobile ? "sm" : "md"}>
+                <Text
+                  fw={600}
+                  style={{ color: theme.white }}
+                  mb={isMobile ? "sm" : "md"}
+                  size={isMobile ? "sm" : "md"}
+                >
                   Order Summary
                 </Text>
 
                 <Stack gap={isMobile ? "xs" : "sm"}>
                   <Group justify="space-between">
-                    <Text style={{ color: theme.white }} size={isMobile ? "xs" : "sm"}>
+                    <Text
+                      style={{ color: theme.white }}
+                      size={isMobile ? "xs" : "sm"}
+                    >
                       Monthly Access Plan
                     </Text>
-                    <Text fw={500} style={{ color: theme.white }} size={isMobile ? "xs" : "sm"}>
+                    <Text
+                      fw={500}
+                      style={{ color: theme.white }}
+                      size={isMobile ? "xs" : "sm"}
+                    >
                       ${PRICING.monthlyPrice.toFixed(2)}
                     </Text>
                   </Group>
 
                   <Group justify="space-between">
-                    <Text style={{ color: theme.colors.gray[5] }} size={isMobile ? "xs" : "sm"}>
+                    <Text
+                      style={{ color: theme.colors.gray[5] }}
+                      size={isMobile ? "xs" : "sm"}
+                    >
                       Tax
                     </Text>
-                    <Text style={{ color: theme.colors.gray[5] }} size={isMobile ? "xs" : "sm"}>
+                    <Text
+                      style={{ color: theme.colors.gray[5] }}
+                      size={isMobile ? "xs" : "sm"}
+                    >
                       ${PRICING.tax.toFixed(2)}
                     </Text>
                   </Group>
 
-                  <Divider style={{ borderColor: "rgba(255, 255, 255, 0.1)" }} />
+                  <Divider
+                    style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+                  />
 
                   <Group justify="space-between">
-                    <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    <Text
+                      fw={600}
+                      size={isMobile ? "md" : "lg"}
+                      style={{ color: theme.white }}
+                    >
                       Total
                     </Text>
-                    <Text fw={600} size={isMobile ? "md" : "lg"} style={{ color: theme.white }}>
+                    <Text
+                      fw={600}
+                      size={isMobile ? "md" : "lg"}
+                      style={{ color: theme.white }}
+                    >
                       ${total.toFixed(2)}
                     </Text>
                   </Group>
@@ -510,7 +588,10 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
           <Box
             p="md"
             style={{
-              background: theme.activeClassName === 'dark' ? theme.colors.dark[6] : theme.colors.gray[1],
+              background:
+                theme.activeClassName === "dark"
+                  ? theme.colors.dark[6]
+                  : theme.colors.gray[1],
               borderRadius: theme.radius.md,
             }}
           >
@@ -528,30 +609,40 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
             <Box
               p="md"
               style={{
-                border: `1px solid ${theme.activeClassName === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]}`,
+                border: `1px solid ${
+                  theme.activeClassName === "dark"
+                    ? theme.colors.dark[4]
+                    : theme.colors.gray[3]
+                }`,
                 borderRadius: theme.radius.md,
-                background: theme.activeClassName === 'dark' ? theme.colors.dark[7] : theme.white,
+                background:
+                  theme.activeClassName === "dark"
+                    ? theme.colors.dark[7]
+                    : theme.white,
               }}
             >
               <CardElement
                 options={{
                   style: {
                     base: {
-                      fontSize: '16px',
-                      color: theme.activeClassName === 'dark' ? '#ffffff' : '#000000',
-                      fontFamily: 'system-ui, -apple-system, sans-serif',
-                      '::placeholder': {
-                        color: '#9ca3af',
+                      fontSize: "16px",
+                      color:
+                        theme.activeClassName === "dark"
+                          ? "#ffffff"
+                          : "#000000",
+                      fontFamily: "system-ui, -apple-system, sans-serif",
+                      "::placeholder": {
+                        color: "#9ca3af",
                       },
-                      backgroundColor: 'transparent',
+                      backgroundColor: "transparent",
                     },
                     invalid: {
-                      color: '#ef4444',
-                      iconColor: '#ef4444',
+                      color: "#ef4444",
+                      iconColor: "#ef4444",
                     },
                     complete: {
-                      color: '#10b981',
-                      iconColor: '#10b981',
+                      color: "#10b981",
+                      iconColor: "#10b981",
                     },
                   },
                   hidePostalCode: true,
@@ -574,7 +665,10 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
 
           {/* Security Notice */}
           <Text size="xs" c="dimmed" ta="center">
-            <IconShield size={12} style={{ display: 'inline', marginRight: 4 }} />
+            <IconShield
+              size={12}
+              style={{ display: "inline", marginRight: 4 }}
+            />
             Your payment information is secure and encrypted
           </Text>
 

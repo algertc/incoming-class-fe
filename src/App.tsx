@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
@@ -8,7 +8,6 @@ import "./index.css";
 import THEME from "./theme";
 import AppRouterProvider from "./routing/AppRouterProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { StripeWrapper } from './services/StripeWrapper';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -21,17 +20,13 @@ const queryClient = new QueryClient({
   },
 });
 
-
-
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={THEME}>
         <ModalsProvider>
           <Notifications position="top-right" zIndex={2000} limit={1} />
-          {/* <StripeWrapper> */}
-            <AppRouterProvider />
-          {/* </StripeWrapper> */}
+          <AppRouterProvider />s
         </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>

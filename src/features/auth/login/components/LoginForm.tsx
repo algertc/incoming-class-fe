@@ -1,9 +1,7 @@
 import React from "react";
 import {
   Button,
-  Divider,
   Flex,
-  Image,
   Text,
   TextInput,
   PasswordInput,
@@ -12,14 +10,13 @@ import {
 import { useForm, yupResolver } from "@mantine/form";
 import classes from "./LoginForm.module.scss";
 import { Link, useNavigate } from "react-router";
-import icons from "../../../../assets/icons";
 import { useLogin } from "../../../../hooks/api";
 import type {
   LoginCredentials,
   AuthResponse,
 } from "../../../../models/user.model";
 import { loginSchema, loginInitialValues } from "../../../../forms";
-import { showSuccess, showError, showInfo } from "../../../../utils";
+import { showSuccess, showError } from "../../../../utils";
 import { ROUTES } from "../../../../routing/routes";
 
 const LoginForm: React.FC = () => {

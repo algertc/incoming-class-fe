@@ -89,7 +89,7 @@ class FeedService {
     if (params.searchQuery) queryParams.search = params.searchQuery;
     if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.college && params.college !== 'all') queryParams.college = params.college;
-    
+
     // Handle categories array
     if (params.categories && params.categories.length > 0) {
       queryParams.categories = params.categories;
@@ -118,8 +118,11 @@ class FeedService {
         throw new Error(response.message || 'Failed to fetch posts');
       }
 
-      const transformedPosts = response.data.map(this.transformApiPost);
-      
+      console.log("response  : ", response);
+
+
+      const transformedPosts = response.data.data.map(this.transformApiPost);
+
       // Use pagination info from backend if available, otherwise create basic response
       const pagination = response.data.pagination || {
         currentPage: params.page || 1,
@@ -161,7 +164,7 @@ class FeedService {
   async fetchAllPosts(params: Omit<FetchPostsParams, 'page' | 'limit'> = {}): Promise<ApiResponse<Post[]>> {
     try {
       const response = await this.fetchPosts(params);
-      
+
       if (response.status) {
         return {
           data: response.data.posts,
@@ -223,4 +226,5 @@ class FeedService {
 
 // Export singleton instance
 export const feedService = new FeedService();
+
 export default feedService; 
