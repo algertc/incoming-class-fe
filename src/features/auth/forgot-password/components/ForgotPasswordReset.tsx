@@ -65,7 +65,6 @@ const ForgotPasswordReset: React.FC = () => {
                   fw={500} 
                   c="#4361ee"
                   className={classes.linkText}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}
                 >
                   <IconArrowLeft size={16} />
                   Back to reset request
