@@ -300,11 +300,14 @@ const AboutPage: React.FC = () => {
                   }}
                 >
                   <Text
-                    size="2.5rem"
                     fw={700}
                     variant="gradient"
                     gradient={{ from: "#4361ee", to: "#3a0ca3" }}
                     mb="xs"
+                    style={{
+                      fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                      lineHeight: 1.2
+                    }}
                   >
                     {stat.number}
                   </Text>

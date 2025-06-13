@@ -246,7 +246,10 @@ const PrivacyPage: React.FC = () => {
                 }}
               >
                 <Stack gap="lg">
-                  <Group align="center">
+                  <Group align="center" gap="md" style={{ 
+                    flexDirection: "row",
+                    justifyContent: "flex-start"
+                  }}>
                     <ThemeIcon
                       size="lg"
                       radius="md"
@@ -255,12 +258,19 @@ const PrivacyPage: React.FC = () => {
                     >
                       <section.icon size={20} />
                     </ThemeIcon>
-                    <Title order={2} c={theme.white} style={{ fontSize: "1.8rem" }}>
+                    <Title 
+                      order={2} 
+                      c={theme.white} 
+                      style={{ 
+                        fontSize: "clamp(1.3rem, 3vw, 1.8rem)",
+                        textAlign: "left"
+                      }}
+                    >
                       {section.title}
                     </Title>
                   </Group>
                   
-                  <Stack gap="sm" pl="lg">
+                  <Stack gap="sm" style={{ paddingLeft: "0" }}>
                     {section.content.map((item, itemIndex) => (
                       <Group key={itemIndex} align="flex-start" gap="sm">
                         <Box
@@ -273,7 +283,14 @@ const PrivacyPage: React.FC = () => {
                             flexShrink: 0
                           }}
                         />
-                        <Text c="gray.2" size="md" style={{ lineHeight: 1.6 }}>
+                        <Text 
+                          c="gray.2" 
+                          size="md" 
+                          style={{ 
+                            lineHeight: 1.6,
+                            textAlign: "left"
+                          }}
+                        >
                           {item}
                         </Text>
                       </Group>
