@@ -26,7 +26,7 @@ const App: React.FC = () => {
       <MantineProvider theme={THEME}>
         <ModalsProvider>
           <Notifications position="top-right" zIndex={2000} limit={1} />
-          <AppRouterProvider />s
+          <AppRouterProvider />
         </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>
