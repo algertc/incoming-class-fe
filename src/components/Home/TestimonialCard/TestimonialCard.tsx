@@ -55,10 +55,13 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({ content, author, t
         border: `1px solid ${hovered ? theme.colors.blue[5] : theme.colors.dark[7]}`,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        transform: hovered ? 'translateY(-8px)' : 'none',
+        transform: hovered ? 'translate3d(0, -8px, 0)' : 'translate3d(0, 0, 0)',
         height: '100%',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
       }}
     >
       <Stack gap="lg" style={{ flex: 1, justifyContent: 'space-between' }}>

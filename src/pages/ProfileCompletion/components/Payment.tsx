@@ -19,76 +19,73 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import {
   IconCheck,
-  IconFilter,
+  IconBrandInstagram,
   IconEye,
-  IconHeartHandshake,
-  IconLock,
+  IconUsers,
   IconStar,
   IconSparkles,
   IconShield,
-  IconUserCheck,
-  IconGift,
-  IconRocket,
-  IconCreditCard,
+  IconTrendingUp,
+  IconHeart,
+  IconShare,
   IconAlertCircle,
+  IconCreditCard,
 } from "@tabler/icons-react";
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-import { useUpdateCurrentUserProfile } from "../../../hooks/api";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import { showSuccess, showError } from "../../../utils";
-import axios from "axios";
-import type { StripeCardElementChangeEvent } from "@stripe/stripe-js";
+import { request } from "../../../hooks/api/http.client";
+import CheckoutForm from "./CheckoutForm";
+import stripeConfig, { validateStripeConfig } from "../../../config/stripe.config";
 
-interface PaymentProps {
-  onComplete: () => void;
+// Load Stripe with configuration
+const stripePromise = loadStripe(stripeConfig.publishableKey);
+
+// Validate Stripe configuration on component load
+if (!validateStripeConfig()) {
+  console.warn('Stripe configuration is invalid. Payment functionality may not work correctly.');
 }
 
 interface PaymentIntentResponse {
-  clientSecret: string;
-  paymentIntentId: string;
+  client_secret: string;
 }
 
-interface StripeError {
-  message: string;
-  type: string;
-  code?: string;
-}
-
-// Platform features data
-const PLATFORM_FEATURES = [
+// Instagram post features data
+const INSTAGRAM_FEATURES = [
   {
-    title: "Advanced Matching Filters",
-    description: "Filter by major, interests, location, and more",
-    icon: IconFilter,
+    title: "University Instagram Feature",
+    description: "Your post will be featured on your university's official Instagram page",
+    icon: IconBrandInstagram,
     color: "blue",
   },
   {
-    title: "Unlimited Profile Views",
-    description: "Browse through all profiles without restrictions",
+    title: "Maximum Visibility",
+    description: "Reach thousands of students and potential connections at your university",
     icon: IconEye,
     color: "cyan",
   },
   {
-    title: "Smart Matching Algorithm",
-    description: "Get matched with the most compatible classmates",
-    icon: IconHeartHandshake,
+    title: "Connect with Classmates",
+    description: "Get discovered by students in your major, year, and interests",
+    icon: IconUsers,
     color: "indigo",
   },
   {
-    title: "Profile Flexibility",
-    description: "Edit and update your profile whenever you need",
-    icon: IconLock,
+    title: "Boost Your Profile",
+    description: "Stand out from the crowd with premium Instagram placement",
+    icon: IconTrendingUp,
     color: "violet",
   },
   {
-    title: "Priority Support",
-    description: "Get dedicated customer support when you need help",
+    title: "Quality Assurance",
+    description: "Professional posting with optimal timing for maximum engagement",
     icon: IconShield,
     color: "green",
   },
   {
-    title: "Verified Profile Badge",
-    description: "Stand out with your verified student status",
-    icon: IconUserCheck,
+    title: "Engagement Guarantee",
+    description: "Guaranteed likes, comments, and follows from your university community",
+    icon: IconHeart,
     color: "yellow",
   },
 ];
@@ -98,147 +95,63 @@ const PRICING = {
   tax: 0.0,
 };
 
-// Stripe Card Element styling
-// const cardElementOptions = {
-//   style: {
-//     base: {
-//       fontSize: "16px",
-//       color: "#ffffff",
-//       fontFamily: "system-ui, -apple-system, sans-serif",
-//       "::placeholder": {
-//         color: "#9ca3af",
-//       },
-//       backgroundColor: "transparent",
-//     },
-//     invalid: {
-//       color: "#ef4444",
-//       iconColor: "#ef4444",
-//     },
-//     complete: {
-//       color: "#10b981",
-//       iconColor: "#10b981",
-//     },
-//   },
-//   hidePostalCode: true,
-// };
-
-const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
+const Payment: React.FC = () => {
   const theme = useMantineTheme();
-  const stripe = useStripe();
-  const elements = useElements();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [isInitiatingPayment, setIsInitiatingPayment] = useState(false);
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [cardComplete, setCardComplete] = useState(false);
-  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
-    useUpdateCurrentUserProfile();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
   const total = PRICING.monthlyPrice + PRICING.tax;
 
-  const createPaymentIntent = async (
-    amount: number
-  ): Promise<PaymentIntentResponse> => {
+  const initiatePayment = async () => {
+    setIsInitiatingPayment(true);
+    setPaymentError(null);
+
     try {
-      const response = await axios.post<PaymentIntentResponse>(
-        `${"process.env.REACT_APP_API_URL"}/payments/create-payment-intent`,
-        {
-          amount,
+      // Call backend API to create payment intent
+      const response = await request({
+        url: "/users/payment/post",
+        method: "POST",
+        data: {
+          amount: Math.round(total * 100), // Convert to cents
           currency: "usd",
-          metadata: {
-            service: "profile_completion",
-            plan: "monthly_access",
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Error creating payment intent:", error);
-      throw new Error("Failed to initialize payment. Please try again.");
-    }
-  };
+        },
+      });
 
-  const handleComplete = async () => {
-    if (!stripe || !elements) {
-      showError("Payment system is not ready. Please try again.");
-      return;
-    }
-
-    const cardElement = elements.getElement(CardElement);
-    if (!cardElement) {
-      showError(
-        "Card information is not available. Please refresh and try again."
-      );
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      // Create payment intent
-      const { clientSecret } = await createPaymentIntent(total);
-
-      // Confirm payment
-      const { error, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method: {
-            card: cardElement,
-            billing_details: {},
-          },
-        }
-      );
-
-      if (error) {
-        const stripeError = error as StripeError;
-        throw new Error(
-          stripeError.message || "Payment failed. Please try again."
-        );
+      if (!response.status || !(response.data as PaymentIntentResponse)?.client_secret) {
+        throw new Error(response.message || "Failed to initialize payment");
       }
 
-      if (paymentIntent && paymentIntent.status === "succeeded") {
-        // Payment successful, update profile
-        const profileResponse = await updateProfile({
-          isProfileCompleted: true,
-        });
-
-        if (!profileResponse.status) {
-          throw new Error(
-            profileResponse.message || "Failed to complete profile setup"
-          );
-        }
-
-        showSuccess(
-          "Payment successful! Profile setup completed. Welcome to the platform!"
-        );
-        setShowPaymentModal(false);
-        onComplete();
-      }
+      setClientSecret((response.data as PaymentIntentResponse).client_secret);
+      setShowCheckoutModal(true);
     } catch (error) {
-      const errorMessage =
-        (error as Error).message || "Payment failed. Please try again.";
+      const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
       setPaymentError(errorMessage);
       showError(errorMessage);
     } finally {
-      setIsProcessing(false);
+      setIsInitiatingPayment(false);
     }
   };
 
-  const handleCardChange = (event: StripeCardElementChangeEvent) => {
-    setCardComplete(event.complete);
-    if (event.error) {
-      setPaymentError(event.error.message);
-    } else {
-      setPaymentError(null);
-    }
+  const handlePaymentSuccess = () => {
+    setShowCheckoutModal(false);
+    showSuccess("Payment successful! Your post will be featured on your university's Instagram page within 24 hours!");
+    // Redirect to thank you page
+    window.location.href = "/thank-you";
   };
 
-  const handleStartPayment = () => {
-    setShowPaymentModal(true);
+  const handlePaymentError = (error: string) => {
+    setPaymentError(error);
+    showError(error);
+  };
+
+  const handleCloseModal = () => {
+    setShowCheckoutModal(false);
+    setClientSecret(null);
     setPaymentError(null);
   };
-
-  const isLoading = isProcessing || isUpdatingProfile;
 
   return (
     <>
@@ -257,7 +170,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
           }),
         }}
       >
-        <LoadingOverlay visible={isLoading} overlayProps={{ blur: 2 }} />
+        <LoadingOverlay visible={isInitiatingPayment} overlayProps={{ blur: 2 }} />
 
         <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
           {/* Header */}
@@ -269,7 +182,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                 variant="gradient"
                 gradient={{ from: "blue", to: "cyan" }}
               >
-                <IconRocket size={isMobile ? 20 : 24} />
+                <IconBrandInstagram size={isMobile ? 20 : 24} />
               </ThemeIcon>
             </Group>
             <Text
@@ -278,13 +191,13 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
               style={{ color: theme.white }}
               mb="xs"
             >
-              Complete Your Profile
+              Get Featured on Your University's Instagram
             </Text>
             <Text
               size={isMobile ? "xs" : "sm"}
               style={{ color: theme.colors.gray[4] }}
             >
-              Unlock all platform features and start connecting with classmates
+              Boost your visibility and connect with thousands of students at your university
             </Text>
           </Box>
 
@@ -292,7 +205,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
             cols={{ base: 1, md: isMobile ? 1 : 2 }}
             spacing={isMobile ? "md" : "xl"}
           >
-            {/* Platform Features Section */}
+            {/* Instagram Features Section */}
             <Paper
               p={isMobile ? "md" : "xl"}
               radius="lg"
@@ -321,9 +234,9 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
               </Group>
 
               <Stack gap={isMobile ? "sm" : "md"}>
-                {PLATFORM_FEATURES.map((feature, index) => (
+                {INSTAGRAM_FEATURES.map((feature, index) => (
                   <Card
-                    key={index + "randoki"}
+                    key={index}
                     p={isMobile ? "sm" : "md"}
                     radius="md"
                     style={{
@@ -374,7 +287,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                   style={{ color: theme.white }}
                   mb={isMobile ? "xs" : "sm"}
                 >
-                  Platform Access Includes
+                  Instagram Feature Package Includes
                 </Text>
                 <List
                   spacing={isMobile ? "4px" : "xs"}
@@ -393,11 +306,11 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                     </ThemeIcon>
                   }
                 >
-                  <List.Item>Advanced matching algorithms</List.Item>
-                  <List.Item>Unlimited profile browsing</List.Item>
-                  <List.Item>Smart filters and search</List.Item>
-                  <List.Item>Priority customer support</List.Item>
-                  <List.Item>Verified student badge</List.Item>
+                  <List.Item>Featured post on university Instagram</List.Item>
+                  {/* <List.Item>Professional content optimization</List.Item> */}
+                  <List.Item>Peak engagement time posting</List.Item>
+                  {/* <List.Item>Hashtag and caption enhancement</List.Item> */}
+                  <List.Item>24-hour posting guarantee</List.Item>
                 </List>
               </Box>
             </Paper>
@@ -430,7 +343,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                 </Text>
               </Group>
 
-              {/* Subscription Plan */}
+              {/* Instagram Feature Plan */}
               <Card
                 p={isMobile ? "md" : "lg"}
                 radius="md"
@@ -447,13 +360,13 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                       size={isMobile ? "md" : "lg"}
                       style={{ color: theme.white }}
                     >
-                      Monthly Access
+                      Instagram Feature
                     </Text>
                     <Text
                       size={isMobile ? "xs" : "sm"}
                       style={{ color: theme.colors.gray[4] }}
                     >
-                      Full platform access, billed monthly
+                      Get your post featured on your university's Instagram page
                     </Text>
                   </Box>
                   <Text
@@ -461,7 +374,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                     size={isMobile ? "lg" : "xl"}
                     style={{ color: theme.white }}
                   >
-                    ${PRICING.monthlyPrice}/mo
+                    ${PRICING.monthlyPrice}
                   </Text>
                 </Group>
               </Card>
@@ -490,7 +403,7 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                       style={{ color: theme.white }}
                       size={isMobile ? "xs" : "sm"}
                     >
-                      Monthly Access Plan
+                      Instagram Feature Post
                     </Text>
                     <Text
                       fw={500}
@@ -539,39 +452,50 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
                 </Stack>
               </Box>
 
-              {/* Payment Button */}
+              {/* Error Display */}
+              {paymentError && (
+                <Alert
+                  icon={<IconAlertCircle size={16} />}
+                  color="red"
+                  variant="light"
+                  mt="md"
+                >
+                  {paymentError}
+                </Alert>
+              )}
+
+              {/* Get Featured Button */}
               <Button
                 size={isMobile ? "md" : "lg"}
                 fullWidth
                 mt={isMobile ? "md" : "xl"}
-                loading={isLoading}
-                onClick={handleStartPayment}
+                loading={isInitiatingPayment}
+                onClick={initiatePayment}
                 variant="gradient"
                 gradient={{ from: "indigo", to: "cyan" }}
-                leftSection={<IconGift size={isMobile ? 16 : 18} />}
-                disabled={!stripe}
+                leftSection={<IconShare size={isMobile ? 16 : 18} />}
               >
-                {isLoading ? "Processing..." : "Complete Profile Setup"}
+                {isInitiatingPayment ? "Initializing Payment..." : "Get Featured on Instagram"}
               </Button>
 
-              {/* Money-back guarantee */}
+              {/* Guarantee text */}
               <Text
                 size={isMobile ? "10px" : "xs"}
                 ta="center"
                 mt="sm"
                 style={{ color: theme.colors.gray[5] }}
               >
-                30-day money-back guarantee • Cancel anytime
+                Posted within 24 hours • 100% satisfaction guarantee
               </Text>
             </Paper>
           </SimpleGrid>
         </Stack>
       </Paper>
 
-      {/* Payment Modal */}
+      {/* Stripe Checkout Modal */}
       <Modal
-        opened={showPaymentModal}
-        onClose={() => !isProcessing && setShowPaymentModal(false)}
+        opened={showCheckoutModal}
+        onClose={handleCloseModal}
         title={
           <Group>
             <IconCreditCard size={20} />
@@ -580,118 +504,25 @@ const Payment: React.FC<PaymentProps> = ({ onComplete }) => {
         }
         size="md"
         centered
-        closeOnClickOutside={!isProcessing}
-        closeOnEscape={!isProcessing}
+        closeOnClickOutside={false}
+        closeOnEscape={false}
       >
-        <Stack gap="md">
-          {/* Payment Summary */}
-          <Box
-            p="md"
-            style={{
-              background:
-                theme.activeClassName === "dark"
-                  ? theme.colors.dark[6]
-                  : theme.colors.gray[1],
-              borderRadius: theme.radius.md,
+        {clientSecret && (
+          <Elements 
+            stripe={stripePromise} 
+            options={{ 
+              clientSecret,
+              appearance: stripeConfig.appearance,
             }}
           >
-            <Group justify="space-between">
-              <Text size="sm">Monthly Access Plan</Text>
-              <Text fw={600}>${total.toFixed(2)}</Text>
-            </Group>
-          </Box>
-
-          {/* Card Element */}
-          <Box>
-            <Text size="sm" fw={500} mb="xs">
-              Card Information
-            </Text>
-            <Box
-              p="md"
-              style={{
-                border: `1px solid ${
-                  theme.activeClassName === "dark"
-                    ? theme.colors.dark[4]
-                    : theme.colors.gray[3]
-                }`,
-                borderRadius: theme.radius.md,
-                background:
-                  theme.activeClassName === "dark"
-                    ? theme.colors.dark[7]
-                    : theme.white,
-              }}
-            >
-              <CardElement
-                options={{
-                  style: {
-                    base: {
-                      fontSize: "16px",
-                      color:
-                        theme.activeClassName === "dark"
-                          ? "#ffffff"
-                          : "#000000",
-                      fontFamily: "system-ui, -apple-system, sans-serif",
-                      "::placeholder": {
-                        color: "#9ca3af",
-                      },
-                      backgroundColor: "transparent",
-                    },
-                    invalid: {
-                      color: "#ef4444",
-                      iconColor: "#ef4444",
-                    },
-                    complete: {
-                      color: "#10b981",
-                      iconColor: "#10b981",
-                    },
-                  },
-                  hidePostalCode: true,
-                }}
-                onChange={handleCardChange}
-              />
-            </Box>
-          </Box>
-
-          {/* Error Display */}
-          {paymentError && (
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              color="red"
-              variant="light"
-            >
-              {paymentError}
-            </Alert>
-          )}
-
-          {/* Security Notice */}
-          <Text size="xs" c="dimmed" ta="center">
-            <IconShield
-              size={12}
-              style={{ display: "inline", marginRight: 4 }}
+            <CheckoutForm
+              amount={total}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+              onCancel={handleCloseModal}
             />
-            Your payment information is secure and encrypted
-          </Text>
-
-          {/* Action Buttons */}
-          <Group justify="space-between" mt="md">
-            <Button
-              variant="subtle"
-              onClick={() => setShowPaymentModal(false)}
-              disabled={isProcessing}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleComplete}
-              loading={isProcessing}
-              disabled={!stripe || !cardComplete}
-              variant="gradient"
-              gradient={{ from: "indigo", to: "cyan" }}
-            >
-              {isProcessing ? "Processing..." : `Pay ${total.toFixed(2)}`}
-            </Button>
-          </Group>
-        </Stack>
+          </Elements>
+        )}
       </Modal>
     </>
   );

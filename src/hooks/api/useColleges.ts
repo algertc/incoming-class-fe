@@ -28,7 +28,7 @@ export const useFeaturedColleges = () => {
  * Hook to search for colleges
  */
 export const useCollegeSearch = (params: CollegeSearchParams) => {
-  return useQuery<IServerResponse<College[]>>({
+  return useQuery<IServerResponse<{colleges:College[], totalDocs:number , page:number , limit:number}>>({
     queryKey: collegeKeys.list(params),
     queryFn: async () => await request({url:'/colleges/getAllColleges', params }),
     staleTime: 1000 * 60 * 5, // 5 minutes

@@ -1,8 +1,6 @@
 import type { Post } from '../features/feed/components/PostCard';
 import { API_CONFIG } from '../config/api.config';
 import { request } from '../hooks/api/http.client';
-import type { IServerResponse } from '../models/serverResponse.model';
-
 export interface FetchPostsParams {
   page?: number;
   limit?: number;
@@ -15,10 +13,14 @@ export interface FetchPostsParams {
 
 export interface FetchPostsResponse {
   posts: Post[];
-  totalCount: number;
-  currentPage: number;
+  totalDocs: number;
+  page: number;
+  limit: number;
   totalPages: number;
-  hasMore: boolean;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  nextPage: number;
+  prevPage: number | null;
 }
 
 export interface ApiResponse<T> {
@@ -50,14 +52,17 @@ interface ApiPost {
 }
 
 interface GetAllPostsApiResponse {
-  data: ApiPost[];
-  pagination?: {
-    currentPage: number;
+    posts:ApiPost[];
+    totalDocs: number;
+    limit:  number;
+    page: number;
     totalPages: number;
-    totalCount: number;
-    hasMore: boolean;
-  };
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    nextPage: number;
+    prevPage: number | null;
 }
+
 
 class FeedService {
   // Convert API post to frontend Post interface
@@ -108,7 +113,7 @@ class FeedService {
     try {
       const queryParams = this.buildQueryParams(params);
 
-      const response: IServerResponse<GetAllPostsApiResponse> = await request({
+      const response = await request<GetAllPostsApiResponse>({
         method: 'GET',
         url: API_CONFIG.ENDPOINTS.GET_ALL_POSTS,
         params: queryParams,
@@ -121,24 +126,20 @@ class FeedService {
       console.log("response  : ", response);
 
 
-      const transformedPosts = response.data.data.map(this.transformApiPost);
-
-      // Use pagination info from backend if available, otherwise create basic response
-      const pagination = response.data.pagination || {
-        currentPage: params.page || 1,
-        totalPages: 1,
-        totalCount: transformedPosts.length,
-        hasMore: false
-      };
+      const transformedPosts = response.data.posts.map(this.transformApiPost);
 
       return {
-        data: {
-          posts: transformedPosts,
-          totalCount: pagination.totalCount,
-          currentPage: pagination.currentPage,
-          totalPages: pagination.totalPages,
-          hasMore: pagination.hasMore
-        },
+          data: {
+            posts: transformedPosts,
+            limit: response.data.limit,
+            totalDocs: response.data.totalDocs,
+            page: response.data.page,
+            totalPages: response.data.totalPages,
+            hasNextPage: response.data.hasNextPage,
+            hasPrevPage: response.data.hasPrevPage,
+            nextPage: response.data.nextPage,
+            prevPage: response.data.prevPage
+          },
         status: true,
         message: response.message || `Successfully fetched ${transformedPosts.length} posts`
       };
@@ -148,10 +149,14 @@ class FeedService {
       return {
         data: {
           posts: [],
-          totalCount: 0,
-          currentPage: 1,
+          totalDocs: 0,
+          page: 1,
+          limit: 10,
           totalPages: 0,
-          hasMore: false
+          hasNextPage: false,
+          hasPrevPage: false,
+          nextPage: 1,
+          prevPage: null
         },
         status: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',

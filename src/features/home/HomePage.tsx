@@ -11,6 +11,12 @@ import { HowItWorksSection } from "../../components/Home/HowItWorksSection/HowIt
 import { CollegesSection } from "../../components/Home/CollegesSection/CollegesSection";
 import { CTASection } from "../../components/Home/CTASection/CTASection";
 import AnimatedBackground from "../feed/components/AnimatedBackground";
+import { 
+  applyIOSOptimizations, 
+  optimizeScrolling, 
+  getDeviceCapabilities, 
+  measurePerformance 
+} from "../../utils";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -19,6 +25,26 @@ const HomePage: React.FC = () => {
   const theme = useMantineTheme();
 
   useEffect(() => {
+    measurePerformance('HomePage initialization', () => {
+      // Apply iOS Safari optimizations
+      applyIOSOptimizations();
+      
+      // Optimize scrolling performance
+      optimizeScrolling();
+      
+      // Log device capabilities for debugging
+      const capabilities = getDeviceCapabilities();
+      console.log('📱 Device capabilities:', capabilities);
+      
+      // Adjust ScrollTrigger settings for iOS Safari
+      if (capabilities.isIOSSafari) {
+        ScrollTrigger.config({
+          autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+          ignoreMobileResize: true,
+        });
+      }
+    });
+
     return () => {
       // Clean up animations when component unmounts
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());

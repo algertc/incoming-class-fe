@@ -56,8 +56,11 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, descripti
         border: `1px solid ${hovered ? theme.colors.blue[5] : theme.colors.dark[7]}`,
         transition: 'all 0.3s ease',
         cursor: 'pointer',
-        transform: hovered ? 'translateY(-5px)' : 'none',
-        padding: '2rem'
+        transform: hovered ? 'translate3d(0, -5px, 0)' : 'translate3d(0, 0, 0)',
+        padding: '2rem',
+        willChange: 'transform',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
       }}
     >
       <Stack gap="lg" align="center">

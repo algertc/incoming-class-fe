@@ -2,29 +2,29 @@ import React, { useRef, useEffect, useState } from "react";
 import { Box } from "@mantine/core";
 import gsap from "gsap";
 
-// Optimized CSS keyframes for the floating animations and stars twinkling
+// Optimized CSS keyframes for the floating animations and stars twinkling - IOS SAFARI OPTIMIZED
 const animationStyles = `
   @keyframes float-0 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(15px, -15px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(15px, -15px, 0); }
   }
   @keyframes float-1 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-20px, -10px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-20px, -10px, 0); }
   }
   @keyframes float-2 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(10px, -25px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(10px, -25px, 0); }
   }
   
   @keyframes twinkle-1 {
-    0%, 100% { opacity: 0.2; transform: scale(0.8); }
-    50% { opacity: 0.8; transform: scale(1.2); }
+    0%, 100% { opacity: 0.3; transform: translate3d(0, 0, 0) scale(0.8); }
+    50% { opacity: 0.7; transform: translate3d(0, 0, 0) scale(1.1); }
   }
   
   @keyframes twinkle-2 {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    40%, 60% { opacity: 0.3; transform: scale(0.7); }
+    0%, 100% { opacity: 0.6; transform: translate3d(0, 0, 0) scale(1); }
+    40%, 60% { opacity: 0.3; transform: translate3d(0, 0, 0) scale(0.9); }
   }
   
   .star {
@@ -34,23 +34,31 @@ const animationStyles = `
     will-change: transform, opacity;
     position: absolute;
     z-index: 1;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
   
   .star-large {
-    width: 5px !important;
-    height: 5px !important;
-    filter: blur(1px);
+    width: 4px !important;
+    height: 4px !important;
   }
   
   .star-medium {
-    width: 3.5px !important;
-    height: 3.5px !important;
-    filter: blur(0.5px);
+    width: 3px !important;
+    height: 3px !important;
   }
   
   .star-small {
     width: 2px !important;
     height: 2px !important;
+  }
+  
+  .bg-optimized {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
 `;
 
@@ -63,15 +71,15 @@ export const AnimatedBackground: React.FC = () => {
   const bgGradient2Ref = useRef<HTMLDivElement>(null);
   const starsContainerRef = useRef<HTMLDivElement>(null);
   
-  // Generate stars only once with memoization
+  // Generate stars only once with memoization - REDUCED FOR IOS SAFARI
   const [stars] = useState(() => 
-    Array.from({ length: 25 }).map((_, index) => {
+    Array.from({ length: 12 }).map((_, index) => {
       // Determine star size and animation properties - simplified
-      const sizeClass = index % 5 === 0 ? "star-large" : index % 3 === 0 ? "star-medium" : "star-small";
+      const sizeClass = index % 4 === 0 ? "star-large" : index % 2 === 0 ? "star-medium" : "star-small";
       const twinkleAnimation = index % 2 === 0 ? "twinkle-1" : "twinkle-2";
-      const animationDuration = Math.random() * 3 + 2; // Random duration between 2-5s
+      const animationDuration = Math.random() * 2 + 4; // Slower duration for performance
       const floatIndex = index % 3;
-      const floatDuration = Math.random() * 5 + 20; // Slower float animations (20-25s)
+      const floatDuration = Math.random() * 5 + 30; // Much slower float animations (30-35s)
       
       return {
         key: `star-${index}`,
@@ -80,43 +88,46 @@ export const AnimatedBackground: React.FC = () => {
           top: `${Math.random() * 100}%`,
           left: `${Math.random() * 100}%`,
           animation: `${twinkleAnimation} ${animationDuration}s infinite ease-in-out, float-${floatIndex} ${floatDuration}s infinite ease-in-out`,
-          animationDelay: `${Math.random() * 5}s, 0s`,
+          animationDelay: `${Math.random() * 3}s, 0s`,
         }
       };
     })
   );
 
   useEffect(() => {
-    // Animate background elements with reduced complexity
+    // Animate background elements with reduced complexity - OPTIMIZED FOR SAFARI
     if (bgCircle1Ref.current && bgCircle2Ref.current && bgCircle3Ref.current) {
-      // Use GSAP for the larger elements only
+      // Use GSAP for the larger elements only with hardware acceleration
       gsap.to(bgCircle1Ref.current, {
         y: -30,
         x: 20,
-        duration: 15, // Slower animations
+        duration: 25, // Much slower animations
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
+        force3D: true,
       });
 
       gsap.to(bgCircle2Ref.current, {
         y: 40,
         x: -30,
-        duration: 18,
+        duration: 30,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
         delay: 0.5,
+        force3D: true,
       });
 
       gsap.to(bgCircle3Ref.current, {
         y: -50,
         x: -20,
-        duration: 20,
+        duration: 35,
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
         delay: 1,
+        force3D: true,
       });
     }
 
@@ -124,16 +135,18 @@ export const AnimatedBackground: React.FC = () => {
     if (bgGradient1Ref.current && bgGradient2Ref.current) {
       gsap.to(bgGradient1Ref.current, {
         rotation: 360,
-        duration: 120, // Slower rotation
+        duration: 200, // Much slower rotation
         repeat: -1,
         ease: "none",
+        force3D: true,
       });
 
       gsap.to(bgGradient2Ref.current, {
         rotation: -360,
-        duration: 150, // Slower rotation
+        duration: 250, // Much slower rotation
         repeat: -1,
         ease: "none",
+        force3D: true,
       });
     }
 
@@ -168,9 +181,10 @@ export const AnimatedBackground: React.FC = () => {
           pointerEvents: "none", // Prevent interaction with background
         }}
       >
-        {/* Animated background gradients */}
+        {/* Animated background gradients - SAFARI OPTIMIZED */}
         <Box
           ref={bgGradient1Ref}
+          className="bg-optimized"
           style={{
             position: "absolute",
             top: "-50%",
@@ -178,15 +192,14 @@ export const AnimatedBackground: React.FC = () => {
             width: "100%",
             height: "100%",
             background:
-              "radial-gradient(circle, rgba(25, 113, 194, 0.2) 0%, rgba(25, 113, 194, 0) 70%)",
+              "radial-gradient(circle, rgba(25, 113, 194, 0.15) 0%, rgba(25, 113, 194, 0) 70%)",
             borderRadius: "50%",
-            filter: "blur(40px)",
-            opacity: 0.4,
-            willChange: "transform",
+            opacity: 0.3,
           }}
         />
         <Box
           ref={bgGradient2Ref}
+          className="bg-optimized"
           style={{
             position: "absolute",
             bottom: "-30%",
@@ -194,17 +207,16 @@ export const AnimatedBackground: React.FC = () => {
             width: "80%",
             height: "80%",
             background:
-              "radial-gradient(circle, rgba(74, 93, 253, 0.2) 0%, rgba(74, 93, 253, 0) 70%)",
+              "radial-gradient(circle, rgba(74, 93, 253, 0.15) 0%, rgba(74, 93, 253, 0) 70%)",
             borderRadius: "50%",
-            filter: "blur(40px)",
-            opacity: 0.4,
-            willChange: "transform",
+            opacity: 0.3,
           }}
         />
 
-        {/* Animated circles/blob elements */}
+        {/* Animated circles/blob elements - SAFARI OPTIMIZED */}
         <Box
           ref={bgCircle1Ref}
+          className="bg-optimized"
           style={{
             position: "absolute",
             top: "15%",
@@ -212,15 +224,14 @@ export const AnimatedBackground: React.FC = () => {
             width: "300px",
             height: "300px",
             background:
-              "radial-gradient(circle, rgba(74, 93, 253, 0.1) 0%, rgba(74, 93, 253, 0) 70%)",
+              "radial-gradient(circle, rgba(74, 93, 253, 0.08) 0%, rgba(74, 93, 253, 0) 70%)",
             borderRadius: "50%",
-            filter: "blur(20px)",
-            opacity: 0.8,
-            willChange: "transform",
+            opacity: 0.6,
           }}
         />
         <Box
           ref={bgCircle2Ref}
+          className="bg-optimized"
           style={{
             position: "absolute",
             bottom: "20%",
@@ -228,15 +239,14 @@ export const AnimatedBackground: React.FC = () => {
             width: "250px",
             height: "250px",
             background:
-              "radial-gradient(circle, rgba(25, 113, 194, 0.1) 0%, rgba(25, 113, 194, 0) 70%)",
+              "radial-gradient(circle, rgba(25, 113, 194, 0.08) 0%, rgba(25, 113, 194, 0) 70%)",
             borderRadius: "50%",
-            filter: "blur(20px)",
-            opacity: 0.6,
-            willChange: "transform",
+            opacity: 0.5,
           }}
         />
         <Box
           ref={bgCircle3Ref}
+          className="bg-optimized"
           style={{
             position: "absolute",
             top: "40%",
@@ -244,11 +254,9 @@ export const AnimatedBackground: React.FC = () => {
             width: "200px",
             height: "200px",
             background:
-              "radial-gradient(circle, rgba(114, 137, 218, 0.1) 0%, rgba(114, 137, 218, 0) 70%)",
+              "radial-gradient(circle, rgba(114, 137, 218, 0.08) 0%, rgba(114, 137, 218, 0) 70%)",
             borderRadius: "50%",
-            filter: "blur(20px)",
-            opacity: 0.7,
-            willChange: "transform",
+            opacity: 0.5,
           }}
         />
 

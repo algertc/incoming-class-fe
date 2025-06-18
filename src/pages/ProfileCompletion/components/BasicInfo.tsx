@@ -18,6 +18,7 @@ import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { ProfileStage } from "../../../models/user.model";
 import { profileBasicInfoSchema, profileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
+import CollegeSearchSelect from "./CollegeSearchSelect";
 import styles from "./BasicInfo.module.css";
 
 interface BasicInfoProps {
@@ -127,31 +128,20 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             size={isMobile ? "sm" : "md"}
           />
 
-          <Select
-            required
+                    <CollegeSearchSelect
             label="University"
             placeholder="Select your university"
-            searchable
-            data={[
-              "Harvard University",
-              "Stanford University",
-              "MIT",
-              "University of California, Berkeley",
-              "University of Michigan",
-              "New York University",
-              "Columbia University",
-              "Yale University",
-              "Princeton University",
-              "Other"
-            ]}
-            {...form.getInputProps("university")}
+            value={form.values.university}
+            onChange={(value) => form.setFieldValue("university", value)}
+            error={typeof form.errors.university === 'string' ? form.errors.university : undefined}
+            required
+            size={isMobile ? "sm" : "md"}
             classNames={{
               label: styles.label,
               input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
               dropdown: styles.dropdown,
               option: styles.item,
             }}
-            size={isMobile ? "sm" : "md"}
           />
 
           <Select

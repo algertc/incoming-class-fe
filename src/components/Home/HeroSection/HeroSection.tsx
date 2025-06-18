@@ -13,65 +13,75 @@ import {
 import gsap from "gsap";
 import CollegeSelect from "../CollegeSelectComponent/CollegeSelect";
 
-// CSS keyframes for the floating animations and stars twinkling
+// CSS keyframes for the floating animations and stars twinkling - OPTIMIZED FOR IOS SAFARI
 const animationStyles = `
   @keyframes float-0 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(15px, -15px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(15px, -15px, 0); }
   }
   @keyframes float-1 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-20px, -10px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-20px, -10px, 0); }
   }
   @keyframes float-2 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(10px, -25px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(10px, -25px, 0); }
   }
   @keyframes float-3 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(-15px, -15px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(-15px, -15px, 0); }
   }
   @keyframes float-4 {
-    0%, 100% { transform: translate(0, 0); }
-    50% { transform: translate(20px, -8px); }
+    0%, 100% { transform: translate3d(0, 0, 0); }
+    50% { transform: translate3d(20px, -8px, 0); }
   }
   
   @keyframes twinkle-1 {
-    0%, 100% { opacity: 0.2; box-shadow: 0 0 3px #fff, 0 0 5px #fff; }
-    50% { opacity: 1; box-shadow: 0 0 12px #fff, 0 0 24px #fff, 0 0 36px #fff; }
+    0%, 100% { opacity: 0.3; transform: translate3d(0, 0, 0) scale(0.8); }
+    50% { opacity: 0.8; transform: translate3d(0, 0, 0) scale(1.1); }
   }
   
   @keyframes twinkle-2 {
-    0%, 100% { opacity: 1; box-shadow: 0 0 10px #fff, 0 0 15px #4361ee; }
-    40% { opacity: 0.4; box-shadow: 0 0 3px #fff; }
-    60% { opacity: 0.4; box-shadow: 0 0 3px #fff; }
+    0%, 100% { opacity: 0.8; transform: translate3d(0, 0, 0) scale(1); }
+    40%, 60% { opacity: 0.4; transform: translate3d(0, 0, 0) scale(0.9); }
   }
   
   @keyframes twinkle-3 {
-    0%, 100% { opacity: 0.7; box-shadow: 0 0 6px #fff, 0 0 10px #e5383b; }
-    33% { opacity: 1; box-shadow: 0 0 15px #fff, 0 0 22px #e5383b; }
-    66% { opacity: 0.3; box-shadow: 0 0 3px #fff; }
+    0%, 100% { opacity: 0.6; transform: translate3d(0, 0, 0) scale(0.9); }
+    33%, 66% { opacity: 0.9; transform: translate3d(0, 0, 0) scale(1.05); }
   }
   
   .star {
     background: radial-gradient(circle at center, #fff 0%, rgba(255, 255, 255, 0.3) 70%, rgba(255, 255, 255, 0) 100%);
     border-radius: 50%;
     transform-origin: center;
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
   
   .star-large {
-    width: 5px !important;
-    height: 5px !important;
+    width: 4px !important;
+    height: 4px !important;
   }
   
   .star-medium {
-    width: 3.5px !important;
-    height: 3.5px !important;
+    width: 3px !important;
+    height: 3px !important;
   }
   
   .star-small {
     width: 2px !important;
     height: 2px !important;
+  }
+  
+  /* Optimize background elements for Safari */
+  .bg-element {
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
 `;
 
@@ -159,57 +169,62 @@ export const HeroSection: React.FC = () => {
       );
     });
 
-    // Animate background elements
+    // Animate background elements - OPTIMIZED FOR SAFARI
     if (bgCircle1Ref.current && bgCircle2Ref.current && bgCircle3Ref.current) {
-      // Circle 1 animation
+      // Circle 1 animation - slower and hardware accelerated
       gsap.to(bgCircle1Ref.current, {
         y: -30,
         x: 20,
-        duration: 8,
+        duration: 15, // Much slower
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
+        force3D: true, // Force hardware acceleration
       });
 
-      // Circle 2 animation
+      // Circle 2 animation - slower and hardware accelerated
       gsap.to(bgCircle2Ref.current, {
         y: 40,
         x: -30,
-        duration: 10,
+        duration: 18, // Much slower
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
         delay: 0.5,
+        force3D: true, // Force hardware acceleration
       });
 
-      // Circle 3 animation
+      // Circle 3 animation - slower and hardware accelerated
       gsap.to(bgCircle3Ref.current, {
         y: -50,
         x: -20,
-        duration: 12,
+        duration: 20, // Much slower
         repeat: -1,
         yoyo: true,
         ease: "sine.inOut",
         delay: 1,
+        force3D: true, // Force hardware acceleration
       });
     }
 
-    // Animate gradient backgrounds
+    // Animate gradient backgrounds - OPTIMIZED FOR SAFARI
     if (bgGradient1Ref.current && bgGradient2Ref.current) {
-      // Gradient 1 animation
+      // Gradient 1 animation - much slower rotation
       gsap.to(bgGradient1Ref.current, {
         rotation: 360,
-        duration: 60,
+        duration: 180, // Much slower rotation for Safari
         repeat: -1,
         ease: "none",
+        force3D: true, // Force hardware acceleration
       });
 
-      // Gradient 2 animation
+      // Gradient 2 animation - much slower rotation
       gsap.to(bgGradient2Ref.current, {
         rotation: -360,
-        duration: 80,
+        duration: 240, // Much slower rotation for Safari
         repeat: -1,
         ease: "none",
+        force3D: true, // Force hardware acceleration
       });
     }
 
@@ -313,9 +328,10 @@ export const HeroSection: React.FC = () => {
       {/* Add style tag for keyframes */}
       <style>{animationStyles}</style>
 
-      {/* Animated background elements */}
+      {/* Animated background elements - OPTIMIZED FOR SAFARI */}
       <Box
         ref={bgGradient1Ref}
+        className="bg-element"
         style={{
           position: "absolute",
           top: "-50%",
@@ -331,6 +347,7 @@ export const HeroSection: React.FC = () => {
 
       <Box
         ref={bgGradient2Ref}
+        className="bg-element"
         style={{
           position: "absolute",
           top: "-30%",
@@ -346,6 +363,7 @@ export const HeroSection: React.FC = () => {
 
       <Box
         ref={bgCircle1Ref}
+        className="bg-element"
         style={{
           position: "absolute",
           top: "15%",
@@ -355,13 +373,14 @@ export const HeroSection: React.FC = () => {
           borderRadius: "50%",
           background:
             "radial-gradient(circle at center, rgba(67, 97, 238, 0.08) 0%, rgba(67, 97, 238, 0) 70%)",
-          filter: "blur(50px)",
+          filter: "blur(40px)", // Reduced blur for Safari
           zIndex: 0,
         }}
       />
 
       <Box
         ref={bgCircle2Ref}
+        className="bg-element"
         style={{
           position: "absolute",
           top: "60%",
@@ -371,13 +390,14 @@ export const HeroSection: React.FC = () => {
           borderRadius: "50%",
           background:
             "radial-gradient(circle at center, rgba(229, 56, 59, 0.08) 0%, rgba(229, 56, 59, 0) 70%)",
-          filter: "blur(40px)",
+          filter: "blur(30px)", // Reduced blur for Safari
           zIndex: 0,
         }}
       />
 
       <Box
         ref={bgCircle3Ref}
+        className="bg-element"
         style={{
           position: "absolute",
           bottom: "10%",
@@ -387,12 +407,12 @@ export const HeroSection: React.FC = () => {
           borderRadius: "50%",
           background:
             "radial-gradient(circle at center, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0) 70%)",
-          filter: "blur(30px)",
+          filter: "blur(20px)", // Reduced blur for Safari
           zIndex: 0,
         }}
       />
 
-      {/* Small animated stars (previously dots) */}
+      {/* Small animated stars (previously dots) - REDUCED FOR PERFORMANCE */}
       <Box
         className="animated-stars"
         style={{
@@ -404,7 +424,7 @@ export const HeroSection: React.FC = () => {
           zIndex: 0,
         }}
       >
-        {Array.from({ length: 50 }).map((_, index) => {
+        {Array.from({ length: 20 }).map((_, index) => {
           // Determine star size and animation properties
           const sizeClass =
             index % 5 === 0
@@ -418,10 +438,10 @@ export const HeroSection: React.FC = () => {
               : index % 2 === 0
               ? "twinkle-2"
               : "twinkle-3";
-          const animationDuration = Math.random() * 3 + 2; // Random duration between 2-5s
+          const animationDuration = Math.random() * 2 + 3; // Slower for better performance
           const floatAnimation = `float-${index % 5} ${
-            Math.random() * 10 + 15
-          }s infinite ease-in-out`;
+            Math.random() * 5 + 20
+          }s infinite ease-in-out`; // Much slower floating
 
           return (
             <Box
@@ -433,7 +453,7 @@ export const HeroSection: React.FC = () => {
                 top: `${Math.random() * 100}%`,
                 left: `${Math.random() * 100}%`,
                 animation: `${twinkleAnimation} ${animationDuration}s infinite ease-in-out, ${floatAnimation}`,
-                animationDelay: `${Math.random() * 5}s, 0s`,
+                animationDelay: `${Math.random() * 3}s, 0s`,
               }}
             />
           );

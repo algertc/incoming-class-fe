@@ -18,14 +18,14 @@ import {
   IconEye,
   IconCreditCard,
 } from "@tabler/icons-react";
-import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router";
 import PhotoUpload from "../../pages/ProfileCompletion/components/PhotoUpload";
 import BasicInfo from "../../pages/ProfileCompletion/components/BasicInfo";
 import TraitsPreferences from "../../pages/ProfileCompletion/components/TraitsPreferences";
 import ProfilePreview from "../../pages/ProfileCompletion/components/ProfilePreview";
 import Payment from "../../pages/ProfileCompletion/components/Payment";
 import styles from "../../pages/ProfileCompletion/ProfileCompletion.module.css";
-import ROUTES from "../../constants/routes";
+// import ROUTES from "../../constants/routes";
 import { useAuthStore } from "../../store/auth.store";
 import { ProfileStage } from "../../models/user.model";
 import { withProfileStageGuard } from "./withProfileStageGuard";
@@ -34,7 +34,7 @@ import { withProfileStageGuard } from "./withProfileStageGuard";
 const ProfileCompletion: React.FC = () => {
   const [active, setActive] = useState(0);
   const theme = useMantineTheme();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { user, fetchUser } = useAuthStore();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -116,12 +116,6 @@ const ProfileCompletion: React.FC = () => {
 
     // Refresh user data to get updated profileStage
     await fetchUser();
-  };
-
-  // Handle payment completion
-  const handlePaymentComplete = async () => {
-    // After payment is completed, navigate to app dashboard
-    navigate(ROUTES.DASHBOARD);
   };
 
   return (
@@ -248,7 +242,7 @@ const ProfileCompletion: React.FC = () => {
               )}
               {active === 4 && (
                 // <StripeWrapper>
-                <Payment onComplete={handlePaymentComplete} />
+                <Payment />
                 // </StripeWrapper>
               )}
             </Box>

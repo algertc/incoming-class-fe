@@ -37,7 +37,7 @@ const CollegeSelect: React.FC = () => {
   });
 
   const colleges=useMemo(()=>{
-    return data?.data.map((college:College)=>({
+    return data?.data.colleges.map((college:College)=>({
       id:college.name,
       label:college.name,
       description:college.location,

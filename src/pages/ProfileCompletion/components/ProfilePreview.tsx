@@ -4,24 +4,18 @@ import {
   Button,
   Stack,
   Text,
-  rem,
   Paper,
   Image,
   Box,
   Avatar,
-  Divider,
-  Badge,
-  Checkbox,
   LoadingOverlay,
 } from '@mantine/core';
-import { IconBrandInstagram, IconBrandSnapchat } from '@tabler/icons-react';
-import { useForm, yupResolver } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { useUpdateCurrentUserProfile } from '../../../hooks/api';
 import { useCurrentUser } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
-import { profilePreviewSchema, profilePreviewInitialValues } from '../../../forms';
 import { showSuccess, showError } from '../../../utils';
+import PostCard, { type Post } from '../../../features/feed/components/PostCard';
 import styles from './ProfilePreview.module.css';
 
 interface ProfilePreviewProps {
@@ -58,44 +52,98 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
-  
-  const form = useForm({
-    initialValues: profilePreviewInitialValues,
-    validate: yupResolver(profilePreviewSchema)
-  });
 
   useEffect(() => {
-    // If we have user data, use it for the preview
+    // Only use real user data for the preview
     if (currentUserData?.data) {
       setUserData(currentUserData.data as unknown as ProfileData);
-    } else {
-      // Otherwise, use mock data
-      setUserData({
-        photos: [
-          'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D',
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHByb2ZpbGV8ZW58MHx8MHx8fDA%3D',
-          'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8cHJvZmlsZXxlbnwwfHwwfHx8MA%3D%3D',
-        ],
-        instagram: '@johndoe',
-        snapchat: '@johndoe',
-        major: 'Computer Science',
-        hometown: 'California',
-        bio: 'Passionate about technology and design. Love hiking and photography. Always up for new adventures!',
-        traits: {
-          sleepSchedule: 'Night Owl',
-          cleanliness: 'Neat Freak',
-          guests: 'Over Whenever',
-          studying: 'Around Campus',
-          substances: 'Fine with Drinking',
-          personality: ['Extrovert', 'Creative', 'Adventurous'],
-          physicalActivity: ['Working Out', 'Basketball'],
-          pastimes: ['Art', 'Fashion', 'Video Games'],
-          food: ['Coffee', 'Sushi'],
-          other: ['Studying Abroad', 'Looking for a Roommate'],
-        },
-      });
     }
   }, [currentUserData]);
+
+  // Create a mock post for preview using user data
+  const createMockPost = (): Post => {
+    const name = userData?.instagram?.replace('@', '') || 'John Doe';
+    const avatar = userData?.profileImage || userData?.photos?.[0] || 'https://i.pravatar.cc/150?img=1';
+    
+    // Better image selection for preview
+    const getPreviewImages = () => {
+      const photos = userData?.photos || [];
+      
+      if (photos.length === 0) {
+        // No photos available - return undefined so PostCard shows text-only post
+        return undefined;
+      } else if (photos.length === 1) {
+        // Single photo - use it (but not the profile image if it's the same)
+        return [photos[0]];
+      } else if (photos.length === 2) {
+        // Two photos - use both
+        return photos;
+      } else if (photos.length === 3) {
+        // Three photos - perfect for grid layout
+        return photos;
+      } else {
+        // More than 3 photos - select a good variety, skip profile image if used as avatar
+        const startIndex = userData?.profileImage === photos[0] ? 1 : 0;
+        return photos.slice(startIndex, startIndex + 4); // Show up to 4 images
+      }
+    };
+    
+    // Create more realistic content based on user's profile
+    const generateContent = () => {
+      const major = userData?.major || 'Computer Science';
+      const hometown = userData?.hometown || 'California';
+      const traits = userData?.traits;
+      const hasImages = (userData?.photos?.length || 0) > 0;
+      
+      const possibleContents = [
+        `Just declared my major in ${major}! So excited for what's ahead. Anyone else in the same program? 🎓`,
+        `Missing home in ${hometown} but loving college life! The campus is amazing and I'm meeting so many awesome people.`,
+        `Study group anyone? I'm working on some challenging coursework and could use some study buddies! 📚`,
+        userData?.bio || 'This is how your posts will appear in the college feed! Connect with classmates and share your college experience.'
+      ];
+      
+      // Add image-specific content if user has photos
+      if (hasImages) {
+        possibleContents.push(
+          'Here are some photos from my college experience so far! 📸',
+          'Campus life is amazing! Check out these moments I captured 🌟',
+          'Some highlights from my time here - loving every moment! ✨'
+        );
+      }
+      
+      // Add trait-specific content
+      if (traits?.personality?.includes('Extrovert')) {
+        possibleContents.push('Always up for meeting new people and making friends! Hit me up if you want to hang out! 😊');
+      }
+      
+      if (traits?.physicalActivity?.includes('Working Out')) {
+        possibleContents.push('Just finished an amazing workout at the campus gym! Anyone want to be my workout buddy? 💪');
+      }
+      
+      if (traits?.pastimes?.includes('Photography') && hasImages) {
+        possibleContents.push('Love capturing moments around campus! Photography is such a passion of mine 📷');
+      }
+      
+      return possibleContents[Math.floor(Math.random() * possibleContents.length)];
+    };
+    
+    return {
+      id: 'preview-post',
+      author: {
+        id: 'preview-user',
+        name: name,
+        avatar: avatar,
+        verified: false,
+      },
+      content: generateContent(),
+      images: getPreviewImages(),
+      timestamp: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000), // Random time within last 24 hours
+      likes: Math.floor(Math.random() * 20) + 5, // Random likes between 5-24
+      comments: Math.floor(Math.random() * 8) + 2, // Random comments between 2-9
+      shares: Math.floor(Math.random() * 5) + 1, // Random shares between 1-5
+      isLiked: Math.random() > 0.5, // Random like status
+    };
+  };
 
   const handleSubmit = async () => {
     try {
@@ -138,176 +186,72 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
       }}
     >
       <LoadingOverlay visible={isSubmitting || isUpdating} overlayProps={{ blur: 2 }} />
-      <form 
-        onSubmit={form.onSubmit(handleSubmit)}
-        style={isMobile ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}
-      >
-        <Stack gap={isMobile ? "sm" : "xl"} style={isMobile ? { flex: 1 } : {}}>
-          <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
-            Preview Your Profile
+      <Stack gap={isMobile ? "sm" : "xl"} style={isMobile ? { flex: 1 } : {}}>
+        <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
+          Preview Your Profile
+        </Text>
+
+        {/* Instagram Preview */}
+        <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
+          <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
+            Instagram Preview
           </Text>
-
-          {/* Instagram Preview */}
-          <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
-            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
-              Instagram Preview
-            </Text>
-            <Box className={`${styles.instagramPreview} ${isMobile ? styles.instagramPreviewMobile : ''}`}>
-              <Stack gap={isMobile ? "sm" : "md"}>
-                <Group>
-                  <Avatar
-                    src={userData.profileImage || userData.photos?.[0]}
-                    size={isMobile ? "md" : "lg"}
-                    radius="xl"
-                    style={{ border: '2px solid white' }}
-                  />
-                  <div>
-                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} fw={600}>
-                      {userData.instagram}
-                    </Text>
-                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                      {userData.major} • {userData.hometown}
-                    </Text>
-                  </div>
-                </Group>
-                <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>{userData.bio}</Text>
-                <div className={`${styles.photoGrid} ${isMobile ? styles.photoGridMobile : ''}`}>
-                  {(userData.photos || []).map((photo, index) => (
-                    <Image
-                      key={index}
-                      src={photo}
-                      className={`${styles.photo} ${isMobile ? styles.photoMobile : ''}`}
-                    />
-                  ))}
-                </div>
-              </Stack>
-            </Box>
-          </Paper>
-
-          {/* College Feed Preview */}
-          <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
-            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
-              College Feed Preview
-            </Text>
+          <Box className={`${styles.instagramPreview} ${isMobile ? styles.instagramPreviewMobile : ''}`}>
             <Stack gap={isMobile ? "sm" : "md"}>
               <Group>
                 <Avatar
                   src={userData.profileImage || userData.photos?.[0]}
                   size={isMobile ? "md" : "lg"}
                   radius="xl"
+                  style={{ border: '2px solid white' }}
                 />
-                <div style={{ flex: 1 }}>
+                <div>
                   <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} fw={600}>
                     {userData.instagram}
                   </Text>
-                  <Group gap="xs">
-                    <Badge color="blue" variant="light" size={isMobile ? "xs" : "sm"}>
-                      {userData.major}
-                    </Badge>
-                    <Badge color="grape" variant="light" size={isMobile ? "xs" : "sm"}>
-                      {userData.hometown}
-                    </Badge>
-                  </Group>
+                  <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
+                    {userData.major} • {userData.hometown}
+                  </Text>
                 </div>
               </Group>
-
               <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>{userData.bio}</Text>
-
-              <Divider className={styles.divider} />
-
-              <Stack gap="xs">
-                <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                  Lifestyle
-                </Text>
-                <Group gap="xs">
-                  {userData.traits && Object.entries(userData.traits)
-                    .filter(([key]) => ['sleepSchedule', 'cleanliness', 'guests', 'studying', 'substances'].includes(key))
-                    .map(([key, value]) => (
-                      <Badge key={key} color="blue" variant="light" size={isMobile ? "xs" : "sm"}>
-                        {value as string}
-                      </Badge>
-                    ))}
-                </Group>
-              </Stack>
-
-              <Stack gap="xs">
-                <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                  Interests
-                </Text>
-                <Group gap="xs">
-                  {userData.traits && [
-                    ...(userData.traits.personality || []),
-                    ...(userData.traits.physicalActivity || []),
-                    ...(userData.traits.pastimes || []),
-                    ...(userData.traits.food || []),
-                  ].slice(0, isMobile ? 6 : undefined).map((trait) => (
-                    <Badge key={trait} color="grape" variant="light" size={isMobile ? "xs" : "sm"}>
-                      {trait}
-                    </Badge>
-                  ))}
-                  {isMobile && userData.traits && [
-                    ...(userData.traits.personality || []),
-                    ...(userData.traits.physicalActivity || []),
-                    ...(userData.traits.pastimes || []),
-                    ...(userData.traits.food || []),
-                  ].length > 6 && (
-                    <Badge color="gray" variant="light" size="xs">
-                      +{[
-                        ...(userData.traits.personality || []),
-                        ...(userData.traits.physicalActivity || []),
-                        ...(userData.traits.pastimes || []),
-                        ...(userData.traits.food || []),
-                      ].length - 6} more
-                    </Badge>
-                  )}
-                </Group>
-              </Stack>
-
-              <Group gap="xs">
-                <IconBrandInstagram className={styles.socialIcon} style={{ width: rem(isMobile ? 16 : 20), height: rem(isMobile ? 16 : 20) }} />
-                <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                  {userData.instagram}
-                </Text>
-                {userData.snapchat && (
-                  <>
-                    <IconBrandSnapchat className={styles.socialIcon} style={{ width: rem(isMobile ? 16 : 20), height: rem(isMobile ? 16 : 20) }} />
-                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                      {userData.snapchat}
-                    </Text>
-                  </>
-                )}
-              </Group>
+              <div className={`${styles.photoGrid} ${isMobile ? styles.photoGridMobile : ''}`}>
+                {(userData.photos || []).map((photo, index) => (
+                  <Image
+                    key={index}
+                    src={photo}
+                    className={`${styles.photo} ${isMobile ? styles.photoMobile : ''}`}
+                  />
+                ))}
+              </div>
             </Stack>
-          </Paper>
+          </Box>
+        </Paper>
 
-          <Checkbox
-            label="I confirm that I have reviewed my profile and it looks good"
-            color="blue"
-            {...form.getInputProps('reviewConfirmed', { type: 'checkbox' })}
-            styles={{ 
-              label: { 
-                color: 'white',
-                fontSize: isMobile ? '12px' : '14px'
-              } 
-            }}
-            size={isMobile ? "sm" : "md"}
-          />
+        {/* College Feed Preview - Using consistent PostCard component from feed */}
+        <Box>
+          <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600} mb={isMobile ? "sm" : "md"}>
+            College Feed Preview
+          </Text>
+          <Text size={isMobile ? "xs" : "sm"} c="dimmed" mb={isMobile ? "sm" : "md"}>
+            This is how your posts will appear to other students in the college feed
+          </Text>
+          <PostCard post={createMockPost()} />
+        </Box>
 
-          <Group justify="center" mt={isMobile ? "sm" : "xl"}>
-            <Button
-              type="submit"
-              size={isMobile ? "md" : "lg"}
-              loading={isSubmitting || isUpdating}
-              className={styles.nextButton}
-              c="white"
-              disabled={!form.values.reviewConfirmed}
-              fullWidth={isMobile}
-            >
-              Continue to Payment
-            </Button>
-          </Group>
-        </Stack>
-      </form>
+        <Group justify="center" mt={isMobile ? "sm" : "xl"}>
+          <Button
+            onClick={handleSubmit}
+            size={isMobile ? "md" : "lg"}
+            loading={isSubmitting || isUpdating}
+            className={styles.nextButton}
+            c="white"
+            fullWidth={isMobile}
+          >
+            Continue to Payment
+          </Button>
+        </Group>
+      </Stack>
     </Paper>
   );
 };

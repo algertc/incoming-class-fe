@@ -36,4 +36,7 @@ export {
   useCollegeSearch,
   useCollege,
   collegeKeys
-} from './useColleges'; 
+} from './useColleges';
+
+// Custom hook for managing feed initialization
+export { useFeedInitializer } from './useFeedInitializer'; 

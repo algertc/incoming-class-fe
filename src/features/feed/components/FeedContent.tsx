@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { 
   Box, 
   Paper, 
@@ -19,6 +19,7 @@ import {
 import { IconLock, IconRefresh, IconX, IconAlertCircle } from '@tabler/icons-react';
 import { useAuthStore } from '../../../store/auth.store';
 import { useFeedStore } from '../../../store/feed.store';
+import { useFeedInitializer } from '../../../hooks/api';
 import { useNavigate } from 'react-router';
 import PostCard from './PostCard';
 import type { Post } from './PostCard';
@@ -37,15 +38,19 @@ const FeedContent: React.FC = () => {
     hasMore,
     hasReachedLimit,
     maxPostsWithoutLogin,
+    modalShownAndDismissed,
     filters,
     error,
     totalCount,
-    initializeFeed,
     loadMorePosts,
     refreshFeed,
     resetFilters,
     setCategories,
+    markModalDismissed,
   } = useFeedStore();
+  
+  // Use custom hook for feed initialization
+  useFeedInitializer(isAuthenticated, user?.id);
   
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,14 +64,17 @@ const FeedContent: React.FC = () => {
     advice: "Advice",
   };
 
-  // Initialize feed on component mount
-  useEffect(() => {
-    initializeFeed(isAuthenticated);
-  }, [user, initializeFeed]);
+  // Memoize loadMorePosts to prevent unnecessary re-renders
+  const loadMorePostsMemoized = useCallback(() => {
+    if (!hasMore || isLoading || isLoadingMore || hasReachedLimit || (!isAuthenticated && modalShownAndDismissed)) {
+      return;
+    }
+    loadMorePosts(isAuthenticated);
+  }, [hasMore, isLoading, isLoadingMore, hasReachedLimit, modalShownAndDismissed, loadMorePosts, isAuthenticated]);
 
   // Intersection Observer for infinite scroll
   useEffect(() => {
-    if (!hasMore || isLoading || hasReachedLimit) {
+    if (!hasMore || isLoading || hasReachedLimit || (!isAuthenticated && modalShownAndDismissed)) {
       return;
     }
 
@@ -74,7 +82,7 @@ const FeedContent: React.FC = () => {
       (entries) => {
         const [entry] = entries;
         if (entry.isIntersecting && !isLoadingMore) {
-          loadMorePosts(isAuthenticated);
+          loadMorePostsMemoized();
         }
       },
       {
@@ -91,25 +99,33 @@ const FeedContent: React.FC = () => {
     return () => {
       observer.disconnect();
     };
-  }, [hasMore, isLoading, isLoadingMore, hasReachedLimit, loadMorePosts, isAuthenticated]);
+  }, [hasMore, isLoading, hasReachedLimit, modalShownAndDismissed, loadMorePostsMemoized, isLoadingMore]);
 
   // Handle modal actions
   const handleModalLogin = () => {
     setLoginModalOpened(false);
+    markModalDismissed();
     navigate('/login');
   };
 
   const handleModalSignup = () => {
     setLoginModalOpened(false);
+    markModalDismissed();
     navigate('/signup');
+  };
+
+  // Handle modal close without action
+  const handleModalClose = () => {
+    setLoginModalOpened(false);
+    markModalDismissed();
   };
 
   // Handle reaching limit for unauthenticated users
   useEffect(() => {
-    if (hasReachedLimit && !isAuthenticated) {
+    if (hasReachedLimit && !isAuthenticated && !modalShownAndDismissed) {
       setLoginModalOpened(true);
     }
-  }, [hasReachedLimit, isAuthenticated]);
+  }, [hasReachedLimit, isAuthenticated, modalShownAndDismissed]);
 
   // Remove a category filter
   const removeCategory = (categoryToRemove: string) => {
@@ -286,7 +302,7 @@ const FeedContent: React.FC = () => {
           )}
           
           {/* Intersection observer target for infinite scroll */}
-          {hasMore && !hasReachedLimit && !error && (
+          {hasMore && !hasReachedLimit && !error && !(!isAuthenticated && modalShownAndDismissed) && (
             <div
               ref={loadMoreRef}
               style={{
@@ -298,7 +314,7 @@ const FeedContent: React.FC = () => {
           )}
 
           {/* End of free content message for unauthenticated users */}
-          {hasReachedLimit && !isAuthenticated && (
+          {hasReachedLimit && !isAuthenticated && !modalShownAndDismissed && (
             <Paper 
               shadow="sm" 
               p="xl" 
@@ -376,7 +392,7 @@ const FeedContent: React.FC = () => {
       {/* Login/Signup Modal */}
       <Modal
         opened={loginModalOpened}
-        onClose={() => setLoginModalOpened(false)}
+        onClose={handleModalClose}
         title=""
         centered
         size="md"
