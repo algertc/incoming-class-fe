@@ -1,5 +1,6 @@
 export { authService } from './auth.service';
 export { usersService } from './users.service';
+export { paymentService } from './payment.service';
 
 // Export other services as they are added
 // export { collegesService } from './colleges.service';

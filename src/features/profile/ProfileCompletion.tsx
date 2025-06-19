@@ -29,7 +29,6 @@ import styles from "../../pages/ProfileCompletion/ProfileCompletion.module.css";
 import { useAuthStore } from "../../store/auth.store";
 import { ProfileStage } from "../../models/user.model";
 import { withProfileStageGuard } from "./withProfileStageGuard";
-// import { StripeWrapper } from "../../services/StripeWrapper";
 
 const ProfileCompletion: React.FC = () => {
   const [active, setActive] = useState(0);
@@ -240,11 +239,7 @@ const ProfileCompletion: React.FC = () => {
               {active === 3 && (
                 <ProfilePreview onComplete={() => handleStepComplete(3)} />
               )}
-              {active === 4 && (
-                // <StripeWrapper>
-                <Payment />
-                // </StripeWrapper>
-              )}
+              {active === 4 && <Payment />}
             </Box>
           </div>
 

@@ -6,4 +6,6 @@ export const ROUTES = {
   FORGOT_PASSWORD: '/forgot-password',
   RESET_PASSWORD: '/reset-password',
   PROFILE_COMPLETION: '/profile-completion',
+  PAYMENT_SUCCESS: '/payment/post/success',
+  PAYMENT_ERROR: '/payment/post/error',
 } as const; 
