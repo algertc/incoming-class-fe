@@ -92,13 +92,7 @@ class FeedService {
     if (params.page) queryParams.page = params.page.toString();
     if (params.limit) queryParams.limit = params.limit.toString();
     if (params.searchQuery) queryParams.search = params.searchQuery;
-    if (params.sortBy) queryParams.sortBy = params.sortBy;
     if (params.college && params.college !== 'all') queryParams.college = params.college;
-
-    // Handle categories array
-    if (params.categories && params.categories.length > 0) {
-      queryParams.categories = params.categories;
-    }
 
     // Handle last days filter
     if (params.lastDays) {

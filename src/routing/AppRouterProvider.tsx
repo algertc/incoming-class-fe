@@ -14,7 +14,7 @@ import CollegesPage from "../features/colleges/CollegesPage";
 import FeedPage from "../features/feed/FeedPage";
 import SubscriptionPage from "../features/subscription/SubscriptionPage";
 import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile";
-import { PaymentSuccessPage, PaymentErrorPage } from "../features/payment";
+import { PaymentSuccessPage, PaymentErrorPage, PremiumSuccessPage } from "../features/payment";
 
 // Placeholder components for authenticated routes
 const Applications = () => <div>Applications</div>;
@@ -87,6 +87,10 @@ const router = createBrowserRouter([
     {
         path: ROUTES.PAYMENT_ERROR,
         element: <PaymentErrorPage />,
+    },
+    {
+        path: ROUTES.PREMIUM_SUCCESS,
+        element: <PremiumSuccessPage />,
     },
     // Protected routes with authenticated layout
     {

@@ -14,6 +14,7 @@ export const paymentKeys = {
   all: ['payment'] as const,
   sessions: () => [...paymentKeys.all, 'sessions'] as const,
   session: (id: string) => [...paymentKeys.sessions(), id] as const,
+  subscriptionSessions: () => [...paymentKeys.all, 'subscriptionSessions'] as const,
 };
 
 /**
@@ -49,7 +50,6 @@ export const paymentKeys = {
  *     </button>
  *   );
  * };
- * ```
  */
 export const useCreateCheckoutSession = () => {
   return useMutation<
@@ -143,7 +143,6 @@ export const useCreateCheckoutSession = () => {
  *     </button>
  *   );
  * };
- * ```
  */
 export const useConfirmPayment = () => {
   return useMutation<
@@ -207,5 +206,72 @@ export const useConfirmPayment = () => {
         timestamp: new Date().toISOString()
       });
     }
+  });
+};
+
+/**
+ * Hook for creating a Stripe Checkout session for premium subscription
+ */
+export const useCreateSubscriptionSession = () => {
+  return useMutation<
+    IServerResponse<CheckoutSessionResponse>,
+    Error,
+    CreateCheckoutSessionRequest
+  >({
+    mutationFn: async (data: CreateCheckoutSessionRequest) => {
+      console.log("🎯 useCreateSubscriptionSession: Mutation started");
+      console.log("📊 Hook request data:", data);
+
+      try {
+        const result = await paymentService.createSubscriptionSession(data);
+
+        console.log("✅ useCreateSubscriptionSession: Mutation successful");
+        console.log("🎉 Hook result:", {
+          status: result.status,
+          hasData: !!result.data,
+          timestamp: new Date().toISOString(),
+        });
+
+        return result;
+      } catch (error) {
+        console.error("💥 useCreateSubscriptionSession: Mutation failed");
+        console.error("🔍 Hook error:", {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          requestData: data,
+          timestamp: new Date().toISOString(),
+        });
+
+        throw error;
+      }
+    },
+    onSuccess: (data, variables) => {
+      console.log("🎊 useCreateSubscriptionSession: onSuccess callback");
+      console.log("📈 Success data:", {
+        status: data.status,
+        checkoutUrl: data.data?.checkoutUrl,
+        transactionStatus: data.data?.transactionStatus,
+        variables,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    onError: (error, variables) => {
+      console.error("💔 useCreateSubscriptionSession: onError callback");
+      console.error("📉 Error details:", {
+        error: error.message,
+        variables,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    onSettled: (data, error, variables) => {
+      console.log("🏁 useCreateSubscriptionSession: onSettled callback");
+      console.log("📋 Settlement details:", {
+        success: !!data && !error,
+        hasData: !!data,
+        hasError: !!error,
+        variables,
+        timestamp: new Date().toISOString(),
+      });
+    },
   });
 }; 

@@ -24,7 +24,7 @@ const StudentProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   
   // Custom hook for student profile data with API integration
-  const { profileData, studentPosts, isLoading, error, userId } = useStudentProfileData();
+  const { profileData, studentPosts, isLoading, error } = useStudentProfileData();
 
   // Error state
   if (error) {
@@ -86,14 +86,14 @@ const StudentProfilePage: React.FC = () => {
         {/* Modern Profile Header */}
         <Suspense fallback={<Skeleton height={180} radius="xl" mb="md" />}>
           <ModernProfileHeader
-            name={profileData.name}
-            designation={profileData.designation}
-            profilePicture={profileData.profilePicture}
-            hometown={profileData.location.hometown}
-            bio={profileData.bio}
+            name={profileData.firstName + " " + profileData.lastName}
+            designation={profileData.college?.name || ""}
+            profilePicture={profileData.profilePicture || ""}
+            hometown={profileData.hometown || ""}
+            bio={profileData.bio || ""}
             isPremium={profileData.isPremium}
-            profileCompletion={profileData.profileCompletion}
-            userId={userId}
+            profileCompletion={profileData.isProfileCompleted ? 100 : 0}
+            userId={profileData._id}
           />
         </Suspense>
         
@@ -127,7 +127,7 @@ const StudentProfilePage: React.FC = () => {
                 posts={studentPosts}
                 isLoading={false}
                 isCurrentUser={false}
-                userName={profileData.name}
+                userName={profileData.firstName + " " + profileData.lastName}
               />
             </Suspense>
           </Box>

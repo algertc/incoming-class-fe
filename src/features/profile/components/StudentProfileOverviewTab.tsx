@@ -8,7 +8,7 @@ import {
 } from '@mantine/core';
 import { glassCardStyles } from '../utils/glassStyles';
 import { ProfileComponentSkeleton, ProfileContactSkeleton } from './ProfileSkeleton';
-import type { ProfileData } from '../hooks/useProfileData';
+import type { User } from '../../../models/user.model';
 
 // Lazy load components for code splitting
 const BioCard = lazy(() => import('./BioCard'));
@@ -18,23 +18,23 @@ const InterestsCard = lazy(() => import('./InterestsCard'));
 const ModernContactCard = lazy(() => import('./ModernContactCard'));
 
 interface StudentProfileOverviewTabProps {
-  profileData: ProfileData;
+  profileData: User;
   isLoading?: boolean;
 }
 
 const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
   profileData,
-  isLoading = false,
+  isLoading = false
 }) => {
   const theme = useMantineTheme();
 
   // Prepare contact data for the contact card
   const contactData = {
-    email: `${profileData.name.toLowerCase().replace(' ', '.')}@university.edu`,
-    instagram: profileData.contact.instagram,
-    snapchat: profileData.contact.snapchat,
-    university: profileData.academic.university,
-    batch: profileData.academic.batch,
+    email: profileData.email || 'email@university.edu',
+    instagram: profileData.instagram || '@username',
+    snapchat: profileData.snapchat || '@username',
+    university: profileData.university || 'University',
+    batch: profileData.collegeGraduationYear || 'Not specified',
   };
 
   if (isLoading) {
@@ -61,7 +61,7 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
             <Suspense fallback={<ProfileComponentSkeleton height={120} />}>
               <BioCard 
-                bio={profileData.bio}
+                bio={profileData.bio || 'This student has not added a bio yet.'}
                 isEditable={false}
               />
             </Suspense>
@@ -70,11 +70,11 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
             <Suspense fallback={<ProfileComponentSkeleton height={180} />}>
               <AcademicInfo 
-                major={profileData.academic.major}
-                university={profileData.academic.university}
-                batch={profileData.academic.batch}
-                hometown={profileData.location.hometown}
-                lookingForRoommate={profileData.lookingForRoommate}
+                major={profileData.major || 'Not specified'}
+                university={profileData.university || 'University'}
+                batch={profileData.collegeGraduationYear || 'Not specified'}
+                hometown={profileData.hometown || 'Not specified'}
+                lookingForRoommate={false} // This field doesn't exist in User interface
                 isEditable={false}
               />
             </Suspense>
@@ -83,12 +83,12 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
             <Suspense fallback={<ProfileComponentSkeleton height={280} />}>
               <TraitsPreferences 
-                sleepSchedule={profileData.traits.sleepSchedule}
-                cleanliness={profileData.traits.cleanliness}
-                guests={profileData.traits.guests}
-                studying={profileData.traits.studying}
-                substances={profileData.traits.substances}
-                personality={profileData.personality}
+                sleepSchedule={profileData.sleepSchedule || 'Not specified'}
+                cleanliness={profileData.cleanliness || 'Not specified'}
+                guests={profileData.guests || 'Not specified'}
+                studying="Library" // This field doesn't exist in User interface
+                substances={profileData.substances || 'Not specified'}
+                personality={profileData.personality || []}
                 isEditable={false}
               />
             </Suspense>
@@ -107,9 +107,9 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
             <Suspense fallback={<ProfileComponentSkeleton height={200} />}>
               <InterestsCard 
-                physicalActivity={profileData.physicalActivity}
-                pastimes={profileData.pastimes}
-                food={profileData.food}
+                physicalActivity={profileData.physicalActivity || []}
+                pastimes={profileData.pastimes || []}
+                food={profileData.food || []}
                 isEditable={false}
               />
             </Suspense>

@@ -14,9 +14,8 @@ import {
   Loader,
   Center,
   Badge,
-  ActionIcon,
 } from '@mantine/core';
-import { IconLock, IconRefresh, IconX, IconAlertCircle } from '@tabler/icons-react';
+import { IconLock, IconAlertCircle } from '@tabler/icons-react';
 import { useAuthStore } from '../../../store/auth.store';
 import { useFeedStore } from '../../../store/feed.store';
 import { useFeedInitializer } from '../../../hooks/api';
@@ -44,8 +43,6 @@ const FeedContent: React.FC = () => {
     totalCount,
     loadMorePosts,
     refreshFeed,
-    resetFilters,
-    setCategories,
     markModalDismissed,
   } = useFeedStore();
   
@@ -53,16 +50,6 @@ const FeedContent: React.FC = () => {
   useFeedInitializer(isAuthenticated, user?.id);
   
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
-
-  // Categories mapping for display
-  const categoryLabels = {
-    academic: "Academic",
-    social: "Social Life", 
-    housing: "Housing",
-    career: "Career",
-    events: "Events",
-    advice: "Advice",
-  };
 
   // Memoize loadMorePosts to prevent unnecessary re-renders
   const loadMorePostsMemoized = useCallback(() => {
@@ -127,16 +114,8 @@ const FeedContent: React.FC = () => {
     }
   }, [hasReachedLimit, isAuthenticated, modalShownAndDismissed]);
 
-  // Remove a category filter
-  const removeCategory = (categoryToRemove: string) => {
-    const newCategories = filters.categories.filter(cat => cat !== categoryToRemove);
-    setCategories(newCategories, isAuthenticated);
-  };
-
   // Check if any filters are active
   const hasActiveFilters = filters.searchQuery || 
-                          filters.categories.length > 0 || 
-                          filters.sortBy !== 'newest' ||
                           filters.lastDays !== 30 ||
                           (filters.college && filters.college !== 'all');
 
@@ -159,45 +138,6 @@ const FeedContent: React.FC = () => {
               <Badge variant="light" color="blue" size="sm">
                 Search: "{filters.searchQuery}"
               </Badge>
-            )}
-            
-            {filters.categories.map((category) => (
-              <Badge 
-                key={category} 
-                variant="light" 
-                color="cyan" 
-                size="sm"
-                rightSection={
-                  <ActionIcon size="xs" color="cyan" variant="transparent" onClick={() => removeCategory(category)}>
-                    <IconX size={10} />
-                  </ActionIcon>
-                }
-              >
-                {categoryLabels[category as keyof typeof categoryLabels]}
-              </Badge>
-            ))}
-            
-            {filters.sortBy !== 'newest' && (
-              <Badge variant="light" color="indigo" size="sm">
-                Sort: {filters.sortBy === 'popular' ? 'Popular' : 'Most Comments'}
-              </Badge>
-            )}
-          </Group>
-          
-          <Group gap="xs">
-            <ActionIcon 
-              variant="light" 
-              color="blue" 
-              onClick={() => refreshFeed(isAuthenticated)}
-              loading={isLoading}
-            >
-              <IconRefresh size={16} />
-            </ActionIcon>
-            
-            {hasActiveFilters && (
-              <Button variant="light" color="gray" size="xs" onClick={() => resetFilters(isAuthenticated)}>
-                Clear All
-              </Button>
             )}
           </Group>
         </Group>

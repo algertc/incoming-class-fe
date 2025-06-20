@@ -15,7 +15,7 @@ interface CollegeSearchSelectProps {
   label: string;
   placeholder: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: string, collegeId?: string) => void;
   error?: string;
   required?: boolean;
   size?: "sm" | "md" | "lg";
@@ -50,10 +50,11 @@ const CollegeSearchSelect: React.FC<CollegeSearchSelectProps> = ({
     page: 1,
   });
 
-  // Transform college data
+  // Transform college data to include both id and name
   const colleges = useMemo(() => {
     return collegeData?.data.colleges.map((college: College) => ({
-      id: college.name,
+      id: college._id, // Use the actual MongoDB _id
+      name: college.name,
       label: college.name,
       description: college.location,
     })) || [];
@@ -114,8 +115,8 @@ const CollegeSearchSelect: React.FC<CollegeSearchSelectProps> = ({
     }
   };
 
-  const handleCollegeSelect = (collegeName: string) => {
-    onChange(collegeName);
+  const handleCollegeSelect = (college: { id: string; name: string; label: string; description?: string }) => {
+    onChange(college.name, college.id);
     setIsOpen(false);
     setSearchQuery("");
   };
@@ -219,24 +220,35 @@ const CollegeSearchSelect: React.FC<CollegeSearchSelectProps> = ({
                   <Box
                     key={college.id}
                     className={classNames.option}
-                    onClick={() => handleCollegeSelect(college.label)}
+                    onClick={() => handleCollegeSelect(college)}
                     p="sm"
                     style={{
                       cursor: 'pointer',
                       borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
                       color: 'white',
                       transition: 'background-color 0.2s ease',
+                      backgroundColor: value === college.label ? 'rgba(99, 102, 241, 0.2)' : 'transparent',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                      if (value !== college.label) {
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                      }
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = 'transparent';
+                      if (value === college.label) {
+                        e.currentTarget.style.backgroundColor = 'rgba(99, 102, 241, 0.2)';
+                      } else {
+                        e.currentTarget.style.backgroundColor = 'transparent';
+                      }
                     }}
                   >
                     <Group gap="xs" align="flex-start">
                       <Box style={{ flex: 1 }}>
-                        <Text size="sm" fw={500} c="white">
+                        <Text 
+                          size="sm" 
+                          fw={value === college.label ? 600 : 500} 
+                          c={value === college.label ? 'white' : 'white'}
+                        >
                           {college.label}
                         </Text>
                         {college.description && (
@@ -245,6 +257,11 @@ const CollegeSearchSelect: React.FC<CollegeSearchSelectProps> = ({
                           </Text>
                         )}
                       </Box>
+                      {value === college.label && (
+                        <Text size="xs" c="blue" fw={600}>
+                          ✓
+                        </Text>
+                      )}
                     </Group>
                   </Box>
                 ))

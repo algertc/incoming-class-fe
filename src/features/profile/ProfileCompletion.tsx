@@ -37,6 +37,9 @@ const ProfileCompletion: React.FC = () => {
   const { user, fetchUser } = useAuthStore();
   const isMobile = useMediaQuery("(max-width: 768px)");
 
+  console.log("show active step", active);
+  
+
   // Initialize active step based on user's profileStage
   useEffect(() => {
     if (user?.profileStage) {
@@ -64,8 +67,16 @@ const ProfileCompletion: React.FC = () => {
 
   const nextStep = () =>
     setActive((current) => (current < 4 ? current + 1 : current));
-  const prevStep = () =>
-    setActive((current) => (current > 0 ? current - 1 : current));
+  const prevStep = () => {
+    console.log('Back button clicked, current step:', active);
+    setActive((current) => {
+      const newStep = current > 0 ? current - 1 : current;
+      console.log('Moving to step:', newStep);
+      return newStep;
+    });
+    // Refresh user data when navigating back to ensure forms are pre-filled
+    fetchUser();
+  };
 
   const steps = [
     {
@@ -137,7 +148,6 @@ const ProfileCompletion: React.FC = () => {
 
           <Stepper
             active={active}
-            onStepClick={setActive}
             allowNextStepsSelect={false}
             size={isMobile ? "xs" : "lg"}
             color="blue"
@@ -251,10 +261,9 @@ const ProfileCompletion: React.FC = () => {
             <Button
               variant="outline"
               onClick={prevStep}
-              disabled={active === 0}
+              // disabled={active == 0}
               className={styles.backButton}
               size={isMobile ? "md" : "lg"}
-              c={"black"}
             >
               Back
             </Button>

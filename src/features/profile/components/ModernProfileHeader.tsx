@@ -153,112 +153,167 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
         }}
       />
       
-      <Box p="xl" style={{ position: 'relative', zIndex: 2 }}>
-        <Group align="flex-start" gap="lg">
+      <Box p={{ base: 'md', sm: 'xl' }} style={{ position: 'relative', zIndex: 2 }}>
+        <Stack gap="md">
           {/* Avatar with modern styling */}
-          <Box style={{ position: 'relative' }}>
-            <Avatar
-              src={profilePicture}
-              size={100}
-              radius="50%"
-              style={{
-                border: '3px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-                background: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-              }}
-            />
-            <ActionIcon
-              variant="filled"
-              radius="xl"
-              size="md"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              style={{
-                position: 'absolute',
-                bottom: -4,
-                right: -4,
-                background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
-                border: '2px solid rgba(255, 255, 255, 0.3)',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                cursor: isUploading ? 'not-allowed' : 'pointer',
-                opacity: isUploading ? 0.7 : 1,
-              }}
-              title="Change profile picture"
-            >
-              <IconCamera size={16} />
-            </ActionIcon>
-          </Box>
+          <Group justify="center" style={{ width: '100%' }}>
+            <Box style={{ position: 'relative' }}>
+              <Avatar
+                src={profilePicture}
+                size="lg"
+                radius="50%"
+                styles={{
+                  root: {
+                    border: '3px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
+                    '@media (max-width: 48em)': {
+                      width: rem(80),
+                      height: rem(80),
+                    },
+                  }
+                }}
+              />
+              <ActionIcon
+                variant="filled"
+                radius="xl"
+                size="md"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                styles={{
+                  root: {
+                    position: 'absolute',
+                    bottom: -4,
+                    right: -4,
+                    background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
+                    border: '2px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                    cursor: isUploading ? 'not-allowed' : 'pointer',
+                    opacity: isUploading ? 0.7 : 1,
+                    '@media (max-width: 48em)': {
+                      width: rem(24),
+                      height: rem(24),
+                    },
+                  }
+                }}
+                title="Change profile picture"
+              >
+                <IconCamera style={{ width: rem(14), height: rem(14) }} />
+              </ActionIcon>
+            </Box>
+          </Group>
 
           {/* Profile Info */}
-          <Stack gap="xs" style={{ flex: 1 }}>
-            <Group gap="sm">
-              <Title order={2} c="white" fw={700} size="h2">
+          <Stack gap="xs" align="center" style={{ width: '100%' }}>
+            <Group gap="sm" justify="center" wrap="nowrap">
+              <Title order={2} c="white" fw={700} size="h3" ta="center">
                 {name}
               </Title>
               {isPremium && (
                 <Badge
-                  size="lg"
-                  variant="light"
-                  color="yellow"
-                  leftSection={<IconSparkles size={14} />}
-                  style={{
-                    background: 'rgba(255, 235, 59, 0.2)',
-                    color: '#FFD700',
-                    border: '1px solid rgba(255, 235, 59, 0.3)',
+                  variant="gradient"
+                  gradient={{ from: 'gold', to: 'yellow' }}
+                  size="sm"
+                  styles={{
+                    root: {
+                      border: '1px solid rgba(255, 255, 255, 0.2)',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      '@media (max-width: 48em)': {
+                        fontSize: 'var(--mantine-font-size-xs)',
+                        height: rem(20),
+                      },
+                    }
                   }}
                 >
-                  Premium
+                  <Group gap={4} wrap="nowrap">
+                    <IconSparkles style={{ width: rem(12), height: rem(12) }} />
+                    <Text size="xs">Premium</Text>
+                  </Group>
                 </Badge>
               )}
             </Group>
-            
-            <Group gap="xs" c="rgba(255, 255, 255, 0.9)">
-              <IconGraduation size={16} />
-              <Text size="sm" fw={500}>{designation}</Text>
-              <Text size="sm">•</Text>
-              <IconMapPin size={16} />
-              <Text size="sm">{hometown}</Text>
+
+            <Group gap="xs" justify="center">
+              <Text c="white" size="sm" fw={500}>
+                {designation}
+              </Text>
+              {hometown && (
+                <Group gap={4} wrap="nowrap">
+                  <IconMapPin style={{ width: rem(14), height: rem(14) }} color="white" />
+                  <Text c="white" size="sm">
+                    {hometown}
+                  </Text>
+                </Group>
+              )}
             </Group>
 
-            <Text c="rgba(255, 255, 255, 0.8)" size="sm" lineClamp={2} maw={400}>
-              {bio}
-            </Text>
-
-            {/* Compact Progress */}
-            <Group gap="xs" align="center">
-              <Text size="xs" c="rgba(255, 255, 255, 0.7)">Profile</Text>
-              <Progress
-                value={profileCompletion}
-                color="teal"
+            {bio && (
+              <Text
+                c="white"
                 size="sm"
-                radius="xl"
-                style={{ flex: 1, maxWidth: 120 }}
-              />
-              <Text size="xs" c="rgba(255, 255, 255, 0.9)" fw={600}>
-                {profileCompletion}%
+                opacity={0.9}
+                ta="center"
+                maw={600}
+                mx="auto"
+                styles={{
+                  root: {
+                    lineHeight: 1.6,
+                  }
+                }}
+              >
+                {bio}
               </Text>
+            )}
+
+            <Group gap="sm" mt="xs" justify="center">
+              <ActionIcon
+                variant="subtle"
+                color="white"
+                onClick={handleCopyProfile}
+                size="sm"
+                title="Copy profile link"
+              >
+                <IconCopy style={{ width: rem(14), height: rem(14) }} />
+              </ActionIcon>
+              <ActionIcon
+                variant="subtle"
+                color="white"
+                component="a"
+                href="#academic-info"
+                size="sm"
+                title="View academic info"
+              >
+                <IconGraduation style={{ width: rem(14), height: rem(14) }} />
+              </ActionIcon>
             </Group>
           </Stack>
 
-          {/* Copy Profile Link Button */}
-          <ActionIcon
-            variant="light"
-            size="lg"
-            radius="xl"
-            onClick={handleCopyProfile}
-            style={{
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              color: 'white',
-              cursor: 'pointer',
-            }}
-            title="Copy profile link"
-          >
-            <IconCopy size={18} />
-          </ActionIcon>
-        </Group>
+          {/* Profile Completion Progress */}
+          <Box style={{ width: '100%', maxWidth: rem(400), margin: '0 auto' }}>
+            <Group justify="space-between" mb={4}>
+              <Text size="xs" c="white" fw={500}>
+                Profile Completion
+              </Text>
+              <Text size="xs" c="white" fw={500}>
+                {profileCompletion}%
+              </Text>
+            </Group>
+            <Progress
+              value={profileCompletion}
+              color="white"
+              radius="xl"
+              size="xs"
+              styles={{
+                root: {
+                  '@media (min-width: 48em)': {
+                    height: rem(8),
+                  },
+                }
+              }}
+            />
+          </Box>
+        </Stack>
       </Box>
     </Box>
   );

@@ -37,16 +37,6 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Categories mapping for display
-  const categoryLabels = {
-    academic: "Academic",
-    social: "Social Life", 
-    housing: "Housing",
-    career: "Career",
-    events: "Events",
-    advice: "Advice",
-  };
-
   // Handle debounced search
   useEffect(() => {
     searchPosts(debouncedSearchQuery, isAuthenticated);
@@ -63,15 +53,11 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
     searchPosts("", isAuthenticated);
   };
 
-  // Check if any filters are active
-  const hasActiveFilters = filters.categories.length > 0 || 
-                          filters.sortBy !== 'newest' ||
-                          filters.lastDays !== 30 ||
+  // Check if any filters are active (only remaining filters)
+  const hasActiveFilters = filters.lastDays !== 30 ||
                           (filters.college !== null && filters.college !== 'all');
 
-  const activeFiltersCount = filters.categories.length +
-                            (filters.sortBy !== 'newest' ? 1 : 0) +
-                            (filters.lastDays !== 30 ? 1 : 0) +
+  const activeFiltersCount = (filters.lastDays !== 30 ? 1 : 0) +
                             (filters.college !== null && filters.college !== 'all' ? 1 : 0);
 
   return (
@@ -163,31 +149,7 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
         <Collapse in={hasActiveFilters}>
           <Box pt="sm">
             <Group gap="xs">
-              {filters.categories.slice(0, 3).map((category) => (
-                <Badge
-                  key={category}
-                  color="blue"
-                  variant="light"
-                  size="xs"
-                  styles={{
-                    root: {
-                      textTransform: "none",
-                    },
-                  }}
-                >
-                  {categoryLabels[category as keyof typeof categoryLabels]}
-                </Badge>
-              ))}
-              {filters.categories.length > 3 && (
-                <Badge
-                  color="gray"
-                  variant="light"
-                  size="xs"
-                >
-                  +{filters.categories.length - 3}
-                </Badge>
-              )}
-              {filters.sortBy !== 'newest' && (
+              {filters.lastDays !== 30 && (
                 <Badge
                   color="indigo"
                   variant="light"
@@ -198,7 +160,21 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
                     },
                   }}
                 >
-                  {filters.sortBy === 'popular' ? 'Popular' : 'Comments'}
+                  Last {filters.lastDays} days
+                </Badge>
+              )}
+              {filters.college !== null && filters.college !== 'all' && (
+                <Badge
+                  color="green"
+                  variant="light"
+                  size="xs"
+                  styles={{
+                    root: {
+                      textTransform: "none",
+                    },
+                  }}
+                >
+                  College Filter
                 </Badge>
               )}
             </Group>
@@ -207,4 +183,4 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
       </Paper>
     </Box>
   );
-}; 
+};

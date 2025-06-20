@@ -43,6 +43,7 @@ export interface UpdateProfileData {
 
 // College types
 export interface College {
+  _id: string;
   id: string;
   name: string;
   description?: string;

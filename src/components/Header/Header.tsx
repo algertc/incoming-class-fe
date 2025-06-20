@@ -143,7 +143,7 @@ const Header: React.FC = () => {
           <Box
             style={{
               width: '100%',
-              height: rem(90),
+              height: rem(60),
               background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
               borderBottom: '1px solid rgba(255,255,255,0.1)',
               display: 'flex',
@@ -184,13 +184,13 @@ const Header: React.FC = () => {
           {/* Mobile Navigation Content - Full Screen */}
           <Box
             style={{
-              flex: 1,
+              // flex: 1,
               width: '100%',
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              padding: `${rem(40)} ${rem(20)}`,
+              padding: `${rem(24)} ${rem(16)}`,
               background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
             }}
           >

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { usersService } from '../../services';
+import { transactionsService } from '../../services/transactions.service';
 import type { UpdateProfileData, User } from '../../models/user.model';
 import type { IServerResponse } from '../../models/serverResponse.model';
 import { authKeys } from './useAuth';
@@ -167,5 +168,16 @@ export const useDeleteCurrentUserAccount = () => {
       
       // This should be followed by a logout redirect, handled by the component
     }
+  });
+};
+
+/**
+ * Hook for fetching current user's transactions
+ */
+export const useCurrentUserTransactions = () => {
+  return useQuery({
+    queryKey: [...userKeys.currentUser(), 'transactions'],
+    queryFn: () => transactionsService.getAllTransactions(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }; 

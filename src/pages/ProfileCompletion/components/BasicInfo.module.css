@@ -91,15 +91,17 @@
 }
 
 .item {
-  color: black;
+  color: white;
 }
 
 .item[data-selected] {
   background-color: var(--mantine-color-blue-6);
+  color: white;
 }
 
-.item[data-hovered] {
-  background-color: rgba(255, 255, 255, 0.1);
+.item:hover {
+  background-color: rgba(99, 102, 241, 0.5);  
+  color: white;
 }
 
 .nextButton {

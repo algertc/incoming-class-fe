@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   TextInput,
   Select,
@@ -16,10 +16,19 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { ProfileStage } from "../../../models/user.model";
-import { profileBasicInfoSchema, profileBasicInfoInitialValues } from "../../../forms";
+import type { User } from "../../../models/user.model";
+import { profileBasicInfoSchema, getProfileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
+import { useAuthStore } from "../../../store/auth.store";
 import CollegeSearchSelect from "./CollegeSearchSelect";
 import styles from "./BasicInfo.module.css";
+
+interface ExtendedUser extends User {
+  college?: {
+    id?: string;
+    name?: string;
+  } | string;
+}
 
 interface BasicInfoProps {
   onComplete: () => void;
@@ -27,28 +36,69 @@ interface BasicInfoProps {
 
 const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
+  const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const form = useForm({
-    initialValues: profileBasicInfoInitialValues,
+    initialValues: getProfileBasicInfoInitialValues(user),
     validate: yupResolver(profileBasicInfoSchema)
   });
 
+  // State to store the selected college ID
+  const [selectedCollegeId, setSelectedCollegeId] = useState<string>('');
+
+  // Initialize selectedCollegeId from user data
+  useEffect(() => {
+    if (user) {
+      const userData = user as ExtendedUser;
+      const college = userData?.college;
+      let collegeId = '';
+      
+      if (typeof college === 'string') {
+        collegeId = college;
+      } else if (college && typeof college === 'object') {
+        collegeId = college.id || '';
+      }
+      
+      if (collegeId) {
+        setSelectedCollegeId(collegeId);
+      }
+    }
+  }, [user]);
+
   const handleSubmit = async (values: typeof form.values) => {
     try {
-      const profileData={...values,collegeGraduationYear:values.batch,profileStage:ProfileStage.PREFERENCES}
+      const { university, ...restValues } = values;
+      const profileData = {
+        ...restValues,
+        collegeGraduationYear: values.batch,
+        college: selectedCollegeId || university, // Use college ID if available, fallback to university name
+        profileStage: ProfileStage.PREFERENCES
+      };
+      
+      console.log('Submitting profile data:', profileData);
+      console.log('Selected college ID:', selectedCollegeId);
+      
       const response = await updateProfile(profileData);
 
       if (!response.status) {
         throw new Error(response.errorMessage?.message || 'Failed to update profile');
       }
-      console.log("form stage 1 , ",values);
-      
+      console.log("form stage 1 , ", profileData);
 
       showSuccess("Profile information saved successfully!");
       onComplete(); // Move to next step in the UI
     } catch (error) {
       showError((error as Error).message);
+    }
+  };
+
+  const handleCollegeChange = (collegeName: string, collegeId?: string) => {
+    console.log('College selected:', { collegeName, collegeId });
+    form.setFieldValue("university", collegeName);
+    if (collegeId) {
+      setSelectedCollegeId(collegeId);
+      console.log('College ID set to:', collegeId);
     }
   };
 
@@ -128,11 +178,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             size={isMobile ? "sm" : "md"}
           />
 
-                    <CollegeSearchSelect
+          <CollegeSearchSelect
             label="University"
             placeholder="Select your university"
             value={form.values.university}
-            onChange={(value) => form.setFieldValue("university", value)}
+            onChange={handleCollegeChange}
             error={typeof form.errors.university === 'string' ? form.errors.university : undefined}
             required
             size={isMobile ? "sm" : "md"}

@@ -8,7 +8,7 @@ import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFe
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
 import { MobileSearchBar } from "./components/MobileSearchBar";
-import { MobileFiltersDrawer } from "./components/MobileFiltersDrawer";
+import FiltersModal from "../../components/common/FiltersModal";
 
 // CSS for responsive design
 const responsiveStyles = `
@@ -29,7 +29,7 @@ const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
   const { initializeFeed } = useFeedStore();
   const navigate = useNavigate();
-  const [mobileFiltersOpened, setMobileFiltersOpened] = useState(false);
+  const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
 
   // Reinitialize feed when authentication state changes
   useEffect(() => {
@@ -93,7 +93,7 @@ const FeedPage: React.FC = () => {
             
             {/* Mobile Search Bar - Only shown on mobile */}
             <Box className="mobile-only">
-              <MobileSearchBar onFiltersClick={() => setMobileFiltersOpened(true)} />
+              <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
             </Box>
             
             {/* Three column layout for unauthenticated users */}
@@ -119,7 +119,7 @@ const FeedPage: React.FC = () => {
           <Box>
             {/* Mobile Search Bar - Only shown on mobile */}
             <Box className="mobile-only">
-              <MobileSearchBar onFiltersClick={() => setMobileFiltersOpened(true)} />
+              <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
             </Box>
             
             <Grid gutter={{ base: 16, sm: 24, md: 32 }}>
@@ -134,24 +134,18 @@ const FeedPage: React.FC = () => {
               </Grid.Col>
 
               {/* Right Column - Premium Features - Hidden on mobile */}
-              <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
+             {!user.isSubscribed && <Grid.Col span={{ base: 12, md: 3, lg: 3 }} className="desktop-only">
                 <PremiumFeatures />
-              </Grid.Col>
+              </Grid.Col>}
             </Grid>
           </Box>
         )}
-
-        {/* Mobile Filters Drawer */}
-        <MobileFiltersDrawer
-          opened={mobileFiltersOpened}
-          onClose={() => setMobileFiltersOpened(false)}
-        />
       </Container>
 
-      {/* Mobile Filters Drawer */}
-      <MobileFiltersDrawer
-        opened={mobileFiltersOpened}
-        onClose={() => setMobileFiltersOpened(false)}
+      {/* Filters Modal */}
+      <FiltersModal
+        open={isFiltersModalOpen}
+        onClose={() => setIsFiltersModalOpen(false)}
       />
     </Box>
   );

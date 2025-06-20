@@ -33,7 +33,7 @@
   animation: pulse 15s ease-in-out infinite alternate;
 }
 
-.container::after {
+/* .container::after {
   content: "";
   position: absolute;
   bottom: -30%;
@@ -45,7 +45,7 @@
   filter: blur(60px);
   z-index: 0;
   animation: pulse 12s ease-in-out infinite alternate-reverse;
-}
+} */
 
 .innerContainer {
   display: flex;
@@ -315,6 +315,8 @@
   padding-top: 20px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   flex-shrink: 0; /* Prevent navigation from shrinking */
+  position: relative;
+  z-index: 100;
 }
 
 /* Mobile responsive navigation */
@@ -323,6 +325,8 @@
   padding-top: 15px;
   padding-left: 10px;
   padding-right: 10px;
+  position: relative;
+  z-index: 100;
 }
 
 .backButton {
@@ -333,7 +337,8 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   position: relative;
   overflow: hidden;
-  z-index: 1;
+  z-index: 100000;
+  cursor: pointer;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 

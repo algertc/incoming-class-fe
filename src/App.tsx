@@ -1,5 +1,5 @@
 import React from "react";
-import { MantineProvider } from "@mantine/core";
+import { MantineProvider, createTheme } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
@@ -20,12 +20,58 @@ const queryClient = new QueryClient({
   },
 });
 
+// Extend the theme to include custom z-index management
+const theme = createTheme({
+  ...THEME,
+  components: {
+    ...THEME.components,
+    Modal: {
+      styles: {
+        root: { zIndex: 1100 },
+        overlay: { zIndex: 1100 },
+      },
+    },
+  },
+});
+
 const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={THEME}>
-        <ModalsProvider>
-          <Notifications position="top-right" zIndex={2000} limit={1} />
+      <MantineProvider theme={theme}>
+        <Notifications position="top-right" zIndex={2000} limit={1} />
+        <ModalsProvider
+          modalProps={{
+            centered: true,
+            overlayProps: {
+              blur: 3,
+            },
+            styles: {
+              header: {
+                backgroundColor: "#101720",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+              },
+              title: {
+                color: "white",
+                fontWeight: 600,
+              },
+              close: {
+                color: "white",
+                "&:hover": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                },
+              },
+              body: {
+                backgroundColor: "#101720",
+                color: "white",
+              },
+              content: {
+                backgroundColor: "#101720",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+              },
+            },
+          }}
+          labels={{ confirm: "Confirm", cancel: "Cancel" }}
+        >
           <AppRouterProvider />
         </ModalsProvider>
       </MantineProvider>

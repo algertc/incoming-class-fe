@@ -1,28 +1,21 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { lazy, Suspense } from 'react';
 import {
   Container,
   Stack,
-  useMantineTheme,
   Box,
   Skeleton,
   SimpleGrid,
   rem,
 } from '@mantine/core';
 import { useProfileData, useProfileEditing } from './hooks';
-import { glassCardStyles } from './utils/glassStyles';
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
-const ModernTabNavigation = lazy(() => import('./components/ModernTabNavigation'));
 const ProfileOverviewTab = lazy(() => import('./components/ProfileOverviewTab'));
-const PostsTab = lazy(() => import('./components/PostsTab'));
 
 const CurrentUserProfilePage: React.FC = () => {
-  const theme = useMantineTheme();
-  const [activeTab, setActiveTab] = useState<string>('overview');
-  
   // Custom hooks for data and editing logic
-  const { profileData, setProfileData, userPosts, isLoading, user } = useProfileData();
+  const { profileData, setProfileData, user } = useProfileData();
   const {
     editStates,
     setEditStates,
@@ -84,6 +77,15 @@ const CurrentUserProfilePage: React.FC = () => {
     );
   }
 
+  // Compute derived values from User data
+  const fullName = profileData.firstName && profileData.lastName 
+    ? `${profileData.firstName} ${profileData.lastName}` 
+    : profileData.email;
+  const designation = profileData.major 
+    ? `${profileData.major} Student` 
+    : 'University Student';
+  const profileCompletion = profileData.isProfileCompleted ? 100 : 75;
+
   return (
     <Box 
       style={{ 
@@ -97,60 +99,38 @@ const CurrentUserProfilePage: React.FC = () => {
         {/* Modern Profile Header */}
         <Suspense fallback={<Skeleton height={180} radius="xl" mb="md" />}>
           <ModernProfileHeader
-            name={profileData.name}
-            designation={profileData.designation}
-            profilePicture={profileData.profilePicture}
-            hometown={profileData.location.hometown}
-            bio={profileData.bio}
-            isPremium={profileData.isPremium}
-            profileCompletion={profileData.profileCompletion}
-            userId={user?.id}
+            name={fullName}
+            designation={designation}
+            profilePicture={profileData.profilePicture || ''}
+            hometown={profileData.hometown || ''}
+            bio={profileData.bio || ''}
+            isPremium={profileData.isPremium || false}
+            profileCompletion={profileCompletion}
+            userId={user?.id || user?._id || ''}
           />
         </Suspense>
         
-        {/* Modern Tab Navigation */}
-        <Suspense fallback={<Skeleton height={50} radius="xl" mb="md" />}>
-          <ModernTabNavigation
-            activeTab={activeTab}
-            onTabChange={(value) => setActiveTab(value as string)}
+        {/* Profile Overview Content */}
+        <Suspense fallback={
+          <Stack gap="md">
+            <Skeleton height={200} radius="xl" />
+            <Skeleton height={200} radius="xl" />
+          </Stack>
+        }>
+          <ProfileOverviewTab
+            profileData={profileData}
+            user={user}
+            editStates={editStates}
+            loadingStates={loadingStates}
+            setEditStates={setEditStates}
+            toggleEditState={toggleEditState}
+            handleSaveBio={handleSaveBio}
+            handleSaveAcademic={handleSaveAcademic}
+            handleSaveTraits={handleSaveTraits}
+            handleSaveInterests={handleSaveInterests}
+            handleSaveContact={handleSaveContact}
           />
         </Suspense>
-        
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <Suspense fallback={
-            <Stack gap="md">
-              <Skeleton height={200} radius="xl" />
-              <Skeleton height={200} radius="xl" />
-            </Stack>
-          }>
-            <ProfileOverviewTab
-              profileData={profileData}
-              user={user}
-              editStates={editStates}
-              loadingStates={loadingStates}
-              setEditStates={setEditStates}
-              toggleEditState={toggleEditState}
-              handleSaveBio={handleSaveBio}
-              handleSaveAcademic={handleSaveAcademic}
-              handleSaveTraits={handleSaveTraits}
-              handleSaveInterests={handleSaveInterests}
-              handleSaveContact={handleSaveContact}
-            />
-          </Suspense>
-        )}
-        
-        {activeTab === 'posts' && (
-          <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <Suspense fallback={<Skeleton height={300} radius="md" />}>
-              <PostsTab
-                posts={userPosts}
-                isLoading={isLoading}
-                isCurrentUser={true}
-              />
-            </Suspense>
-          </Box>
-        )}
       </Container>
 
       <style>{`

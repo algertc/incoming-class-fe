@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Text,
@@ -16,14 +16,21 @@ import { useMediaQuery } from '@mantine/hooks';
 import { IconUpload, IconX, IconPlus } from '@tabler/icons-react';
 import { useUpdateCurrentUserProfile, useUploadMultipleImages, createImageFormData, validateImageFiles } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
+import type { User } from '../../../models/user.model';
 import { showSuccess, showError } from '../../../utils';
+import { useAuthStore } from '../../../store/auth.store';
 import styles from './PhotoUpload.module.css';
+
+interface ExtendedUser extends User {
+  photos?: string[];
+}
 
 interface PhotoUploadProps {
   onComplete: () => void;
 }
 
 const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
+  const { user } = useAuthStore();
   const [photos, setPhotos] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -32,6 +39,18 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
   const { mutateAsync: uploadImages, isPending: isUploadingImages } = useUploadMultipleImages();
+
+  // Initialize photos from user data
+  useEffect(() => {
+    if (user) {
+      const userData = user as ExtendedUser;
+      const existingPhotos: string[] = userData?.photos || [];
+      if (userData?.profilePicture && !existingPhotos.includes(userData.profilePicture)) {
+        existingPhotos.unshift(userData.profilePicture);
+      }
+      setPhotos(existingPhotos);
+    }
+  }, [user]);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();

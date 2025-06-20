@@ -8,7 +8,6 @@ import {
 } from '@mantine/core';
 import { glassCardStyles } from '../utils/glassStyles';
 import { ProfileComponentSkeleton, ProfileContactSkeleton } from './ProfileSkeleton';
-import type { ProfileData } from '../hooks/useProfileData';
 import type { User } from '../../../models/user.model';
 import type { 
   AcademicData, 
@@ -27,7 +26,7 @@ const InterestsCard = lazy(() => import('./InterestsCard'));
 const ModernContactCard = lazy(() => import('./ModernContactCard'));
 
 interface ProfileOverviewTabProps {
-  profileData: ProfileData;
+  profileData: User;
   user: User | null;
   editStates: {
     bio: boolean;
@@ -76,10 +75,10 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
   // Prepare contact data for the contact card
   const contactData = {
     email: user?.email || 'email@university.edu',
-    instagram: profileData.contact.instagram,
-    snapchat: profileData.contact.snapchat,
-    university: profileData.academic.university,
-    batch: profileData.academic.batch,
+    instagram: profileData.instagram || '@username',
+    snapchat: profileData.snapchat || '@username',
+    university: profileData.university || 'University',
+    batch: profileData.collegeGraduationYear || 'Not specified',
   };
 
   return (
@@ -92,7 +91,7 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
             <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
               <Suspense fallback={<ProfileComponentSkeleton height={120} />}>
                 <BioCard 
-                  bio={profileData.bio}
+                  bio={profileData.bio || 'Add a bio to tell others about yourself.'}
                   isEditable={true}
                   isEditing={editStates.bio}
                   onEdit={() => toggleEditState('bio')}
@@ -109,11 +108,11 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
             <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
               <Suspense fallback={<ProfileComponentSkeleton height={180} />}>
                 <AcademicInfo 
-                  major={profileData.academic.major}
-                  university={profileData.academic.university}
-                  batch={profileData.academic.batch}
-                  hometown={profileData.location.hometown}
-                  lookingForRoommate={profileData.lookingForRoommate}
+                  major={profileData.major || 'Not specified'}
+                  university={profileData.university || 'University'}
+                  batch={profileData.collegeGraduationYear || 'Not specified'}
+                  hometown={profileData.hometown || 'Not specified'}
+                  lookingForRoommate={false} // This field doesn't exist in User interface
                   isEditable={true}
                   isEditing={editStates.academic}
                   onEdit={() => toggleEditState('academic')}
@@ -130,12 +129,12 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
             <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
               <Suspense fallback={<ProfileComponentSkeleton height={280} />}>
                 <TraitsPreferences 
-                  sleepSchedule={profileData.traits.sleepSchedule}
-                  cleanliness={profileData.traits.cleanliness}
-                  guests={profileData.traits.guests}
-                  studying={profileData.traits.studying}
-                  substances={profileData.traits.substances}
-                  personality={profileData.personality}
+                  sleepSchedule={profileData.sleepSchedule || 'Not specified'}
+                  cleanliness={profileData.cleanliness || 'Not specified'}
+                  guests={profileData.guests || 'Not specified'}
+                  studying="Library" // This field doesn't exist in User interface
+                  substances={profileData.substances || 'Not specified'}
+                  personality={profileData.personality || []}
                   isEditable={true}
                   isEditing={editStates.traits}
                   onEdit={() => toggleEditState('traits')}
@@ -166,9 +165,9 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
             <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
               <Suspense fallback={<ProfileComponentSkeleton height={200} />}>
                 <InterestsCard 
-                  physicalActivity={profileData.physicalActivity}
-                  pastimes={profileData.pastimes}
-                  food={profileData.food}
+                  physicalActivity={profileData.physicalActivity || []}
+                  pastimes={profileData.pastimes || []}
+                  food={profileData.food || []}
                   isEditable={true}
                   isEditing={editStates.interests}
                   onEdit={() => toggleEditState('interests')}

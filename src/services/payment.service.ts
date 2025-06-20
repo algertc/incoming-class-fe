@@ -83,6 +83,60 @@ class PaymentService {
   }
 
   /**
+   * Create a Stripe checkout session for premium subscription
+   *
+   * This method is similar to createCheckoutSession but targets the subscription
+   * endpoint so we can differentiate one-time payments (e.g., post feature) from
+   * recurring premium subscriptions.
+   */
+  async createSubscriptionSession(
+    data: CreateCheckoutSessionRequest
+  ): Promise<IServerResponse<CheckoutSessionResponse>> {
+    console.log("🏪 PaymentService: Creating subscription checkout session");
+    console.log("📋 Service request data:", {
+      ...data,
+      timestamp: new Date().toISOString(),
+      endpoint: API_ENDPOINTS.payment.createSubscriptionSession,
+    });
+
+    try {
+      const startTime = performance.now();
+
+      const response = await request<CheckoutSessionResponse>({
+        url: API_ENDPOINTS.payment.createSubscriptionSession,
+        method: 'POST',
+        data,
+      });
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      console.log("✅ PaymentService: Subscription session created successfully");
+      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+      console.log("📦 Service response:", {
+        status: response.status,
+        message: response.message,
+        data: response.data,
+        timestamp: new Date().toISOString(),
+        duration: `${duration.toFixed(2)}ms`,
+      });
+
+      return response;
+    } catch (error) {
+      console.error("💥 PaymentService: Subscription session creation failed");
+      console.error("🔍 Service error details:", {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        endpoint: API_ENDPOINTS.payment.createSubscriptionSession,
+        requestData: data,
+        timestamp: new Date().toISOString(),
+      });
+
+      throw error;
+    }
+  }
+
+  /**
    * Confirm a payment after successful checkout
    * 
    * @param sessionId - The Stripe session ID to confirm

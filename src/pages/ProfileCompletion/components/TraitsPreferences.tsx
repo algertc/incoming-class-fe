@@ -14,8 +14,9 @@ import { useForm, yupResolver } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import { useUpdateCurrentUserProfile } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
-import { traitsPreferencesSchema, traitsPreferencesInitialValues } from '../../../forms';
+import { traitsPreferencesSchema, getTraitsPreferencesInitialValues } from '../../../forms';
 import { showSuccess, showError } from '../../../utils';
+import { useAuthStore } from '../../../store/auth.store';
 import ChipGroup from '../../../components/ChipGroup/ChipGroup';
 import styles from './TraitsPreferences.module.css';
 
@@ -25,11 +26,12 @@ interface TraitsPreferencesProps {
 
 const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
+  const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const form = useForm({
-    initialValues: traitsPreferencesInitialValues,
+    initialValues: getTraitsPreferencesInitialValues(user),
     validate: yupResolver(traitsPreferencesSchema)
   });
 
@@ -38,7 +40,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
       setIsSubmitting(true);
       
       const profileData = {
-        traits: {
+        
           sleepSchedule: values.sleepSchedule,
           cleanliness: values.cleanliness,
           guests: values.guests,
@@ -48,9 +50,8 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
           physicalActivity: values.physicalActivity,
           pastimes: values.pastimes,
           food: values.food,
-          other: values.other
-        },
-        profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
+          other: values.other,
+          profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
       };
       
       console.log("profile data ", profileData);

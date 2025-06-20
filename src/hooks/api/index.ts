@@ -17,8 +17,12 @@ export {
   useUpdateCurrentUserProfile,
   useDeleteAccount,
   useDeleteCurrentUserAccount,
+  useCurrentUserTransactions,
   userKeys
 } from './useUsers';
+
+// Transaction types and services
+export { type Transaction } from '../../services/transactions.service';
 
 // Image upload hooks
 export {
@@ -36,7 +40,7 @@ export {
   useCollegeSearch,
   useCollege,
   collegeKeys
-} from './useColleges';
+} from './useColleges'; 
 
 // Custom hook for managing feed initialization
 export { useFeedInitializer } from './useFeedInitializer';
@@ -45,5 +49,6 @@ export { useFeedInitializer } from './useFeedInitializer';
 export {
   useCreateCheckoutSession,
   useConfirmPayment,
+  useCreateSubscriptionSession,
   paymentKeys
 } from './usePayment'; 

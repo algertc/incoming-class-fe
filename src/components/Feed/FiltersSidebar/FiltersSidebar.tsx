@@ -2,27 +2,24 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   TextInput,
-  Stack,
   Text,
   Divider,
-  Checkbox,
   Slider,
   Select,
   Button,
   Group,
-  Badge,
   useMantineTheme,
 } from "@mantine/core";
 import {
   IconSearch,
   IconFilter,
-  IconSortAscending,
   IconCalendarEvent,
   IconSchool,
 } from "@tabler/icons-react";
 import { useFeedStore } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAuthStore } from "../../../store/auth.store";
+import { useCollegeSearch } from "../../../hooks/api/useColleges";
 
 export const FiltersSidebar: React.FC = () => {
   const theme = useMantineTheme();
@@ -33,8 +30,6 @@ export const FiltersSidebar: React.FC = () => {
   const {
     filters,
     searchPosts,
-    setSortBy,
-    setCategories,
     setDateRange,
     setCollege,
     resetFilters,
@@ -44,41 +39,41 @@ export const FiltersSidebar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState(filters.searchQuery);
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
 
-  // Categories for filtering
-  const categories = [
-    { value: "academic", label: "Academic" },
-    { value: "social", label: "Social Life" },
-    { value: "housing", label: "Housing" },
-    { value: "career", label: "Career" },
-    { value: "events", label: "Events" },
-    { value: "advice", label: "Advice" },
-  ];
+  // College search state
+  const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
+  const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
 
-  // College options
-  const collegeOptions = [
-    { value: "all", label: "All Colleges" },
-    { value: "stanford", label: "Stanford University" },
-    { value: "mit", label: "MIT" },
-    { value: "harvard", label: "Harvard University" },
-    { value: "berkeley", label: "UC Berkeley" },
-  ];
+  // Use the API hook for college search
+  const { data: collegeData, isLoading: isLoadingColleges } = useCollegeSearch({
+    search: debouncedCollegeSearch,
+    limit: 20,
+    page: 1,
+  });
+
+  // Transform college data for Select component
+  const collegeOptions = React.useMemo(() => {
+    const options = [{ value: "all", label: "All Colleges" }];
+    
+    if (collegeData?.data.colleges) {
+      const apiColleges = collegeData.data.colleges.map((college) => ({
+        value: college._id,
+        label: college.name,
+      }));
+      options.push(...apiColleges);
+    }
+    
+    return options;
+  }, [collegeData]);
 
   // Handle debounced search
   useEffect(() => {
     searchPosts(debouncedSearchQuery, isAuthenticated);
   }, [debouncedSearchQuery, searchPosts, isAuthenticated]);
 
-  // Handle category selection
-  const handleCategoryChange = (category: string) => {
-    const newCategories = filters.categories.includes(category)
-      ? filters.categories.filter((c) => c !== category)
-      : [...filters.categories, category];
-    setCategories(newCategories, isAuthenticated);
-  };
-
   // Handle reset
   const handleReset = () => {
     setSearchQuery("");
+    setCollegeSearchQuery("");
     resetFilters(isAuthenticated);
   };
 
@@ -121,71 +116,6 @@ export const FiltersSidebar: React.FC = () => {
           },
         }}
       />
-
-      {/* Sort Options */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Sort By
-      </Text>
-      <Select
-        value={filters.sortBy}
-        onChange={(value) => setSortBy(value as 'newest' | 'popular' | 'comments', isAuthenticated)}
-        data={[
-          { value: "newest", label: "Newest First" },
-          { value: "popular", label: "Most Popular" },
-          { value: "comments", label: "Most Comments" },
-        ]}
-        leftSection={<IconSortAscending size={16} />}
-        mb="md"
-        styles={{
-          input: {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: theme.white,
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          },
-          dropdown: {
-            backgroundColor: theme.colors.dark[7],
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          },
-          option: {
-            color: theme.white,
-            "&[data-selected]": {
-              backgroundColor: theme.colors.blue[9],
-              color: theme.white,
-            },
-            "&[data-hovered]": {
-              backgroundColor: theme.colors.dark[5],
-            },
-          },
-        }}
-      />
-
-      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
-
-      {/* Categories */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Categories
-      </Text>
-      <Stack gap="xs" mb="md">
-        {categories.map((category) => (
-          <Checkbox
-            key={category.value}
-            label={category.label}
-            checked={filters.categories.includes(category.value)}
-            onChange={() => handleCategoryChange(category.value)}
-            styles={{
-              label: { color: theme.white },
-              input: {
-                backgroundColor: "rgba(255, 255, 255, 0.05)",
-                borderColor: "rgba(255, 255, 255, 0.2)",
-                "&:checked": {
-                  backgroundColor: theme.colors.blue[6],
-                  borderColor: theme.colors.blue[6],
-                },
-              },
-            }}
-          />
-        ))}
-      </Stack>
 
       <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
 
@@ -245,8 +175,12 @@ export const FiltersSidebar: React.FC = () => {
         placeholder="Filter by college"
         value={filters.college}
         onChange={(value) => setCollege(value, isAuthenticated)}
+        onSearchChange={setCollegeSearchQuery}
+        searchValue={collegeSearchQuery}
         data={collegeOptions}
+        searchable
         leftSection={<IconSchool size={16} />}
+        rightSection={isLoadingColleges ? <Text size="xs" c="dimmed">Loading...</Text> : null}
         mb="md"
         styles={{
           input: {
@@ -273,32 +207,6 @@ export const FiltersSidebar: React.FC = () => {
           },
         }}
       />
-
-      {/* Active Filters */}
-      {filters.categories.length > 0 && (
-        <Box mb="md">
-          <Text size="xs" c="dimmed" mb="xs">
-            Active Filters:
-          </Text>
-          <Group gap="xs">
-            {filters.categories.map((category) => (
-              <Badge
-                key={category}
-                color="blue"
-                variant="light"
-                size="sm"
-                styles={{
-                  root: {
-                    textTransform: "none",
-                  },
-                }}
-              >
-                {categories.find((c) => c.value === category)?.label}
-              </Badge>
-            ))}
-          </Group>
-        </Box>
-      )}
 
       {/* Action Buttons */}
       <Group grow>

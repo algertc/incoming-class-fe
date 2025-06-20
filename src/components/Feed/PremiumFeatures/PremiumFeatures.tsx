@@ -22,6 +22,9 @@ import {
   IconLock,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
+import { useCreateSubscriptionSession } from "../../../hooks/api";
+import { showError } from "../../../utils";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 
 export const PremiumFeatures: React.FC = () => {
@@ -29,6 +32,49 @@ export const PremiumFeatures: React.FC = () => {
   const { user } = useAuthStore();
   const isPremium = user?.isPremium || false;
   const navigate = useNavigate();
+
+  // Subscription payment hook
+  const { mutateAsync: createSubscriptionSession, isPending: isInitiatingPayment } = useCreateSubscriptionSession();
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  const SUBSCRIPTION_PRICE = 9.99; // USD monthly
+
+  const handleUpgradeClick = async () => {
+    if (!user) {
+      // Redirect to login page if user is not authenticated
+      navigate('/login');
+      return;
+    }
+
+    // Proceed with payment flow for authenticated users
+    await initiateSubscriptionPayment();
+  };
+
+  const initiateSubscriptionPayment = async () => {
+    setPaymentError(null);
+
+    try {
+      const requestData = {
+        amount: Math.round(SUBSCRIPTION_PRICE * 100), // Convert to cents
+        currency: "usd",
+        successUrl: `${window.location.origin}/payment/premium/success`,
+        cancelUrl: `${window.location.origin}/payment/post/error`,
+      } as const;
+
+      const response = await createSubscriptionSession(requestData);
+
+      if (!response.status || !response.data?.checkoutUrl) {
+        const errorMsg = response.message || "Failed to initialize payment";
+        throw new Error(errorMsg);
+      }
+
+      window.location.href = response.data.checkoutUrl;
+    } catch (error) {
+      const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
+      setPaymentError(errorMessage);
+      showError(errorMessage);
+    }
+  };
 
   return (
     <Box
@@ -157,12 +203,16 @@ export const PremiumFeatures: React.FC = () => {
             variant="gradient"
             gradient={{ from: "indigo", to: "cyan" }}
             leftSection={<IconRocket size={16} />}
-            onClick={() => {
-              navigate('/signup');
-            }}
+            loading={isInitiatingPayment}
+            onClick={handleUpgradeClick}
           >
-            Upgrade Now
+            {isInitiatingPayment ? "Redirecting..." : user ? "Upgrade Now" : "Login to Upgrade"}
           </Button>
+        )}
+        {paymentError && (
+          <Text size="xs" c="red" mt="xs">
+            {paymentError}
+          </Text>
         )}
       </Box>
 

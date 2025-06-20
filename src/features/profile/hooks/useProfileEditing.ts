@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useAuthStore } from '../../../store/auth.store';
 import { useUpdateCurrentUserProfile } from '../../../hooks/api';
-import type { UpdateProfileData } from '../../../models/user.model';
-import type { ProfileData } from './useProfileData';
+import type { UpdateProfileData, User } from '../../../models/user.model';
 
 // Edit state interface
 interface EditStates {
@@ -23,7 +22,7 @@ interface LoadingStates {
   contact: boolean;
 }
 
-// Data interfaces for save handlers
+// Data interfaces for edit operations
 export interface AcademicData {
   academic: { major: string; university: string; batch: string };
   location: { hometown: string };
@@ -53,8 +52,8 @@ export interface ContactData {
 }
 
 export const useProfileEditing = (
-  _profileData: ProfileData | null,
-  setProfileData: React.Dispatch<React.SetStateAction<ProfileData | null>>
+  _profileData: User | null,
+  setProfileData: React.Dispatch<React.SetStateAction<User | null>>
 ) => {
   const { setUser } = useAuthStore();
   const { mutateAsync: updateProfile } = useUpdateCurrentUserProfile();
@@ -101,7 +100,7 @@ export const useProfileEditing = (
       }
 
       // Update local state
-      setProfileData((prev: ProfileData | null) => {
+      setProfileData((prev: User | null) => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -138,9 +137,8 @@ export const useProfileEditing = (
       const updateData: UpdateProfileData = {
         major: academicData.academic.major,
         university: academicData.academic.university,
-        batch: academicData.academic.batch,
+        collegeGraduationYear: academicData.academic.batch,
         hometown: academicData.location.hometown,
-        lookingForRoommate: academicData.lookingForRoommate
       };
 
       const response = await updateProfile(updateData);
@@ -150,13 +148,14 @@ export const useProfileEditing = (
       }
 
       // Update local state
-      setProfileData((prev: ProfileData | null) => {
+      setProfileData((prev: User | null) => {
         if (!prev) return prev;
         return {
           ...prev,
-          academic: { ...prev.academic, ...academicData.academic },
-          location: { ...prev.location, ...academicData.location },
-          lookingForRoommate: academicData.lookingForRoommate
+          major: academicData.academic.major,
+          university: academicData.academic.university,
+          collegeGraduationYear: academicData.academic.batch,
+          hometown: academicData.location.hometown,
         };
       });
 
@@ -187,14 +186,11 @@ export const useProfileEditing = (
       setLoadingStates(prev => ({ ...prev, traits: true }));
       
       const updateData: UpdateProfileData = {
-        traits: {
-          sleepSchedule: traitsData.traits.sleepSchedule,
-          cleanliness: traitsData.traits.cleanliness,
-          guests: traitsData.traits.guests,
-          studying: traitsData.traits.studying,
-          substances: traitsData.traits.substances,
-          personality: traitsData.personality,
-        }
+        sleepSchedule: traitsData.traits.sleepSchedule,
+        cleanliness: traitsData.traits.cleanliness,
+        guests: traitsData.traits.guests,
+        substances: traitsData.traits.substances,
+        personality: traitsData.personality,
       };
 
       const response = await updateProfile(updateData);
@@ -204,11 +200,14 @@ export const useProfileEditing = (
       }
 
       // Update local state
-      setProfileData((prev: ProfileData | null) => {
+      setProfileData((prev: User | null) => {
         if (!prev) return prev;
         return {
           ...prev,
-          traits: { ...prev.traits, ...traitsData.traits },
+          sleepSchedule: traitsData.traits.sleepSchedule,
+          cleanliness: traitsData.traits.cleanliness,
+          guests: traitsData.traits.guests,
+          substances: traitsData.traits.substances,
           personality: traitsData.personality
         };
       });
@@ -240,11 +239,9 @@ export const useProfileEditing = (
       setLoadingStates(prev => ({ ...prev, interests: true }));
       
       const updateData: UpdateProfileData = {
-        traits: {
-          physicalActivity: interestsData.physicalActivity,
-          pastimes: interestsData.pastimes,
-          food: interestsData.food
-        }
+        physicalActivity: interestsData.physicalActivity,
+        pastimes: interestsData.pastimes,
+        food: interestsData.food
       };
 
       const response = await updateProfile(updateData);
@@ -254,7 +251,7 @@ export const useProfileEditing = (
       }
 
       // Update local state
-      setProfileData((prev: ProfileData | null) => {
+      setProfileData((prev: User | null) => {
         if (!prev) return prev;
         return {
           ...prev,
@@ -292,7 +289,7 @@ export const useProfileEditing = (
       
       const updateData: UpdateProfileData = {
         instagram: contactData.instagram,
-        snapchat: contactData.snapchat
+        snapchat: contactData.snapchat,
       };
 
       const response = await updateProfile(updateData);
@@ -302,11 +299,12 @@ export const useProfileEditing = (
       }
 
       // Update local state
-      setProfileData((prev: ProfileData | null) => {
+      setProfileData((prev: User | null) => {
         if (!prev) return prev;
         return {
           ...prev,
-          contact: { ...prev.contact, ...contactData }
+          instagram: contactData.instagram,
+          snapchat: contactData.snapchat,
         };
       });
 
