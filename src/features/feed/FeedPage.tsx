@@ -152,7 +152,7 @@ const FeedPage: React.FC = () => {
       </Container>
 
       <FiltersModal
-        opened={isFiltersModalOpen}
+            open={isFiltersModalOpen}
         onClose={() => setIsFiltersModalOpen(false)}
       />
     </Box>
