@@ -73,6 +73,12 @@ export interface ProfileSteps {
   finalize: boolean;
 }
 
+export interface College {
+  _id?: string;
+  id?: string;
+  name: string;
+}
+
 export interface User {
   _id?: string;
   id?: string; // Keep both _id and id for compatibility
@@ -81,7 +87,7 @@ export interface User {
   dob?: Date;
   email: string;
   password?: string;
-  college?: string; // College ID as string instead of ObjectId
+  college?: College | string; // Can be either College object or string ID
   hometown?: string;
   profilePicture?: string;
   photos?: string[];

@@ -79,54 +79,69 @@ const PrivacyPage: React.FC = () => {
   const contactRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Hero section animation
+    // Hero section animation - optimized for iOS
     if (heroRef.current) {
       gsap.fromTo(
         heroRef.current.children,
-        { y: 50, opacity: 0 },
+        { 
+          y: 50, 
+          opacity: 0,
+          willChange: 'transform, opacity' 
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.2, // Slower animation for smoother feel
+          stagger: 0.25,
+          ease: "power2.out",
+          clearProps: 'willChange'
+        }
+      );
+    }
+
+    // Sections animation - optimized for iOS
+    if (sectionsRef.current) {
+      gsap.fromTo(
+        sectionsRef.current.querySelectorAll('.privacy-section'),
+        { 
+          y: 40, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
         {
           y: 0,
           opacity: 1,
           duration: 0.8,
           stagger: 0.2,
-          ease: "power2.out"
-        }
-      );
-    }
-
-    // Sections animation
-    if (sectionsRef.current) {
-      gsap.fromTo(
-        sectionsRef.current.querySelectorAll('.privacy-section'),
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.15,
           scrollTrigger: {
             trigger: sectionsRef.current,
             start: "top bottom-=100",
             toggleActions: "play none none none"
-          }
+          },
+          clearProps: 'willChange'
         }
       );
     }
 
-    // Contact section animation
+    // Contact section animation - optimized for iOS
     if (contactRef.current) {
       gsap.fromTo(
         contactRef.current,
-        { y: 30, opacity: 0 },
+        { 
+          y: 30, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
         {
           y: 0,
           opacity: 1,
-          duration: 0.6,
+          duration: 0.8,
           scrollTrigger: {
             trigger: contactRef.current,
             start: "top bottom-=100",
             toggleActions: "play none none none"
-          }
+          },
+          clearProps: 'willChange'
         }
       );
     }
@@ -137,8 +152,12 @@ const PrivacyPage: React.FC = () => {
   }, []);
 
   return (
-    <Box style={{ backgroundColor: theme.colors.dark[9], minHeight: "100vh" }}>
-      {/* Animated Background */}
+    <Box style={{ 
+      backgroundColor: theme.colors.dark[9], 
+      minHeight: "100vh",
+      WebkitOverflowScrolling: 'touch' // Enable momentum scrolling on iOS
+    }}>
+      {/* Animated Background - Optimized for iOS */}
       <AnimatedBackground />
 
       {/* Hero Section */}
@@ -147,7 +166,10 @@ const PrivacyPage: React.FC = () => {
           background: `linear-gradient(135deg, #000000 0%, #1a0030 100%)`,
           padding: "120px 0 80px",
           position: "relative",
-          overflow: "hidden"
+          overflow: "hidden",
+          transform: 'translate3d(0,0,0)', // Force GPU acceleration
+          WebkitBackfaceVisibility: 'hidden',
+          WebkitPerspective: 1000
         }}
       >
         {/* Background decorations */}
@@ -242,7 +264,11 @@ const PrivacyPage: React.FC = () => {
                 style={{
                   background: "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
                   border: "1px solid rgba(67, 97, 238, 0.15)",
-                  backdropFilter: "blur(10px)"
+                  backdropFilter: "blur(5px)", // Reduced blur for better performance
+                  WebkitBackdropFilter: "blur(5px)", // iOS support
+                  transform: 'translate3d(0,0,0)', // Force GPU acceleration
+                  WebkitBackfaceVisibility: 'hidden',
+                  WebkitPerspective: 1000
                 }}
               >
                 <Stack gap="lg">
@@ -385,7 +411,11 @@ const PrivacyPage: React.FC = () => {
             style={{
               background: "linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(229, 56, 59, 0.1) 100%)",
               border: "1px solid rgba(67, 97, 238, 0.2)",
-              backdropFilter: "blur(15px)"
+              backdropFilter: "blur(8px)", // Reduced blur for better performance
+              WebkitBackdropFilter: "blur(8px)", // iOS support
+              transform: 'translate3d(0,0,0)', // Force GPU acceleration
+              WebkitBackfaceVisibility: 'hidden',
+              WebkitPerspective: 1000
             }}
           >
             <Stack gap="lg">

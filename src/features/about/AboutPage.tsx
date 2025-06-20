@@ -98,92 +98,94 @@ const AboutPage: React.FC = () => {
   const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Hero section animation
+    // Hero section animation - optimized for iOS
     if (heroRef.current) {
       gsap.fromTo(
         heroRef.current.children,
-        { y: 50, opacity: 0 },
+        { 
+          y: 50, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.25,
+          ease: "power2.out",
+          clearProps: 'willChange'
+        }
+      );
+    }
+
+    // Stats section animation - optimized for iOS
+    if (statsRef.current) {
+      gsap.fromTo(
+        statsRef.current.querySelectorAll('.stat-item'),
+        { 
+          scale: 0.8, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.15,
+          scrollTrigger: {
+            trigger: statsRef.current,
+            start: "top bottom-=100",
+            toggleActions: "play none none none"
+          },
+          clearProps: 'willChange'
+        }
+      );
+    }
+
+    // Mission section animation - optimized for iOS
+    if (missionRef.current) {
+      gsap.fromTo(
+        missionRef.current.children,
+        { 
+          y: 30, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
         {
           y: 0,
           opacity: 1,
           duration: 0.8,
           stagger: 0.2,
-          ease: "power2.out"
-        }
-      );
-    }
-
-    // Mission section animation
-    if (missionRef.current) {
-      gsap.fromTo(
-        missionRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
           scrollTrigger: {
             trigger: missionRef.current,
             start: "top bottom-=100",
             toggleActions: "play none none none"
-          }
+          },
+          clearProps: 'willChange'
         }
       );
     }
 
-    // Values section animation
-    if (valuesRef.current) {
-      gsap.fromTo(
-        valuesRef.current.querySelectorAll('.value-card'),
-        { y: 40, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: valuesRef.current,
-            start: "top bottom-=100",
-            toggleActions: "play none none none"
-          }
-        }
-      );
-    }
-
-    // Team section animation
+    // Team section animation - optimized for iOS
     if (teamRef.current) {
       gsap.fromTo(
-        teamRef.current.querySelectorAll('.team-card'),
-        { y: 40, opacity: 0 },
+        teamRef.current.querySelectorAll('.team-member'),
+        { 
+          y: 30, 
+          opacity: 0,
+          willChange: 'transform, opacity'
+        },
         {
           y: 0,
           opacity: 1,
-          duration: 0.6,
+          duration: 0.8,
           stagger: 0.15,
           scrollTrigger: {
             trigger: teamRef.current,
             start: "top bottom-=100",
             toggleActions: "play none none none"
-          }
-        }
-      );
-    }
-
-    // Stats section animation
-    if (statsRef.current) {
-      gsap.fromTo(
-        statsRef.current.querySelectorAll('.stat-item'),
-        { scale: 0.8, opacity: 0 },
-        {
-          scale: 1,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.1,
-          scrollTrigger: {
-            trigger: statsRef.current,
-            start: "top bottom-=100",
-            toggleActions: "play none none none"
-          }
+          },
+          clearProps: 'willChange'
         }
       );
     }
@@ -194,8 +196,12 @@ const AboutPage: React.FC = () => {
   }, []);
 
   return (
-    <Box style={{ backgroundColor: theme.colors.dark[9], minHeight: "100vh" }}>
-      {/* Animated Background */}
+    <Box style={{ 
+      backgroundColor: theme.colors.dark[9], 
+      minHeight: "100vh",
+      WebkitOverflowScrolling: 'touch' // Enable momentum scrolling on iOS
+    }}>
+      {/* Animated Background - Optimized for iOS */}
       <AnimatedBackground />
 
       {/* Hero Section */}
@@ -204,7 +210,10 @@ const AboutPage: React.FC = () => {
           background: `linear-gradient(135deg, #000000 0%, #1a0030 100%)`,
           padding: "120px 0 80px",
           position: "relative",
-          overflow: "hidden"
+          overflow: "hidden",
+          transform: 'translate3d(0,0,0)', // Force GPU acceleration
+          WebkitBackfaceVisibility: 'hidden',
+          WebkitPerspective: 1000
         }}
       >
         {/* Background decorations */}
@@ -345,7 +354,11 @@ const AboutPage: React.FC = () => {
               style={{
                 background: "linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(58, 12, 163, 0.1) 100%)",
                 border: "1px solid rgba(67, 97, 238, 0.2)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(5px)", // Reduced blur for better performance
+                WebkitBackdropFilter: "blur(5px)", // iOS support
+                transform: 'translate3d(0,0,0)', // Force GPU acceleration
+                WebkitBackfaceVisibility: 'hidden',
+                WebkitPerspective: 1000
               }}
             >
               <Group align="center" mb="lg">
@@ -462,24 +475,26 @@ const AboutPage: React.FC = () => {
               {teamMembers.map((member, index) => (
                 <Grid.Col span={{ base: 12, sm: 6, md: 3 }} key={index}>
                   <Paper
-                    className="team-card"
+                    key={index}
+                    className="team-member"
                     p="xl"
                     radius="lg"
-                    ta="center"
-                    h="100%"
                     style={{
-                      backgroundColor: "rgba(255, 255, 255, 0.05)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      backdropFilter: "blur(10px)",
-                      transition: "all 0.3s ease"
+                      backgroundColor: theme.colors.dark[8],
+                      border: `1px solid ${theme.colors.dark[7]}`,
+                      transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                      transform: 'translate3d(0,0,0)', // Force GPU acceleration
+                      WebkitBackfaceVisibility: 'hidden',
+                      WebkitPerspective: 1000,
+                      willChange: 'transform, box-shadow'
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-8px)";
-                      e.currentTarget.style.boxShadow = "0 20px 40px rgba(67, 97, 238, 0.2)";
+                      e.currentTarget.style.transform = 'translate3d(0,-8px,0)';
+                      e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.2)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
+                      e.currentTarget.style.transform = 'translate3d(0,0,0)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
                     <Text size="3rem" mb="md">
@@ -517,7 +532,11 @@ const AboutPage: React.FC = () => {
             style={{
               background: "linear-gradient(135deg, rgba(67, 97, 238, 0.15) 0%, rgba(229, 56, 59, 0.15) 100%)",
               border: "1px solid rgba(67, 97, 238, 0.3)",
-              backdropFilter: "blur(15px)"
+              backdropFilter: "blur(8px)", // Reduced blur for better performance
+              WebkitBackdropFilter: "blur(8px)", // iOS support
+              transform: 'translate3d(0,0,0)', // Force GPU acceleration
+              WebkitBackfaceVisibility: 'hidden',
+              WebkitPerspective: 1000
             }}
           >
             <Stack gap="lg">

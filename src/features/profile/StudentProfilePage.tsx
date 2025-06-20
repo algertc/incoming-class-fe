@@ -73,6 +73,12 @@ const StudentProfilePage: React.FC = () => {
     );
   }
 
+  // Get college name from either College object or string
+  const getCollegeName = () => {
+    if (!profileData.college) return "";
+    return typeof profileData.college === 'object' ? profileData.college.name : "";
+  };
+
   return (
     <Box 
       style={{ 
@@ -87,7 +93,7 @@ const StudentProfilePage: React.FC = () => {
         <Suspense fallback={<Skeleton height={180} radius="xl" mb="md" />}>
           <ModernProfileHeader
             name={profileData.firstName + " " + profileData.lastName}
-            designation={profileData.college?.name || ""}
+            designation={getCollegeName()}
             profilePicture={profileData.profilePicture || ""}
             hometown={profileData.hometown || ""}
             bio={profileData.bio || ""}

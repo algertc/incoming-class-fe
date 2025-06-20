@@ -32,9 +32,7 @@ interface PostCardProps {
   post: Post;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ 
-  post 
-}) => {
+const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const formattedTime = formatDistanceToNow(new Date(post.timestamp), { addSuffix: true });
   
   // Function to determine grid layout based on number of images
@@ -50,29 +48,41 @@ const PostCard: React.FC<PostCardProps> = ({
     }
   };
 
-  // Function to render images with Instagram-style overflow handling
+  // Function to render images with optimized loading
   const renderImages = () => {
     if (!post.images || post.images.length === 0) return null;
 
     const imageCount = post.images.length;
     const maxDisplayImages = 4;
     const imagesToShow = imageCount > maxDisplayImages ? maxDisplayImages : imageCount;
-    const remainingImages = imageCount - 3; // Show "+X more" after 3rd image
+    const remainingImages = imageCount - 3;
 
     if (imageCount === 1) {
-      // Single image - full width
       return (
-        <Image
-          src={post.images[0]}
-          alt="Post image"
-          radius="md"
-          fit="cover"
-          style={{ maxHeight: '400px' }}
-        />
+        <Box style={{
+          transform: 'translate3d(0,0,0)',
+          WebkitTransform: 'translate3d(0,0,0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden',
+          perspective: '1000px',
+          WebkitPerspective: '1000px',
+          willChange: 'transform'
+        }}>
+          <Image
+            src={post.images[0]}
+            alt="Post image"
+            radius="md"
+            fit="cover"
+            style={{ 
+              maxHeight: '400px',
+              WebkitBackfaceVisibility: 'hidden'
+            }}
+            loading="lazy"
+          />
+        </Box>
       );
     }
 
-    // Multiple images - grid layout
     return (
       <SimpleGrid
         {...getImageGridProps(imagesToShow)}
@@ -83,7 +93,19 @@ const PostCard: React.FC<PostCardProps> = ({
           const shouldShowOverlay = isLastImage && imageCount > maxDisplayImages;
           
           return (
-            <Box key={index} style={{ position: 'relative' }}>
+            <Box 
+              key={index} 
+              style={{ 
+                position: 'relative',
+                transform: 'translate3d(0,0,0)',
+                WebkitTransform: 'translate3d(0,0,0)',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                perspective: '1000px',
+                WebkitPerspective: '1000px',
+                willChange: 'transform'
+              }}
+            >
               <Image
                 src={imageUrl}
                 alt={`Post image ${index + 1}`}
@@ -91,8 +113,10 @@ const PostCard: React.FC<PostCardProps> = ({
                 fit="cover"
                 style={{ 
                   height: imageCount === 2 ? '200px' : '150px',
-                  width: '100%'
+                  width: '100%',
+                  WebkitBackfaceVisibility: 'hidden'
                 }}
+                loading="lazy"
               />
               {shouldShowOverlay && (
                 <Overlay
@@ -103,7 +127,11 @@ const PostCard: React.FC<PostCardProps> = ({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    transform: 'translate3d(0,0,0)',
+                    WebkitTransform: 'translate3d(0,0,0)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
                   }}
                 >
                   <Text
@@ -124,11 +152,33 @@ const PostCard: React.FC<PostCardProps> = ({
   };
   
   return (
-    <Paper shadow="sm" p="md" radius="md" withBorder mb="md">
+    <Paper 
+      shadow="sm" 
+      p="md" 
+      radius="md" 
+      withBorder 
+      mb="md"
+      style={{
+        transform: 'translate3d(0,0,0)',
+        WebkitTransform: 'translate3d(0,0,0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        perspective: '1000px',
+        WebkitPerspective: '1000px',
+        willChange: 'transform'
+      }}
+    >
       {/* Post Header */}
       <Group justify="space-between" mb="md">
         <Group>
-          <Avatar src={post.author.avatar} alt={post.author.name} radius="xl" />
+          <Avatar 
+            src={post.author.avatar} 
+            alt={post.author.name} 
+            radius="xl"
+            style={{
+              WebkitBackfaceVisibility: 'hidden'
+            }}
+          />
           <Box>
             <Group gap={5}>
               <Text fw={600} size="sm">{post.author.name}</Text>
@@ -154,4 +204,4 @@ const PostCard: React.FC<PostCardProps> = ({
   );
 };
 
-export default PostCard; 
+export default PostCard;

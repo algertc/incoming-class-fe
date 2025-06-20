@@ -16,7 +16,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { ProfileStage } from "../../../models/user.model";
-import type { User } from "../../../models/user.model";
+import type { User, College } from "../../../models/user.model";
 import { profileBasicInfoSchema, getProfileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
 import { useAuthStore } from "../../../store/auth.store";
@@ -24,10 +24,7 @@ import CollegeSearchSelect from "./CollegeSearchSelect";
 import styles from "./BasicInfo.module.css";
 
 interface ExtendedUser extends User {
-  college?: {
-    id?: string;
-    name?: string;
-  } | string;
+  college?: College | string;
 }
 
 interface BasicInfoProps {

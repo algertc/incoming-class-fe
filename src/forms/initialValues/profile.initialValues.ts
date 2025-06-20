@@ -1,4 +1,4 @@
-import type { User } from '../../models/user.model';
+import type { User, College } from '../../models/user.model';
 
 /**
  * Extended user interface that includes all profile completion fields
@@ -21,10 +21,7 @@ interface ExtendedUser extends User {
   pastimes?: string[];
   food?: string[];
   other?: string[];
-  college?: {
-    name?: string;
-    id?: string;
-  };
+  college?: College | string;
   collegeName?: string;
   traits?: {
     sleepSchedule?: string;
@@ -61,13 +58,16 @@ export const getProfileBasicInfoInitialValues = (user?: User | null) => {
   if (!user) return profileBasicInfoInitialValues;
   
   const extendedUser = user as ExtendedUser;
+  const collegeName = typeof extendedUser.college === 'object' && extendedUser.college 
+    ? extendedUser.college.name 
+    : extendedUser.collegeName;
   
   return {
     instagram: extendedUser.instagram || '',
     snapchat: extendedUser.snapchat || '',
     major: extendedUser.major || '',
     hometown: extendedUser.hometown || '',
-    university: extendedUser.university || extendedUser.college?.name || extendedUser.collegeName || '',
+    university: extendedUser.university || collegeName || '',
     batch: extendedUser.batch || '',
     bio: extendedUser.bio || '',
     lookingForRoommate: extendedUser.lookingForRoommate || false
