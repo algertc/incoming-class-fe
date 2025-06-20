@@ -13,12 +13,11 @@ import {
 import { Link, useNavigate } from "react-router";
 import {
   IconChevronDown,
-  IconLogout,
   IconUser,
   IconCreditCard,
+  IconLogout,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
-import { showSuccess } from "../../../utils";
 import Logo from "../../Header/Logo";
 import gsap from "gsap";
 
@@ -59,12 +58,6 @@ export const Header: React.FC = () => {
       "-=0.2"
     );
   }, []);
-
-  const handleLogout = async (): Promise<void> => {
-    await logout();
-    showSuccess("Logged out successfully");
-    navigate("/login");
-  };
 
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
 
@@ -145,7 +138,7 @@ export const Header: React.FC = () => {
                 <Menu.Item
                   leftSection={
                     <IconUser
-                      style={{ width: rem(16), height: rem(16) }}
+                      style={{ width: rem(14), height: rem(14) }}
                       stroke={1.5}
                     />
                   }
@@ -156,7 +149,7 @@ export const Header: React.FC = () => {
                 <Menu.Item
                   leftSection={
                     <IconCreditCard
-                      style={{ width: rem(16), height: rem(16) }}
+                      style={{ width: rem(14), height: rem(14) }}
                       stroke={1.5}
                     />
                   }
@@ -169,11 +162,14 @@ export const Header: React.FC = () => {
                   color="red"
                   leftSection={
                     <IconLogout
-                      style={{ width: rem(16), height: rem(16) }}
+                      style={{ width: rem(14), height: rem(14) }}
                       stroke={1.5}
                     />
                   }
-                  onClick={handleLogout}
+                  onClick={async () => {
+                    await logout();
+                    navigate("/login");
+                  }}
                 >
                   Logout
                 </Menu.Item>
