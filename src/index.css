@@ -9,10 +9,10 @@ html {
   touch-action: manipulation;
   
   /* Hardware acceleration */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  /* -webkit-transform: translate3d(0, 0, 0); */
+  /* transform: translate3d(0, 0, 0); */
+  /* -webkit-backface-visibility: hidden; */
+  /* backface-visibility: hidden; */
 }
 
 body {
@@ -31,10 +31,10 @@ body {
   touch-action: manipulation;
   
   /* Hardware acceleration */
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0);
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  /* -webkit-transform: translate3d(0, 0, 0); */
+  /* transform: translate3d(0, 0, 0); */
+  /* -webkit-backface-visibility: hidden; */
+  /* backface-visibility: hidden; */
 }
 
 /* Hardware acceleration for common interactive elements */
@@ -47,12 +47,7 @@ button, a, [role="button"] {
 
 /* Optimize animations for Safari */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
-  * {
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-  }
+  
   
   /* Reduce motion for performance if user prefers */
   @media (prefers-reduced-motion: reduce) {

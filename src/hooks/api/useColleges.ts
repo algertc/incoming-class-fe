@@ -16,8 +16,10 @@ export const collegeKeys = {
 /**
  * Hook to fetch featured colleges
  */
+
+type CollegeType=College & {totalStudents:number}
 export const useFeaturedColleges = () => {
-  return useQuery<IServerResponse<College[]>>({
+  return useQuery<IServerResponse<CollegeType[] >>({
     queryKey: collegeKeys.featured(),
     queryFn: async () => await request({url:'/colleges/getPopularColleges'}),
     staleTime: 1000 * 60 * 10, // 10 minutes

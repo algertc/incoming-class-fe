@@ -43,10 +43,7 @@ export const applyIOSOptimizations = (): void => {
   style.textContent = `
     /* iOS Safari specific optimizations */
     * {
-      -webkit-backface-visibility: hidden !important;
-      backface-visibility: hidden !important;
-      -webkit-transform: translate3d(0, 0, 0) !important;
-      transform: translate3d(0, 0, 0) !important;
+         
     }
     
     /* Reduce complex animations on iOS Safari */

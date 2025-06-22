@@ -11,9 +11,6 @@ const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuthStore();
 
-  // If user is logged in, check if they need to complete profile
-  // If they do, redirect to profile completion
-  // If they don't, redirect to dashboard
   useEffect(() => {
     if (user && !isLoading) {
       if (user.profileStage !== undefined && user.profileStage !== ProfileStage.PAYMENT) {

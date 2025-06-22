@@ -3,6 +3,7 @@ import { MantineProvider, createTheme } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
 import "@mantine/notifications/styles.css";
+
 import { ModalsProvider } from "@mantine/modals";
 import "./index.css";
 import THEME from "./theme";
@@ -25,12 +26,12 @@ const theme = createTheme({
   ...THEME,
   components: {
     ...THEME.components,
-    Modal: {
-      styles: {
-        root: { zIndex: 1100 },
-        overlay: { zIndex: 1100 },
-      },
-    },
+    // Modal: {
+    //   styles: {
+    //     root: { zIndex: 1100 },
+    //     overlay: { zIndex: 1100 },
+    //   },
+    // },
   },
 });
 
@@ -38,7 +39,6 @@ const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
-        <Notifications position="top-right" zIndex={2000} limit={1} />
         <ModalsProvider
           modalProps={{
             centered: true,
@@ -72,6 +72,7 @@ const App: React.FC = () => {
           }}
           labels={{ confirm: "Confirm", cancel: "Cancel" }}
         >
+          <Notifications position={"top-right"} limit={1} />
           <AppRouterProvider />
         </ModalsProvider>
       </MantineProvider>

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   Container,
   Title,
@@ -19,18 +19,18 @@ import {
 import { 
   IconMail, 
   IconPhone, 
-  IconMapPin,
   IconSend,
   IconCheck,
-  IconQuestionMark,
   IconHeadphones,
   IconMessageCircle
 } from '@tabler/icons-react';
-import { useForm } from '@mantine/form';
+import { useForm, yupResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedBackground from '../feed/components/AnimatedBackground';
+import { useContact } from '../../hooks/api/useContact';
+import { contactSchema, contactInitialValues } from '../../forms';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -93,71 +93,45 @@ const offices = [
   }
 ];
 
-// FAQ data
-const faqs = [
-  {
-    question: "How do I complete my profile?",
-    answer: "After signing up, you'll be guided through a step-by-step profile completion process. Upload photos, add your bio, and connect with classmates!"
-  },
-  {
-    question: "Is my data secure?",
-    answer: "Yes! We use industry-standard encryption and security measures to protect your personal information. Your privacy is our top priority."
-  },
-  {
-    question: "How do I find students from my college?",
-    answer: "Use our college search feature to find and connect with students from your specific university. You can filter by graduation year, major, and interests."
-  },
-  {
-    question: "What if I need to cancel my account?",
-    answer: "You can delete your account anytime from your profile settings. All your data will be permanently removed from our servers."
-  }
-];
-
 const ContactPage: React.FC = () => {
   const theme = useMantineTheme();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { mutateAsync, isPending } = useContact();
   
   // Refs for animations
   const heroRef = useRef<HTMLDivElement>(null);
   const contactMethodsRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const officesRef = useRef<HTMLDivElement>(null);
-  const faqRef = useRef<HTMLDivElement>(null);
 
   // Form handling
   const form = useForm({
-    initialValues: {
-      name: '',
-      email: '',
-      category: '',
-      subject: '',
-      message: ''
-    },
-    validate: {
-      name: (value) => (value.length < 2 ? 'Name must have at least 2 letters' : null),
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      category: (value) => (value ? null : 'Please select a category'),
-      subject: (value) => (value.length < 5 ? 'Subject must have at least 5 characters' : null),
-      message: (value) => (value.length < 10 ? 'Message must have at least 10 characters' : null),
-    },
+    initialValues: contactInitialValues,
+    validate: yupResolver(contactSchema)
   });
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    notifications.show({
-      title: 'Message Sent!',
-      message: 'Thank you for contacting us. We\'ll get back to you within 24 hours.',
-      color: 'green',
-      icon: <IconCheck size={16} />,
-      autoClose: 5000,
-    });
-    
-    form.reset();
-    setIsSubmitting(false);
+  const handleSubmit = async (values: typeof form.values) => {
+    try {
+      const response = await mutateAsync(values);
+      
+      if (!response.status) throw new Error(response.message);
+
+      notifications.show({
+        title: 'Message Sent!',
+        message: 'Thank you for contacting us. We\'ll get back to you within 24 hours.',
+        color: 'green',
+        icon: <IconCheck size={16} />,
+        autoClose: 5000,
+      });
+      
+      form.reset();
+    } catch (error) {
+      notifications.show({
+        title: 'Error',
+        message: error instanceof Error ? error.message : 'Failed to send message',
+        color: 'red',
+        autoClose: 5000,
+      });
+    }
   };
 
   useEffect(() => {
@@ -241,43 +215,10 @@ const ContactPage: React.FC = () => {
         }
       );
     }
-
-    // FAQ animation - optimized for iOS
-    if (faqRef.current) {
-      gsap.fromTo(
-        faqRef.current.querySelectorAll('.faq-item'),
-        { 
-          y: 30, 
-          opacity: 0,
-          willChange: 'transform, opacity'
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.8,
-          stagger: 0.15,
-          scrollTrigger: {
-            trigger: faqRef.current,
-            start: "top bottom-=100",
-            toggleActions: "play none none none"
-          },
-          clearProps: 'willChange'
-        }
-      );
-    }
-
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
-    };
   }, []);
 
   return (
-    <Box style={{ 
-      backgroundColor: theme.colors.dark[9], 
-      minHeight: "100vh",
-      WebkitOverflowScrolling: 'touch' // Enable momentum scrolling on iOS
-    }}>
-      {/* Animated Background - Optimized for iOS */}
+    <Box style={{ backgroundColor: theme.colors.dark[9], minHeight: "100vh" }}>
       <AnimatedBackground />
 
       {/* Hero Section */}
@@ -576,7 +517,7 @@ const ContactPage: React.FC = () => {
                     type="submit"
                     size="lg"
                     leftSection={<IconSend size={18} />}
-                    loading={isSubmitting}
+                    loading={isPending}
                     style={{
                       background: "linear-gradient(45deg, #4361ee, #3a0ca3)",
                       transition: "all 0.3s ease"
@@ -590,7 +531,7 @@ const ContactPage: React.FC = () => {
                       e.currentTarget.style.boxShadow = "none";
                     }}
                   >
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                    {isPending ? "Sending..." : "Send Message"}
                   </Button>
                 </Stack>
               </form>
@@ -631,116 +572,33 @@ const ContactPage: React.FC = () => {
                       backdropFilter: "blur(10px)"
                     }}
                   >
-                    <Stack gap="lg">
-                      <Group>
-                        <ThemeIcon size="lg" radius="md" color="blue">
-                          <IconMapPin size={20} />
-                        </ThemeIcon>
-                        <Title order={3} c={theme.white}>
-                          {office.city}
-                        </Title>
-                      </Group>
-                      
-                      <Stack gap="md">
+                    <Stack gap="md">
+                      <Title order={3} c={theme.white}>
+                        {office.city}
+                      </Title>
+                      <Group gap="lg">
                         <Box>
-                          <Text c="gray.4" size="sm" fw={600} mb="xs">
-                            ADDRESS
+                          <Text fw={600} c={theme.white} mb="xs">
+                            Address
                           </Text>
-                          <Text c="gray.2" style={{ whiteSpace: 'pre-line' }}>
+                          <Text c="gray.4" style={{ whiteSpace: 'pre-line' }}>
                             {office.address}
                           </Text>
                         </Box>
-                        
                         <Box>
-                          <Text c="gray.4" size="sm" fw={600} mb="xs">
-                            HOURS
+                          <Text fw={600} c={theme.white} mb="xs">
+                            Office Hours
                           </Text>
-                          <Text c="gray.2" style={{ whiteSpace: 'pre-line' }}>
+                          <Text c="gray.4" style={{ whiteSpace: 'pre-line' }}>
                             {office.hours}
                           </Text>
                         </Box>
-                      </Stack>
+                      </Group>
                     </Stack>
                   </Paper>
                 </Grid.Col>
               ))}
             </Grid>
-          </Stack>
-        </Container>
-      </Box>
-
-      {/* FAQ Section */}
-      <Box py={80} style={{ backgroundColor: theme.colors.dark[8] }}>
-        <Container size="md">
-          <Stack gap="xl" ref={faqRef}>
-            <Box ta="center" mb={40}>
-              <Title
-                order={2}
-                c={theme.white}
-                mb="md"
-                style={{ fontSize: "2.5rem" }}
-              >
-                Frequently Asked Questions
-              </Title>
-              <Text size="lg" c="gray.3" maw={500} mx="auto">
-                Quick answers to common questions
-              </Text>
-            </Box>
-
-            <Stack gap="lg">
-              {faqs.map((faq, index) => (
-                <Paper
-                  key={index}
-                  className="faq-item"
-                  p="lg"
-                  radius="md"
-                  style={{
-                    backgroundColor: theme.colors.dark[9],
-                    border: `1px solid ${theme.colors.dark[7]}`,
-                    transition: "border-color 0.3s ease",
-                    transform: 'translate3d(0,0,0)', // Force GPU acceleration
-                    WebkitBackfaceVisibility: 'hidden',
-                    WebkitPerspective: 1000
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = theme.colors.blue[5];
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = theme.colors.dark[7];
-                  }}
-                >
-                  <Group align="flex-start" gap="md">
-                    <ThemeIcon size="md" radius="md" color="blue" mt={4}>
-                      <IconQuestionMark size={16} />
-                    </ThemeIcon>
-                    <Stack gap="sm" style={{ flex: 1 }}>
-                      <Title order={4} c={theme.white}>
-                        {faq.question}
-                      </Title>
-                      <Text c="gray.3" size="sm" style={{ lineHeight: 1.6 }}>
-                        {faq.answer}
-                      </Text>
-                    </Stack>
-                  </Group>
-                </Paper>
-              ))}
-            </Stack>
-
-            <Box ta="center" mt="xl">
-              <Text c="gray.4" mb="md">
-                Still have questions?
-              </Text>
-              <Button
-                component="a"
-                href="mailto:support@incomingclass.com"
-                variant="outline"
-                color="blue"
-                radius="md"
-                leftSection={<IconMail size={16} />}
-              >
-                Contact Support
-              </Button>
-            </Box>
           </Stack>
         </Container>
       </Box>

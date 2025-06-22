@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Button,
   Checkbox,
@@ -16,7 +16,7 @@ import classes from "./SignupForm.module.scss";
 import { Link, useNavigate } from "react-router";
 import type { SignupData } from "../../../../models/user.model";
 import { signupSchema, signupInitialValues } from "../../../../forms";
-import { showError, showSuccess } from "../../../../utils";
+import { showSuccess } from "../../../../utils";
 import { useSendEmailOtp, useVerifyEmail } from "../../../../hooks/api/useAuth";
 import ROUTES from "../../../../constants/routes";
 
@@ -30,6 +30,7 @@ const LS_KEYS = {
 
 const SignupForm: React.FC = () => {
   const navigate = useNavigate();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Use localStorage for persistent state
   const [storedFormData, setStoredFormData] = useLocalStorage({
@@ -114,30 +115,29 @@ const SignupForm: React.FC = () => {
     setIsOtpSent(false);
     setOtp("");
     setCountdown(0);
+    setApiError(null);
   };
 
   // Handle verify email button click
   const handleVerifyEmail = async (values: typeof form.values) => {
     const { email } = values;
-
-    console.log("is continue clicked", values);
+    setApiError(null);
 
     try {
       const response = await mutateAsync(email);
-      console.log("signup error response  : ", response);
 
       if (!response.status) throw new Error(response.errorMessage?.message);
       showSuccess(response.message);
       setIsOtpSent(true);
       setCountdown(120); // Set 2 minute countdown
     } catch (error) {
-      showError((error as Error).message);
+      setApiError((error as Error).message);
     }
   };
 
   // Form submission handler
   const handleSubmit = async (values: typeof form.values) => {
-    console.log("handle submit clicked", values);
+    setApiError(null);
 
     if (!isOtpSent) {
       await handleVerifyEmail(values);
@@ -160,7 +160,7 @@ const SignupForm: React.FC = () => {
       clearSignupData();
       navigate(ROUTES.LOGIN);
     } catch (error) {
-      showError((error as Error).message);
+      setApiError((error as Error).message);
     }
   };
 
@@ -193,6 +193,12 @@ const SignupForm: React.FC = () => {
           >
             Create an Account
           </Text>
+
+          {apiError && (
+            <Text className={classes.errorText} ta="center" mb={8}>
+              {apiError}
+            </Text>
+          )}
 
           {/* First and Last Name */}
           <Flex
@@ -397,6 +403,7 @@ const SignupForm: React.FC = () => {
               setIsOtpSent(false);
               setOtp("");
               setCountdown(0);
+              setApiError(null);
             }}
             className={classes.linkText}
             style={{

@@ -16,8 +16,8 @@ export const profileBasicInfoSchema = Yup.object().shape({
     .required('Hometown is required'),
   university: Yup.string()
     .required('University is required'),
-  batch: Yup.string()
-    .required('Batch/Year is required'),
+  // batch: Yup.string()
+  //   .required('Batch/Year is required'),
   bio: Yup.string()
     .min(20, 'Bio must be at least 20 characters')
     .max(500, 'Bio must be less than 500 characters')

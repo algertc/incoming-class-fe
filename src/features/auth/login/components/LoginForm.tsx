@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Button,
   Flex,
@@ -16,12 +16,13 @@ import type {
   AuthResponse,
 } from "../../../../models/user.model";
 import { loginSchema, loginInitialValues } from "../../../../forms";
-import { showSuccess, showError } from "../../../../utils";
+import { showSuccess } from "../../../../utils";
 import { ROUTES } from "../../../../routing/routes";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const login = useLogin();
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const form = useForm({
     initialValues: loginInitialValues,
@@ -29,6 +30,7 @@ const LoginForm: React.FC = () => {
   });
 
   const handleSubmit = async (values: typeof form.values) => {
+    setApiError(null);
     const loginData: LoginCredentials = {
       email: values.email,
       password: values.password,
@@ -39,6 +41,7 @@ const LoginForm: React.FC = () => {
         email: loginData.email,
         password: loginData.password,
       });
+      
 
       if (!response.status) throw new Error(response.errorMessage?.message);
 
@@ -49,7 +52,7 @@ const LoginForm: React.FC = () => {
         authResponse.isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION
       );
     } catch (error) {
-      showError((error as Error).message);
+      setApiError((error as Error).message);
     }
   };
 
@@ -84,6 +87,12 @@ const LoginForm: React.FC = () => {
           >
             Welcome back!
           </Text>
+
+          {apiError && (
+            <Text className={classes.errorText} ta="center" mb={8}>
+              {apiError}
+            </Text>
+          )}
 
           <TextInput
             classNames={{ label: classes.label, input: classes.input }}

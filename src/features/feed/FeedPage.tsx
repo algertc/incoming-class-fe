@@ -17,15 +17,7 @@ const responsiveStyles = `
       display: none !important;
     }
     
-    .mobile-optimized {
-      transform: translate3d(0,0,0);
-      -webkit-transform: translate3d(0,0,0);
-      backface-visibility: hidden;
-      -webkit-backface-visibility: hidden;
-      perspective: 1000px;
-      -webkit-perspective: 1000px;
-      will-change: transform;
-    }
+    
   }
   
   @media (min-width: 769px) {
@@ -35,13 +27,7 @@ const responsiveStyles = `
   }
   
   .ios-optimized {
-    transform: translate3d(0,0,0);
-    -webkit-transform: translate3d(0,0,0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    perspective: 1000px;
-    -webkit-perspective: 1000px;
-    will-change: transform;
+   
   }
 `;
 

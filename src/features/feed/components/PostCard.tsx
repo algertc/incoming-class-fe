@@ -59,15 +59,18 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
     if (imageCount === 1) {
       return (
-        <Box style={{
-          transform: 'translate3d(0,0,0)',
-          WebkitTransform: 'translate3d(0,0,0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          perspective: '1000px',
-          WebkitPerspective: '1000px',
-          willChange: 'transform'
-        }}>
+        <Box       style={{
+        transform: 'translate3d(0,0,0)',
+        WebkitTransform: 'translate3d(0,0,0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        perspective: '1000px',
+        WebkitPerspective: '1000px',
+        willChange: 'transform',
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
           <Image
             src={post.images[0]}
             alt="Post image"
@@ -165,7 +168,10 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         WebkitBackfaceVisibility: 'hidden',
         perspective: '1000px',
         WebkitPerspective: '1000px',
-        willChange: 'transform'
+        willChange: 'transform',
+        backgroundColor: 'rgba(15, 23, 42, 0.6)',
+        backdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
       }}
     >
       {/* Post Header */}
@@ -181,7 +187,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           />
           <Box>
             <Group gap={5}>
-              <Text fw={600} size="sm">{post.author.name}</Text>
+              <Text fw={600} size="sm" c="white">{post.author.name}</Text>
               {post.author.verified && (
                 <Text size="xs" c="blue">✓</Text>
               )}
@@ -192,7 +198,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       </Group>
       
       {/* Post Content */}
-      <Text mb="md">{post.content}</Text>
+      <Text mb="md" c="white">{post.content}</Text>
       
       {/* Post Images */}
       {post.images && post.images.length > 0 && (

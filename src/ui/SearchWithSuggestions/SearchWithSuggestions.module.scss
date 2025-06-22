@@ -1,6 +1,5 @@
 .container {
   position: relative;
-  perspective: 800px;
   z-index: 100;
   width: 100%;
 }
@@ -19,22 +18,20 @@
 
 .inputWrapper {
   position: relative;
-  transform-style: preserve-3d;
-  transform-origin: 50% 0%;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 100%;
 }
 
 .inputWrapperOpen {
-  transform: rotateX(5deg);
+  transform: translateY(2px);
   
   @media (max-width: 768px) {
-    transform: rotateX(3deg);
+    transform: translateY(1px);
   }
 }
 
 .inputWrapperClosed {
-  transform: rotateX(0deg);
+  transform: translateY(0);
 }
 
 .shadow {
@@ -45,7 +42,7 @@
   height: 8px;
   background: linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 100%);
   border-radius: 0 0 8px 8px;
-  transform: translateZ(-1px);
+  transform: translateY(1px);
   transition: opacity 0.3s ease;
   
   @media (max-width: 768px) {

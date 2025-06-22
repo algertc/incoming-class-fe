@@ -40,7 +40,7 @@ export {
   useCollegeSearch,
   useCollege,
   collegeKeys
-} from './useColleges'; 
+} from './useColleges';
 
 // Custom hook for managing feed initialization
 export { useFeedInitializer } from './useFeedInitializer';
@@ -51,4 +51,8 @@ export {
   useConfirmPayment,
   useCreateSubscriptionSession,
   paymentKeys
-} from './usePayment'; 
+} from './usePayment';
+
+// Testimonials hooks
+export * from './useTestimonials';
+export * from './useStats'; 

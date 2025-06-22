@@ -190,6 +190,28 @@
     z-index: 0;
 }
 
+.errorText {
+    color: #ff6b6b;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 // Custom scrollbar styling for mobile
 :global(.mantine-ScrollArea-scrollbar) {
     &[data-orientation="vertical"] {

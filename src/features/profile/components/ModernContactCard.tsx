@@ -17,12 +17,11 @@ import {
   IconUser,
   IconEdit,
   IconMail,
-  IconBrandInstagram,
-  IconBrandSnapchat,
   IconSchool,
   IconCheck,
   IconX,
 } from '@tabler/icons-react';
+import { InstagramIcon, SnapchatIcon } from './icons';
 import { glassCardStyles } from '../utils/glassStyles';
 
 interface ContactData {
@@ -79,9 +78,27 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
   };
 
   const contacts = [
-    { icon: IconMail, label: 'Email', value: contactData.email, color: 'blue', editable: false },
-    { icon: IconBrandInstagram, label: 'Instagram', value: contactData.instagram, color: 'pink', editable: true },
-    { icon: IconBrandSnapchat, label: 'Snapchat', value: contactData.snapchat, color: 'yellow', editable: true },
+    { 
+      icon: (props: { size: number }) => <IconMail {...props} />, 
+      label: 'Email', 
+      value: contactData.email, 
+      color: 'blue', 
+      editable: false 
+    },
+    { 
+      icon: (props: { size: number }) => <InstagramIcon size={props.size} />, 
+      label: 'Instagram', 
+      value: contactData.instagram, 
+      color: 'pink', 
+      editable: true 
+    },
+    { 
+      icon: (props: { size: number }) => <SnapchatIcon size={props.size} />, 
+      label: 'Snapchat', 
+      value: contactData.snapchat, 
+      color: 'yellow', 
+      editable: true 
+    },
   ];
 
   const inputStyles = {
@@ -136,7 +153,7 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
         {contacts.map((contact, index) => (
           <Group key={index} gap="sm" style={{ padding: rem(8), borderRadius: rem(8), background: 'rgba(255, 255, 255, 0.05)' }}>
             <ThemeIcon size="sm" variant="light" color={contact.color} radius="xl">
-              <contact.icon size={14} />
+              {contact.icon({ size: 14 })}
             </ThemeIcon>
             <Box style={{ flex: 1 }}>
               {isEditing && contact.editable ? (

@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { FeatureCard } from "../FeatureCard/FeatureCard";
 import { TestimonialCard } from "../TestimonialCard/TestimonialCard";
+import { useFeaturedTestimonials } from "../../../hooks/api/useTestimonials";
 import gsap from "gsap";
 
 // Mock data
@@ -27,34 +28,14 @@ const features = [
   },
 ];
 
-const testimonials = [
-  {
-    content:
-      "Finding a compatible roommate was always a challenge until I used this platform. The matching algorithm is surprisingly accurate!",
-    author: "Sarah Johnson",
-    title: "Stanford University",
-    avatar: "https://i.pravatar.cc/150?img=1",
-  },
-  {
-    content:
-      "As an international student, I was worried about housing. This platform made it so easy to find both a great apartment and amazing roommates.",
-    author: "Miguel Alvarez",
-    title: "MIT",
-    avatar: "https://i.pravatar.cc/150?img=2",
-  },
-  {
-    content:
-      "The roommate agreement feature helped us set clear boundaries from day one. We've been living together happily for over a year now!",
-    author: "Aisha Patel",
-    title: "UC Berkeley",
-    avatar: "https://i.pravatar.cc/150?img=3",
-  },
-];
-
 export const FeaturedSection: React.FC = () => {
   const theme = useMantineTheme();
   const sectionRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const { data: testimonialResponse, isLoading: testimonialsLoading } = useFeaturedTestimonials();
+
+  console.log("log testimonialResponse", testimonialResponse);
+  
 
   useEffect(() => {
     // Animate the section title when it enters viewport
@@ -76,6 +57,8 @@ export const FeaturedSection: React.FC = () => {
       );
     }
   }, []);
+
+  const testimonials = testimonialResponse?.data .testimonials|| [];
 
   return (
     <div
@@ -122,21 +105,25 @@ export const FeaturedSection: React.FC = () => {
         </Grid>
 
         {/* Testimonials section */}
-        <Title order={3} mb="lg" c={theme.white}>
-          What Students Say
-        </Title>
-        <Grid gutter="xl">
-          {testimonials.map((testimonial, index) => (
-            <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4 }}>
-              <TestimonialCard
-                content={testimonial.content}
-                author={testimonial.author}
-                title={testimonial.title}
-                avatar={testimonial.avatar}
-              />
-            </Grid.Col>
-          ))}
-        </Grid>
+        {!testimonialsLoading && testimonials.length > 0 && (
+          <>
+            <Title order={3} mb="lg" c={theme.white}>
+              What Students Say
+            </Title>
+            <Grid gutter="xl">
+              {testimonials.slice(0, 3).map((testimonial) => (
+                <Grid.Col key={testimonial.id} span={{ base: 12, sm: 6, md: 4 }}>
+                  <TestimonialCard
+                    content={testimonial.message}
+                    author={testimonial.user.firstName + " " + testimonial.user.lastName}
+                    title={`${testimonial.user.major} at ${testimonial.user.college.name}`}
+                    avatar={testimonial.user.profilePicture || `https://i.pravatar.cc/150?u=${testimonial.id}`}
+                  />
+                </Grid.Col>
+              ))}
+            </Grid>
+          </>
+        )}
       </Container>
     </div>
   );

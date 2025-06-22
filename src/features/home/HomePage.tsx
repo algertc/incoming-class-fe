@@ -34,7 +34,7 @@ const HomePage: React.FC = () => {
       
       // Log device capabilities for debugging
       const capabilities = getDeviceCapabilities();
-      console.log('📱 Device capabilities:', capabilities);
+   
       
       // Adjust ScrollTrigger settings for iOS Safari
       if (capabilities.isIOSSafari) {

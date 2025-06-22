@@ -134,6 +134,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
           />
 
           <TextInput
+            required
             label="Snapchat Handle"
             placeholder="@username"
             leftSection={
@@ -191,26 +192,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             }}
           />
 
-          <Select
-            required
-            label="Batch/Year"
-            placeholder="Select your year"
-            data={[
-              "2024",
-              "2025",
-              "2026", 
-              "2027",
-              "2028"
-            ]}
-            {...form.getInputProps("batch")}
-            classNames={{
-              label: styles.label,
-              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
-              dropdown: styles.dropdown,
-              option: styles.item,
-            }}
-            size={isMobile ? "sm" : "md"}
-          />
+      
 
           <Select
             required

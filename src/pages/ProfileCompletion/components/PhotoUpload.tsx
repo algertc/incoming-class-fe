@@ -19,6 +19,7 @@ import { ProfileStage } from '../../../models/user.model';
 import type { User } from '../../../models/user.model';
 import { showSuccess, showError } from '../../../utils';
 import { useAuthStore } from '../../../store/auth.store';
+import ImageCropModal from './ImageCropModal';
 import styles from './PhotoUpload.module.css';
 
 interface ExtendedUser extends User {
@@ -34,6 +35,9 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [cropModalOpen, setCropModalOpen] = useState(false);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
+  const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const theme = useMantineTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -73,23 +77,69 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
       return;
     }
 
-    // Add new files to selected files array
-    const newFiles = [...selectedFiles, ...files];
-    setSelectedFiles(newFiles);
-
-    // Create preview URLs for display
-    files.forEach((file) => {
+    // Process each file one by one with cropping
+    files.forEach((file, index) => {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
           const result = e.target?.result;
           if (result) {
-            setPhotos((prev) => [...prev, result as string]);
+            // Open crop modal for the first file
+            if (index === 0) {
+              setCurrentImageUrl(result as string);
+              setCurrentFileIndex(selectedFiles.length);
+              setCropModalOpen(true);
+            }
+            // Add file to selected files
+            setSelectedFiles(prev => [...prev, file]);
           }
         };
         reader.readAsDataURL(file);
       }
     });
+  };
+
+  const handleCropComplete = async (croppedImageBlob: Blob) => {
+    // Convert blob to File
+    const croppedFile = new File([croppedImageBlob], selectedFiles[currentFileIndex].name, {
+      type: 'image/jpeg',
+    });
+
+    // Update selectedFiles with cropped version
+    setSelectedFiles(prev => {
+      const newFiles = [...prev];
+      newFiles[currentFileIndex] = croppedFile;
+      return newFiles;
+    });
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (result) {
+        setPhotos(prev => [...prev, result as string]);
+      }
+    };
+    reader.readAsDataURL(croppedFile);
+
+    // Check if there are more files to crop
+    if (currentFileIndex < selectedFiles.length - 1) {
+      // Process next file
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (result) {
+          setCurrentImageUrl(result as string);
+          setCurrentFileIndex(prev => prev + 1);
+          setCropModalOpen(true);
+        }
+      };
+      reader.readAsDataURL(selectedFiles[currentFileIndex + 1]);
+    } else {
+      // All files processed
+      setCropModalOpen(false);
+      setCurrentFileIndex(-1);
+    }
   };
 
   const removePhoto = (index: number) => {
@@ -164,7 +214,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
           {isMobile ? "Tap to select photos" : "Drag and drop photos here or click to select"}
         </Text>
         <Text size={isMobile ? "xs" : "sm"} c="dimmed" mt="xs">
-          Upload up to 10 images (max 5MB each)
+          Upload up to 10 images (max 5MB each). Images will be cropped to 1:1 ratio.
         </Text>
       </Paper>
 
@@ -216,9 +266,16 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
           loading={isLoading}
           fullWidth={isMobile}
         >
-        Continue
+          Continue
         </Button>
       </Group>
+
+      <ImageCropModal
+        opened={cropModalOpen}
+        onClose={() => setCropModalOpen(false)}
+        imageUrl={currentImageUrl}
+        onCropComplete={handleCropComplete}
+      />
     </Box>
   );
 };

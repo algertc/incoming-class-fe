@@ -65,7 +65,7 @@ export const Footer: React.FC = () => {
         position: "relative",
         overflow: "hidden"
       }}
-      py={{ base: 40, md: 50 }}
+      py={{ base: 24, md: 32 }}
     >
       {/* Decorative background element */}
       <Box 
@@ -85,7 +85,7 @@ export const Footer: React.FC = () => {
         <Flex 
           direction="column"
           align="center"
-          gap={32}
+          gap={20}
         >
           <Title 
             ref={logoRef}
@@ -119,7 +119,7 @@ export const Footer: React.FC = () => {
           </Title>
           
           <Flex 
-            gap={40} 
+            gap={32} 
             justify="center" 
             wrap="wrap"
             maw={500}
@@ -169,7 +169,7 @@ export const Footer: React.FC = () => {
           
           <Box w="100%" ref={dividerRef}>
             <Divider 
-              my="sm" 
+              my="xs" 
               variant="dashed" 
               style={{ 
                 borderColor: 'rgba(255,255,255,0.07)',
@@ -183,13 +183,13 @@ export const Footer: React.FC = () => {
             align="center"
             w="100%"
             direction={{ base: 'column', sm: 'row' }}
-            gap={{ base: 20, sm: 0 }}
+            gap={{ base: 16, sm: 0 }}
           >
             <Text size="xs" c="dimmed" style={{ opacity: 0.8 }}>
               © {currentYear} IncomingClass. Made with <IconHeart size={12} style={{ display: 'inline', verticalAlign: 'middle' }} color={theme.colors.red[5]} /> for students.
             </Text>
             
-            <Group gap="lg" ref={socialRef}>
+            <Group gap="md" ref={socialRef}>
               <ActionIcon 
                 size="md" 
                 variant="subtle" 

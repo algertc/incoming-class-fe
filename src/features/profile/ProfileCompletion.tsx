@@ -29,53 +29,71 @@ import styles from "../../pages/ProfileCompletion/ProfileCompletion.module.css";
 import { useAuthStore } from "../../store/auth.store";
 import { ProfileStage } from "../../models/user.model";
 import { withProfileStageGuard } from "./withProfileStageGuard";
+import { useUpdateCurrentUserProfile } from "../../hooks/api";
+
+const stageToIndex = {
+  [ProfileStage.UPLOAD_PHOTOS]: 0,
+  [ProfileStage.ABOUT_YOU]: 1,
+  [ProfileStage.PREFERENCES]: 2,
+  [ProfileStage.PROFILE_PREVIEW]: 3,
+  [ProfileStage.PAYMENT]: 4,
+};
+
+const indexToStage: Record<number, ProfileStage> = {
+  0: ProfileStage.UPLOAD_PHOTOS,
+  1: ProfileStage.ABOUT_YOU,
+  2: ProfileStage.PREFERENCES,
+  3: ProfileStage.PROFILE_PREVIEW,
+  4: ProfileStage.PAYMENT,
+};
 
 const ProfileCompletion: React.FC = () => {
   const [active, setActive] = useState(0);
+  const [isNavigating, setIsNavigating] = useState(false);
   const theme = useMantineTheme();
   // const navigate = useNavigate();
   const { user, fetchUser } = useAuthStore();
+  const { mutateAsync: updateProfile } = useUpdateCurrentUserProfile();
   const isMobile = useMediaQuery("(max-width: 768px)");
-
-  console.log("show active step", active);
   
 
   // Initialize active step based on user's profileStage
   useEffect(() => {
     if (user?.profileStage) {
-      switch (user.profileStage) {
-        case ProfileStage.UPLOAD_PHOTOS:
-          setActive(0);
-          break;
-        case ProfileStage.ABOUT_YOU:
-          setActive(1);
-          break;
-        case ProfileStage.PREFERENCES:
-          setActive(2);
-          break;
-        case ProfileStage.PROFILE_PREVIEW:
-          setActive(3);
-          break;
-        case ProfileStage.PAYMENT:
-          setActive(4);
-          break;
-        default:
-          setActive(0);
-      }
+      const stageIndex = stageToIndex[user.profileStage];
+      setActive(stageIndex);
     }
   }, [user]);
 
   const nextStep = () =>
     setActive((current) => (current < 4 ? current + 1 : current));
-  const prevStep = () => {
-    console.log('Back button clicked, current step:', active);
-    setActive((current) => {
-      const newStep = current > 0 ? current - 1 : current;
-      console.log('Moving to step:', newStep);
-      return newStep;
-    });
-    // Refresh user data when navigating back to ensure forms are pre-filled
-    fetchUser();
+  const prevStep = async () => {
+    if (active === 0 || isNavigating) return;
+    
+    try {
+      setIsNavigating(true);
+      const newStepIndex = active - 1;
+      const newStage = indexToStage[newStepIndex];
+      
+      // Update the profile stage in the backend
+      const response = await updateProfile({
+        profileStage: newStage
+      });
+
+      if (!response.status) {
+        throw new Error(response.errorMessage?.message || 'Failed to update profile stage');
+      }
+
+      // Update local state
+      setActive(newStepIndex);
+      
+      // Refresh user data
+      await fetchUser();
+    } catch (error) {
+      console.error('Error navigating back:', error);
+    } finally {
+      setIsNavigating(false);
+    }
   };
 
   const steps = [
@@ -261,9 +279,10 @@ const ProfileCompletion: React.FC = () => {
             <Button
               variant="outline"
               onClick={prevStep}
-              // disabled={active == 0}
+              disabled={active === 0 || isNavigating}
               className={styles.backButton}
               size={isMobile ? "md" : "lg"}
+              loading={isNavigating}
             >
               Back
             </Button>

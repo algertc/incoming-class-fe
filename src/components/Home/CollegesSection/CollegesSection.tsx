@@ -3,35 +3,35 @@ import { Box, Container, Grid, Stack, Title, Badge, useMantineTheme } from '@man
 import gsap from 'gsap';
 import { CollegeCard } from '../CollegeCard/CollegeCard';
 import { useFeaturedColleges } from '../../../hooks/api';
-import type { College } from '../../../hooks/api/types';
 
 // Mock data for colleges
 const COLLEGES = [
-  { value: 'harvard', label: 'Harvard University', count: 1240 },
-  { value: 'mit', label: 'MIT', count: 987 },
-  { value: 'stanford', label: 'Stanford University', count: 1532 },
-  { value: 'yale', label: 'Yale University', count: 845 },
-  { value: 'columbia', label: 'Columbia University', count: 936 },
-  { value: 'princeton', label: 'Princeton University', count: 742 },
-  { value: 'berkeley', label: 'UC Berkeley', count: 2154 },
-  { value: 'ucla', label: 'UCLA', count: 1891 }
+  { value: 'harvard', label: 'Harvard University', students: 1240 },
+  { value: 'mit', label: 'MIT', students: 987 },
+  { value: 'stanford', label: 'Stanford University', students: 1532 },
+  { value: 'yale', label: 'Yale University', students: 845 },
+  { value: 'columbia', label: 'Columbia University', students: 936 },
+  { value: 'princeton', label: 'Princeton University', students: 742 },
+  { value: 'berkeley', label: 'UC Berkeley', students: 2154 },
+  { value: 'ucla', label: 'UCLA', students: 1891 }
 ];
 
 export const CollegesSection: React.FC = () => {
   const theme = useMantineTheme();
   const sectionTitleRef = useRef<HTMLHeadingElement>(null);
 
-  const {data} = useFeaturedColleges();
+  const { data } = useFeaturedColleges();
 
-  const colleges=useMemo(()=>{
-    if(!data) return [];
-    if(data.data.length===0) return COLLEGES;
-    return data?.data.map((college:College)=>({
-      id:college.name,
-      label:college.name,
-      description:college.location,
+  const colleges = useMemo(() => {
+    if (!data) return [];
+    if (data.data.length === 0) return COLLEGES;
+    return data?.data.map((college) => ({
+      id: college.id,
+      label: college.name,
+      students: college.totalStudents,
+      description: college.location,
     })) || [];
-  },[data]);
+  }, [data]);
 
   useEffect(() => {
     // Set up scroll animations for section title
@@ -57,33 +57,33 @@ export const CollegesSection: React.FC = () => {
     <Box style={{ backgroundColor: theme.colors.dark[9], padding: '80px 0' }}>
       <Container size="lg">
         <Stack gap="lg" align="center" mb={60}>
-          <Badge 
-            variant="filled" 
+          <Badge
+            variant="filled"
             color="blue"
             size="lg"
             radius="sm"
           >
             UNIVERSITIES
           </Badge>
-          <Title 
+          <Title
             ref={sectionTitleRef}
-            order={2} 
-            ta="center" 
-            c={theme.white} 
-            maw={700} 
-            mx="auto" 
+            order={2}
+            ta="center"
+            c={theme.white}
+            maw={700}
+            mx="auto"
             className="section-title"
           >
             Popular universities on our platform
           </Title>
         </Stack>
-        
+
         <Grid>
           {colleges.map((college, index) => (
             <Grid.Col span={{ base: 6, sm: 4, md: 3 }} key={college.label}>
-              <CollegeCard 
+              <CollegeCard
                 name={college.label}
-                count={college.label.length}
+                count={college.students}
                 index={index}
               />
             </Grid.Col>

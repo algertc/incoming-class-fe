@@ -1,11 +1,11 @@
-import { showNotification } from '@mantine/notifications';
+import { notifications, showNotification } from '@mantine/notifications';
 import { IconCheck, IconX, IconInfoCircle } from '@tabler/icons-react';
 
 /**
  * Show a success notification
  */
 export const showSuccess = (message: string, title = 'Success') => {
-  showNotification({
+  notifications.show({
     title,
     message,
     color: 'green',
@@ -18,7 +18,7 @@ export const showSuccess = (message: string, title = 'Success') => {
  * Show an error notification
  */
 export const showError = (message: string, title = 'Error') => {
-  showNotification({
+  notifications.show({
     title,
     message,
     color: 'red',
