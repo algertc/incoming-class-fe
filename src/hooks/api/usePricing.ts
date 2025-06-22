@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { request } from './http.client';
-import type { IServerResponse } from '../../models/serverResponse.model';
 
 interface PricingData {
   post: number;

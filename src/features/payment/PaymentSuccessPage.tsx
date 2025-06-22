@@ -229,10 +229,10 @@ const PaymentSuccessPage: React.FC = () => {
               Questions? Contact us at{" "}
               <Text
                 component="a"
-                href="mailto:support@yourapp.com"
+                href="mailto:support@incomingclass.com"
                 style={{ color: theme.colors.blue[4] }}
               >
-                support@yourapp.com
+                support@incomingclass.com
               </Text>
             </Text>
           </Stack>

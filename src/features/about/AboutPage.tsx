@@ -18,11 +18,14 @@ import {
   IconHeart, 
   IconTarget,
   IconBulb,
-  IconShield
+  IconShield,
+  IconSchool,
+  IconMessageCircle2
 } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedBackground from '../feed/components/AnimatedBackground';
+import { useLandingPageStats } from '../../hooks/api/useStats';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -80,12 +83,76 @@ const values = [
 ];
 
 // Stats data
-const stats = [
-  { number: "50,000+", label: "Students Connected" },
-  { number: "500+", label: "Universities" },
-  { number: "95%", label: "Success Rate" },
-  { number: "24/7", label: "Support Available" }
-];
+const StatsSection = () => {
+  const { data: statsData, isLoading } = useLandingPageStats();
+  
+  const stats = [
+    { 
+      number: statsData?.data?.totalUsers?.toLocaleString() || '0', 
+      label: "Students Connected",
+      icon: IconUsers,
+      loading: isLoading
+    },
+    { 
+      number: statsData?.data?.totalColleges?.toLocaleString() || '0', 
+      label: "Universities",
+      icon: IconSchool,
+      loading: isLoading
+    },
+    { 
+      number: statsData?.data?.totalPosts?.toLocaleString() || '0', 
+      label: "Posts Shared",
+      icon: IconMessageCircle2,
+      loading: isLoading
+    },
+    { 
+      number: "24/7", 
+      label: "Support Available",
+      icon: IconHeart,
+      loading: false
+    }
+  ];
+
+  return (
+    <Box py={60} >
+      <Container size="xl">
+        <Grid >
+          {stats.map((stat, index) => (
+            <Grid.Col span={{ base: 6, sm: 3 }} key={index}>
+              <Paper
+                className="stat-item"
+                p="xl"
+                radius="lg"
+                ta="center"
+                style={{
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  backdropFilter: "blur(10px)"
+                }}
+              >
+                <Text
+                  fw={700}
+                  variant="gradient"
+                  gradient={{ from: "#4361ee", to: "#3a0ca3" }}
+                  mb="xs"
+                  style={{
+                    fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                    lineHeight: 1.2
+                  }}
+                >
+                  {stat.number}
+                </Text>
+                <Text c="gray.4" fw={500}>
+                  {stat.label}
+                </Text>
+              </Paper>
+            </Grid.Col>
+          ))}
+        </Grid>
+      </Container>
+    </Box>
+  );
+};
 
 const AboutPage: React.FC = () => {
   const theme = useMantineTheme();
@@ -292,43 +359,7 @@ const AboutPage: React.FC = () => {
       </Box>
 
       {/* Stats Section */}
-      <Box py={60} style={{ backgroundColor: theme.colors.dark[9] }}>
-        <Container size="xl">
-          <Grid ref={statsRef}>
-            {stats.map((stat, index) => (
-              <Grid.Col span={{ base: 6, sm: 3 }} key={index}>
-                <Paper
-                  className="stat-item"
-                  p="xl"
-                  radius="lg"
-                  ta="center"
-                  style={{
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    backdropFilter: "blur(10px)"
-                  }}
-                >
-                  <Text
-                    fw={700}
-                    variant="gradient"
-                    gradient={{ from: "#4361ee", to: "#3a0ca3" }}
-                    mb="xs"
-                    style={{
-                      fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
-                      lineHeight: 1.2
-                    }}
-                  >
-                    {stat.number}
-                  </Text>
-                  <Text c="gray.4" fw={500}>
-                    {stat.label}
-                  </Text>
-                </Paper>
-              </Grid.Col>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+      <StatsSection />
 
       {/* Mission Section */}
       <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>

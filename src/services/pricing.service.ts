@@ -1,12 +1,15 @@
-import { http } from '../hooks/api/http.client';
-import { ServerResponse } from '../models/serverResponse.model';
+import { request } from '../hooks/api/http.client';
+import type { IServerResponse } from '../models/serverResponse.model';
 
 interface PricingData {
   post: number;
   premium: number;
 }
 
-export const getCurrentPricing = async (): Promise<ServerResponse<PricingData>> => {
-  const response = await http.get<ServerResponse<PricingData>>('/pricing');
+export const getCurrentPricing = async (): Promise<IServerResponse<PricingData>> => {
+  const response = await request<IServerResponse<PricingData>>({
+    url: '/pricing',
+    method: 'GET',
+  });
   return response.data;
 }; 
