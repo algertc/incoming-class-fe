@@ -50,6 +50,7 @@ const API_ENDPOINTS = {
     createCheckoutSession: '/users/payment/post',
     confirmPayment: '/users/payment/confirm',
     createSubscriptionSession: '/users/payment/subscription',
+    pricing: '/pricing',
   },
 
   transactions: {

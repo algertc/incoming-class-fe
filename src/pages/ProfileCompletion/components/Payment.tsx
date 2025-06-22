@@ -30,7 +30,7 @@ import {
   IconAlertCircle,
 } from "@tabler/icons-react";
 import { showError } from "../../../utils";
-import { useCreateCheckoutSession } from "../../../hooks/api";
+import { useCreateCheckoutSession, usePricing } from "../../../hooks/api";
 
 // Instagram post features data
 const INSTAGRAM_FEATURES = [
@@ -72,19 +72,17 @@ const INSTAGRAM_FEATURES = [
   },
 ];
 
-const PRICING = {
-  monthlyPrice: 9.99,
-  tax: 0.0,
-};
-
 const Payment: React.FC = () => {
   const theme = useMantineTheme();
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   
   const { mutateAsync: createCheckoutSession, isPending: isInitiatingPayment } = useCreateCheckoutSession();
+  const { data: pricingData, isLoading: isPricingLoading } = usePricing();
 
-  const total = PRICING.monthlyPrice + PRICING.tax;
+  const price = pricingData?.data?.post || 0;
+  const tax = 0.0;
+  const total = price + tax;
 
   const initiatePayment = async () => {
     console.log("🔄 Payment initiation started");
@@ -92,8 +90,8 @@ const Payment: React.FC = () => {
       amount: Math.round(total * 100),
       currency: "usd",
       totalPrice: total,
-      monthlyPrice: PRICING.monthlyPrice,
-      tax: PRICING.tax
+      price,
+      tax
     });
 
     setPaymentError(null);
@@ -102,7 +100,7 @@ const Payment: React.FC = () => {
       console.log("📡 Creating checkout session...");
       const requestData = {
         amount: Math.round(total * 100), // Convert to cents
-          currency: "usd",
+        currency: "usd",
         successUrl: `${window.location.origin}/payment/post/success`,
         cancelUrl: `${window.location.origin}/payment/post/error`,
       };
@@ -175,7 +173,7 @@ const Payment: React.FC = () => {
           }),
         }}
       >
-      <LoadingOverlay visible={isInitiatingPayment} overlayProps={{ blur: 2 }} />
+      <LoadingOverlay visible={isInitiatingPayment || isPricingLoading} overlayProps={{ blur: 2 }} />
 
         <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
           {/* Header */}
@@ -377,7 +375,7 @@ const Payment: React.FC = () => {
                     size={isMobile ? "lg" : "xl"}
                     style={{ color: theme.white }}
                   >
-                  ${PRICING.monthlyPrice}
+                  ${price.toFixed(2)}
                   </Text>
                 </Group>
               </Card>
@@ -413,7 +411,7 @@ const Payment: React.FC = () => {
                       style={{ color: theme.white }}
                       size={isMobile ? "xs" : "sm"}
                     >
-                      ${PRICING.monthlyPrice.toFixed(2)}
+                      ${price.toFixed(2)}
                     </Text>
                   </Group>
 
@@ -428,7 +426,7 @@ const Payment: React.FC = () => {
                       style={{ color: theme.colors.gray[5] }}
                       size={isMobile ? "xs" : "sm"}
                     >
-                      ${PRICING.tax.toFixed(2)}
+                      ${tax.toFixed(2)}
                     </Text>
                   </Group>
 

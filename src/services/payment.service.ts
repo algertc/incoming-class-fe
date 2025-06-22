@@ -22,6 +22,11 @@ export interface PaymentConfirmationResponse {
   message: string;
 }
 
+export interface PricingData {
+  post: number;
+  premium: number;
+}
+
 /**
  * Payment Service
  * 
@@ -29,6 +34,7 @@ export interface PaymentConfirmationResponse {
  * - Creating Stripe checkout sessions
  * - Confirming payments
  * - Managing payment status
+ * - Fetching pricing information
  */
 class PaymentService {
   /**
@@ -178,6 +184,48 @@ class PaymentService {
         stack: (error as Error).stack,
         sessionId,
         endpoint: API_ENDPOINTS.payment.confirmPayment,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Get current pricing for post and premium features
+   * 
+   * @returns Promise with the current pricing data
+   */
+  async getCurrentPricing(): Promise<IServerResponse<PricingData>> {
+    console.log("💰 PaymentService: Fetching current pricing");
+
+    try {
+      const startTime = performance.now();
+      
+      const response = await request<PricingData>({
+        url: '/users/pricing',
+        method: 'GET'
+      });
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      console.log("✅ PaymentService: Pricing fetched successfully");
+      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+      console.log("📦 Service response:", {
+        status: response.status,
+        message: response.message,
+        data: response.data,
+        timestamp: new Date().toISOString(),
+        duration: `${duration.toFixed(2)}ms`
+      });
+
+      return response;
+    } catch (error) {
+      console.error("💥 PaymentService: Failed to fetch pricing");
+      console.error("🔍 Service error details:", {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
         timestamp: new Date().toISOString()
       });
       

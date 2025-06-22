@@ -10,6 +10,7 @@ import {
   Badge,
   useMantineTheme,
   Progress,
+  LoadingOverlay,
 } from "@mantine/core";
 import {
   IconStarFilled,
@@ -22,7 +23,7 @@ import {
   IconLock,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
-import { useCreateSubscriptionSession } from "../../../hooks/api";
+import { useCreateSubscriptionSession, usePricing } from "../../../hooks/api";
 import { showError } from "../../../utils";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -35,9 +36,10 @@ export const PremiumFeatures: React.FC = () => {
 
   // Subscription payment hook
   const { mutateAsync: createSubscriptionSession, isPending: isInitiatingPayment } = useCreateSubscriptionSession();
+  const { data: pricingData, isLoading: isPricingLoading } = usePricing();
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
-  const SUBSCRIPTION_PRICE = 9.99; // USD monthly
+  const price = pricingData?.data?.premium || 0;
 
   const handleUpgradeClick = async () => {
     if (!user) {
@@ -55,7 +57,7 @@ export const PremiumFeatures: React.FC = () => {
 
     try {
       const requestData = {
-        amount: Math.round(SUBSCRIPTION_PRICE * 100), // Convert to cents
+        amount: Math.round(price * 100), // Convert to cents
         currency: "usd",
         successUrl: `${window.location.origin}/payment/premium/success`,
         cancelUrl: `${window.location.origin}/payment/post/error`,
@@ -88,6 +90,8 @@ export const PremiumFeatures: React.FC = () => {
         overflow: "hidden",
       }}
     >
+      <LoadingOverlay visible={isInitiatingPayment || isPricingLoading} overlayProps={{ blur: 2 }} />
+
       {/* Decorative gradient background */}
       <Box
         style={{
@@ -203,10 +207,11 @@ export const PremiumFeatures: React.FC = () => {
             variant="gradient"
             gradient={{ from: "indigo", to: "cyan" }}
             leftSection={<IconRocket size={16} />}
-            loading={isInitiatingPayment}
             onClick={handleUpgradeClick}
+            loading={isInitiatingPayment}
+            disabled={isInitiatingPayment || isPricingLoading}
           >
-            {isInitiatingPayment ? "Redirecting..." : user ? "Upgrade Now" : "Login to Upgrade"}
+            {isInitiatingPayment ? "Processing..." : `Upgrade Now - $${price.toFixed(2)}/month`}
           </Button>
         )}
         {paymentError && (

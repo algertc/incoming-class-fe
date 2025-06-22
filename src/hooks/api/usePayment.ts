@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { paymentService } from '../../services/payment.service';
 import type { 
   CreateCheckoutSessionRequest, 
@@ -15,6 +15,10 @@ export const paymentKeys = {
   sessions: () => [...paymentKeys.all, 'sessions'] as const,
   session: (id: string) => [...paymentKeys.sessions(), id] as const,
   subscriptionSessions: () => [...paymentKeys.all, 'subscriptionSessions'] as const,
+  checkout: () => [...paymentKeys.all, 'checkout'] as const,
+  confirmation: () => [...paymentKeys.all, 'confirmation'] as const,
+  subscription: () => [...paymentKeys.all, 'subscription'] as const,
+  pricing: () => [...paymentKeys.all, 'pricing'] as const,
 };
 
 /**
@@ -273,5 +277,14 @@ export const useCreateSubscriptionSession = () => {
         timestamp: new Date().toISOString(),
       });
     },
+  });
+};
+
+export const usePricing = () => {
+  return useQuery({
+    queryKey: paymentKeys.pricing(),
+    queryFn: () => paymentService.getCurrentPricing(),
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
   });
 }; 
