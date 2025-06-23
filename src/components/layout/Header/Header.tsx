@@ -76,16 +76,16 @@ export const Header: React.FC = () => {
       }}
     >
       <Container px={{ base: 16, sm: 32, md: 72 }} size="100%" h={90}>
-        <Group justify="space-between" style={{ height: "100%" }}>
+        <Group justify="space-between" align="center" style={{ height: "100%" }} wrap="nowrap">
           {/* Logo */}
-          <Box ref={logoRef}>
+          <Box ref={logoRef} style={{ flexShrink: 0 }}>
             <Link to="/app">
               <Logo darkMode />
             </Link>
           </Box>
 
-          {/* Desktop User Menu */}
-          <Box ref={buttonsRef}>
+          {/* User Menu - Responsive */}
+          <Box ref={buttonsRef} style={{ flexShrink: 0, minWidth: 0 }}>
             <Menu
               width="target"
               position="bottom-end"
@@ -100,34 +100,90 @@ export const Header: React.FC = () => {
                     backgroundColor: "rgba(255, 255, 255, 0.05)",
                     border: "1px solid rgba(255, 255, 255, 0.1)",
                     transition: "all 0.2s ease",
+                    minWidth: 0,
+                    maxWidth: "200px", // Prevent button from getting too wide
                     "&:hover": {
                       backgroundColor: "rgba(255, 255, 255, 0.1)",
                       transform: "translateY(-1px)",
                     },
                   }}
                 >
-                  <Group gap="xs">
+                  <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
                     <Avatar
                       src={user?.profilePicture}
                       alt={fullName}
                       radius="xl"
                       size="sm"
+                      style={{ flexShrink: 0 }}
                       styles={{
                         root: {
                           border: "2px solid rgba(255, 255, 255, 0.2)",
                         },
                       }}
                     />
-                    <Box style={{ flex: 1, minWidth: 0 }}>
-                      <Text fw={600} size="sm" lh={1.2} lineClamp={1}>
+                    {/* Show full info on desktop, minimal on mobile */}
+                    <Box 
+                      style={{ 
+                        flex: 1, 
+                        minWidth: 0,
+                        overflow: "hidden"
+                      }}
+                      visibleFrom="sm"
+                    >
+                      <Text 
+                        fw={600} 
+                        size="sm" 
+                        lh={1.2} 
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
                         {fullName}
                       </Text>
-                      <Text size="xs" c="dimmed" lh={1} lineClamp={1}>
+                      <Text 
+                        size="xs" 
+                        c="dimmed" 
+                        lh={1}
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
                         {user?.email}
                       </Text>
                     </Box>
+                    {/* Show only name on mobile, truncated */}
+                    <Box 
+                      style={{ 
+                        flex: 1, 
+                        minWidth: 0,
+                        overflow: "hidden",
+                        maxWidth: "80px" // Limit width on mobile
+                      }}
+                      hiddenFrom="sm"
+                    >
+                      <Text 
+                        fw={600} 
+                        size="sm" 
+                        lh={1.2}
+                        style={{
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {user?.firstName || fullName}
+                      </Text>
+                    </Box>
                     <IconChevronDown
-                      style={{ width: rem(14), height: rem(14) }}
+                      style={{ 
+                        width: rem(14), 
+                        height: rem(14),
+                        flexShrink: 0
+                      }}
                       stroke={1.5}
                     />
                   </Group>

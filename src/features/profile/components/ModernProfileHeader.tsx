@@ -48,7 +48,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
   
   const handleCopyProfile = async () => {
     try {
-      const profileUrl = `http://localhost:5173/profile/student/${userId || '68344dbaac71a85065c347af'}`;
+      const profileUrl = `https://incomingclass.com/profile/student/${userId || '68344dbaac71a85065c347af'}`;
       await navigator.clipboard.writeText(profileUrl);
       
       notifications.show({

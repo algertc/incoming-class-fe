@@ -214,7 +214,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
           {isMobile ? "Tap to select photos" : "Drag and drop photos here or click to select"}
         </Text>
         <Text size={isMobile ? "xs" : "sm"} c="dimmed" mt="xs">
-          Upload up to 10 images (max 5MB each). Images will be cropped to 1:1 ratio.
+          Upload up to 10 images (max 5MB each). Images will be fitted to your chosen aspect ratio without cropping.
         </Text>
       </Paper>
 

@@ -1,6 +1,4 @@
-import React, { useState } from 'react';
-import ReactCrop, { type Crop } from 'react-image-crop';
-import 'react-image-crop/dist/ReactCrop.css';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Modal,
   Button,
@@ -8,6 +6,9 @@ import {
   Stack,
   Text,
   useMantineTheme,
+  Box,
+  Slider,
+  Paper,
 } from '@mantine/core';
 
 interface ImageCropModalProps {
@@ -17,6 +18,9 @@ interface ImageCropModalProps {
   onCropComplete: (croppedImageBlob: Blob) => void;
 }
 
+const MIN_ASPECT_RATIO = 4 / 5; // 4:5 = 0.8
+const MAX_ASPECT_RATIO = 1.91; // 1.91:1
+
 const ImageCropModal: React.FC<ImageCropModalProps> = ({
   opened,
   onClose,
@@ -24,111 +28,282 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   onCropComplete,
 }) => {
   const theme = useMantineTheme();
-  const [crop, setCrop] = useState<Crop>({
-    unit: '%',
-    width: 100,
-    height: 100,
-    x: 0,
-    y: 0,
-  });
-  const [imageRef, setImageRef] = useState<HTMLImageElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const [image, setImage] = useState<HTMLImageElement | null>(null);
+  const [aspectRatio, setAspectRatio] = useState(1); // Default to square
+  const [previewDimensions, setPreviewDimensions] = useState({ width: 0, height: 0 });
 
-  const getCroppedImg = (image: HTMLImageElement, crop: Crop): Promise<Blob> => {
-    const canvas = document.createElement('canvas');
-    const scaleX = image.naturalWidth / image.width;
-    const scaleY = image.naturalHeight / image.height;
-    canvas.width = crop.width;
-    canvas.height = crop.height;
-    const ctx = canvas.getContext('2d');
-
-    if (!ctx) {
-      throw new Error('No 2d context');
+  // Load image when modal opens
+  useEffect(() => {
+    if (opened && imageUrl) {
+      const img = new Image();
+      img.onload = () => {
+        setImage(img);
+        // Set initial aspect ratio based on image, but constrained to our limits
+        const imageAspectRatio = img.width / img.height;
+        const constrainedRatio = Math.max(MIN_ASPECT_RATIO, Math.min(MAX_ASPECT_RATIO, imageAspectRatio));
+        setAspectRatio(constrainedRatio);
+      };
+      img.src = imageUrl;
     }
+  }, [opened, imageUrl]);
 
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height
-    );
+  // Calculate preview dimensions when aspect ratio or container changes
+  useEffect(() => {
+    if (image && containerRef.current) {
+      const container = containerRef.current;
+      const containerWidth = container.clientWidth - 40; // Account for padding
+      const containerHeight = container.clientHeight - 40;
+      
+      // Calculate dimensions that fit within container while maintaining aspect ratio
+      let previewWidth, previewHeight;
+      
+      if (aspectRatio > containerWidth / containerHeight) {
+        // Aspect ratio is wider than container
+        previewWidth = Math.min(containerWidth, 600); // Max width
+        previewHeight = previewWidth / aspectRatio;
+      } else {
+        // Aspect ratio is taller than container
+        previewHeight = Math.min(containerHeight, 400); // Max height
+        previewWidth = previewHeight * aspectRatio;
+      }
+      
+      setPreviewDimensions({ width: previewWidth, height: previewHeight });
+    }
+  }, [aspectRatio, image]);
 
+  // Create fitted image (letterboxed/pillarboxed)
+  const getFittedImage = (): Promise<Blob> => {
     return new Promise((resolve, reject) => {
+      if (!image || !canvasRef.current) {
+        reject(new Error('Image or canvas not available'));
+        return;
+      }
+
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas context not available'));
+        return;
+      }
+
+      // Set canvas dimensions to desired aspect ratio
+      const targetWidth = 800; // Base width
+      const targetHeight = targetWidth / aspectRatio;
+      
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      // Fill with background color (black or transparent)
+      ctx.fillStyle = '#000000'; // Black background for letterboxing
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Calculate how to fit the image within the canvas
+      const imageAspectRatio = image.width / image.height;
+      let drawWidth, drawHeight, drawX, drawY;
+
+      if (imageAspectRatio > aspectRatio) {
+        // Image is wider than target - fit width, add letterbox bars
+        drawWidth = canvas.width;
+        drawHeight = canvas.width / imageAspectRatio;
+        drawX = 0;
+        drawY = (canvas.height - drawHeight) / 2;
+      } else {
+        // Image is taller than target - fit height, add pillar bars
+        drawHeight = canvas.height;
+        drawWidth = canvas.height * imageAspectRatio;
+        drawX = (canvas.width - drawWidth) / 2;
+        drawY = 0;
+      }
+
+      // Draw the image fitted within the canvas
+      ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
+
       canvas.toBlob((blob) => {
-        if (!blob) {
-          reject(new Error('Canvas is empty'));
-          return;
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to create blob'));
         }
-        resolve(blob);
-      }, 'image/jpeg', 1);
+      }, 'image/jpeg', 0.9);
     });
   };
 
-  const handleCropComplete = async () => {
-    if (!imageRef || !crop.width || !crop.height) return;
-
+  const handleComplete = async () => {
     try {
-      const croppedImageBlob = await getCroppedImg(imageRef, crop);
-      onCropComplete(croppedImageBlob);
+      const fittedBlob = await getFittedImage();
+      onCropComplete(fittedBlob);
       onClose();
     } catch (error) {
-      console.error('Error cropping image:', error);
+      console.error('Error fitting image:', error);
+    }
+  };
+
+  const handleAspectRatioChange = (value: number) => {
+    // Convert slider value (0-100) to aspect ratio (0.8-1.91)
+    const ratio = MIN_ASPECT_RATIO + (value / 100) * (MAX_ASPECT_RATIO - MIN_ASPECT_RATIO);
+    setAspectRatio(ratio);
+  };
+
+  const getAspectRatioLabel = (ratio: number): string => {
+    if (ratio <= 0.85) return '4:5 (Portrait)';
+    if (ratio <= 1.05) return '1:1 (Square)';
+    if (ratio <= 1.35) return '4:3 (Standard)';
+    if (ratio <= 1.65) return '16:10 (Wide)';
+    return '1.91:1 (Cinema)';
+  };
+
+  const sliderValue = ((aspectRatio - MIN_ASPECT_RATIO) / (MAX_ASPECT_RATIO - MIN_ASPECT_RATIO)) * 100;
+
+  // Calculate how the image will be fitted
+  const getImageFitInfo = () => {
+    if (!image) return null;
+    
+    const imageAspectRatio = image.width / image.height;
+    
+    if (Math.abs(imageAspectRatio - aspectRatio) < 0.01) {
+      return "Perfect fit - no bars needed";
+    } else if (imageAspectRatio > aspectRatio) {
+      return "Image will be fitted with black bars on top and bottom";
+    } else {
+      return "Image will be fitted with black bars on left and right";
     }
   };
 
   return (
-    <Modal
-      opened={opened}
-      onClose={onClose}
-      title="Crop Image"
-      size="lg"
-      centered
-      styles={{
-        title: {
-          color: theme.white,
-          fontWeight: 600,
-        },
-        header: {
-          backgroundColor: theme.colors.dark[7],
-        },
-        content: {
-          backgroundColor: theme.colors.dark[7],
-        },
-      }}
-    >
-      <Stack gap="md">
-        <Text size="sm" c="dimmed">
-          Drag to crop the image. The image will be cropped to a 1:1 ratio for optimal display.
-        </Text>
-        <div style={{ maxWidth: '100%', maxHeight: '70vh', overflow: 'auto' }}>
-          <ReactCrop
-            crop={crop}
-            onChange={(c) => setCrop(c)}
-            aspect={1}
-            circularCrop
+    <>
+      <Modal
+        opened={opened}
+        onClose={onClose}
+        title="Fit Image to Aspect Ratio"
+        size="xl"
+        centered
+        styles={{
+          title: {
+            color: theme.white,
+            fontWeight: 600,
+          },
+          header: {
+            backgroundColor: theme.colors.dark[7],
+          },
+          content: {
+            backgroundColor: theme.colors.dark[7],
+          },
+        }}
+      >
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">
+            Choose your preferred aspect ratio. The image will be fitted within these dimensions without cropping.
+          </Text>
+          
+          {/* Aspect Ratio Control */}
+          <Paper p="md" bg="rgba(255, 255, 255, 0.05)">
+            <Stack gap="sm">
+              <Group justify="space-between">
+                <Text size="sm" fw={500}>Aspect Ratio</Text>
+                <Text size="sm" c="dimmed">{getAspectRatioLabel(aspectRatio)}</Text>
+              </Group>
+              <Slider
+                value={sliderValue}
+                onChange={handleAspectRatioChange}
+                min={0}
+                max={100}
+                step={1}
+                color="blue"
+                size="sm"
+                marks={[
+                  { value: 0, label: '4:5' },
+                  { value: 25, label: '1:1' },
+                  { value: 50, label: '4:3' },
+                  { value: 75, label: '16:10' },
+                  { value: 100, label: '1.91:1' },
+                ]}
+              />
+              {image && (
+                <Text size="xs" c="dimmed" mt="xs">
+                  {getImageFitInfo()}
+                </Text>
+              )}
+            </Stack>
+          </Paper>
+
+          {/* Image Preview */}
+          <Box
+            ref={containerRef}
+            style={{
+              position: 'relative',
+              width: '100%',
+              height: '400px',
+              background: '#000',
+              borderRadius: theme.radius.md,
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <img
-              src={imageUrl}
-              onLoad={(e) => setImageRef(e.currentTarget)}
-              style={{ maxWidth: '100%' }}
-              alt="Crop preview"
-            />
-          </ReactCrop>
-        </div>
-        <Group justify="flex-end" mt="md">
-          <Button variant="subtle" color="gray" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button onClick={handleCropComplete}>
-            Apply Crop
-          </Button>
-        </Group>
-      </Stack>
-    </Modal>
+            {image && previewDimensions.width > 0 && (
+              <Box
+                style={{
+                  position: 'relative',
+                  width: previewDimensions.width,
+                  height: previewDimensions.height,
+                  background: '#000',
+                  borderRadius: '4px',
+                  border: '2px solid #4361ee',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <img
+                  src={imageUrl}
+                  alt="Fitted preview"
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain', // This ensures the entire image is visible
+                  }}
+                />
+                
+                {/* Aspect ratio indicator */}
+                <Box
+                  style={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    background: 'rgba(67, 97, 238, 0.9)',
+                    color: 'white',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    fontWeight: 500,
+                  }}
+                >
+                  {aspectRatio.toFixed(2)}:1
+                </Box>
+              </Box>
+            )}
+          </Box>
+
+          <Group justify="flex-end" mt="md">
+            <Button variant="subtle" color="gray" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleComplete} disabled={!image}>
+              Apply Aspect Ratio
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {/* Hidden canvas for processing */}
+      <canvas ref={canvasRef} style={{ display: 'none' }} />
+    </>
   );
 };
 
