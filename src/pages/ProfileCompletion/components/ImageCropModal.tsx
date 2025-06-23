@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Modal,
   Button,
@@ -29,7 +29,6 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
 }) => {
   const theme = useMantineTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
   const [image, setImage] = useState<HTMLImageElement | null>(null);
