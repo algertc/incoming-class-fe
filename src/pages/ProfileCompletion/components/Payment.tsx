@@ -24,51 +24,66 @@ import {
   IconStar,
   IconSparkles,
   IconShield,
-  IconTrendingUp,
-  IconHeart,
-  IconShare,
   IconAlertCircle,
+  IconLock,
+  IconX,
+  IconRocket,
+  IconFilter,
+  IconUserSearch,
 } from "@tabler/icons-react";
 import { showError } from "../../../utils";
 import { useCreateCheckoutSession, usePricing } from "../../../hooks/api";
 
-// Instagram post features data
-const INSTAGRAM_FEATURES = [
+// Starter Plan features data
+const STARTER_FEATURES = [
   {
-    title: "University Instagram Feature",
-    description: "Your post will be featured on your university's official Instagram page",
+    title: "1 Instagram Post",
+    description: "Submit 1 post to Instagram and website feed",
     icon: IconBrandInstagram,
     color: "blue",
+    included: true,
   },
   {
-    title: "Maximum Visibility",
-    description: "Reach thousands of students and potential connections at your university",
+    title: "View Your Own Post",
+    description: "Access and view your own submitted post",
     icon: IconEye,
     color: "cyan",
+    included: true,
   },
   {
-    title: "Connect with Classmates",
-    description: "Get discovered by students in your major, year, and interests",
+    title: "10 Profile Views",
+    description: "View up to 10 other student profiles",
     icon: IconUsers,
     color: "indigo",
+    included: true,
   },
   {
-    title: "Boost Your Profile",
-    description: "Stand out from the crowd with premium Instagram placement",
-    icon: IconTrendingUp,
-    color: "violet",
+    title: "Basic Access",
+    description: "After 10 views, upgrade prompt for continued access",
+    icon: IconLock,
+    color: "orange",
+    included: true,
   },
   {
-    title: "Quality Assurance",
-    description: "Professional posting with optimal timing for maximum engagement",
-    icon: IconShield,
-    color: "green",
+    title: "No Filters",
+    description: "Basic browsing without advanced filtering options",
+    icon: IconFilter,
+    color: "gray",
+    included: false,
   },
   {
-    title: "Engagement Guarantee",
-    description: "Guaranteed likes, comments, and follows from your university community",
-    icon: IconHeart,
-    color: "yellow",
+    title: "No AI Matching",
+    description: "Standard browsing without AI-powered recommendations",
+    icon: IconUserSearch,
+    color: "gray",
+    included: false,
+  },
+  {
+    title: "No Expedited Posting",
+    description: "Standard posting timeline (not expedited)",
+    icon: IconRocket,
+    color: "gray",
+    included: false,
   },
 ];
 
@@ -80,7 +95,7 @@ const Payment: React.FC = () => {
   const { mutateAsync: createCheckoutSession, isPending: isInitiatingPayment } = useCreateCheckoutSession();
   const { data: pricingData, isLoading: isPricingLoading } = usePricing();
 
-  const price = pricingData?.data?.post || 0;
+  const price = pricingData?.data?.premium || 0;
   const tax = 0.0;
   const total = price + tax;
 
@@ -101,8 +116,8 @@ const Payment: React.FC = () => {
       const requestData = {
         amount: Math.round(total * 100), // Convert to cents
         currency: "usd",
-        successUrl: `${window.location.origin}/payment/post/success`,
-        cancelUrl: `${window.location.origin}/payment/post/error`,
+        successUrl: `${window.location.origin}/payment/premium/success`,
+        cancelUrl: `${window.location.origin}/payment/error`,
       };
       
       console.log("📤 Request payload:", requestData);
@@ -185,7 +200,7 @@ const Payment: React.FC = () => {
                 variant="gradient"
                 gradient={{ from: "blue", to: "cyan" }}
               >
-              <IconBrandInstagram size={isMobile ? 20 : 24} />
+              <IconStar size={isMobile ? 20 : 24} />
               </ThemeIcon>
             </Group>
             <Text
@@ -194,13 +209,13 @@ const Payment: React.FC = () => {
               style={{ color: theme.white }}
               mb="xs"
             >
-            Get Featured on Your University's Instagram
+            Get Started with Starter Plan
             </Text>
             <Text
               size={isMobile ? "xs" : "sm"}
               style={{ color: theme.colors.gray[4] }}
             >
-            Boost your visibility and connect with thousands of students at your university
+            Begin your journey with essential features to connect with your university community
             </Text>
           </Box>
 
@@ -208,7 +223,7 @@ const Payment: React.FC = () => {
             cols={{ base: 1, md: isMobile ? 1 : 2 }}
             spacing={isMobile ? "md" : "xl"}
           >
-          {/* Instagram Features Section */}
+          {/* Starter Plan Features Section */}
             <Paper
               p={isMobile ? "md" : "xl"}
               radius="lg"
@@ -232,19 +247,24 @@ const Payment: React.FC = () => {
                   style={{ color: theme.white }}
                   size={isMobile ? "sm" : "md"}
                 >
-                  What You Get
+                  Starter Plan Features
                 </Text>
               </Group>
 
               <Stack gap={isMobile ? "sm" : "md"}>
-              {INSTAGRAM_FEATURES.map((feature, index) => (
+              {STARTER_FEATURES.map((feature, index) => (
                   <Card
                   key={index}
                     p={isMobile ? "sm" : "md"}
                     radius="md"
                     style={{
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.08)",
+                      background: feature.included 
+                        ? "rgba(255, 255, 255, 0.03)" 
+                        : "rgba(255, 255, 255, 0.01)",
+                      border: feature.included 
+                        ? "1px solid rgba(255, 255, 255, 0.08)" 
+                        : "1px solid rgba(255, 255, 255, 0.04)",
+                      opacity: feature.included ? 1 : 0.6,
                     }}
                   >
                     <Group gap="sm" mb={isMobile ? "4px" : "xs"}>
@@ -252,21 +272,30 @@ const Payment: React.FC = () => {
                         size={isMobile ? "xs" : "sm"}
                         radius="xl"
                         variant="light"
-                        color={feature.color}
+                        color={feature.included ? feature.color : "gray"}
                       >
-                        <feature.icon size={isMobile ? 12 : 14} />
+                        {feature.included ? (
+                          <feature.icon size={isMobile ? 12 : 14} />
+                        ) : (
+                          <IconX size={isMobile ? 12 : 14} />
+                        )}
                       </ThemeIcon>
                       <Text
                         size={isMobile ? "xs" : "sm"}
                         fw={500}
-                        style={{ color: theme.white }}
+                        style={{ 
+                          color: feature.included ? theme.white : theme.colors.gray[6],
+                          textDecoration: feature.included ? "none" : "line-through"
+                        }}
                       >
                         {feature.title}
                       </Text>
                     </Group>
                     <Text
                       size={isMobile ? "10px" : "xs"}
-                      style={{ color: theme.colors.gray[5] }}
+                      style={{ 
+                        color: feature.included ? theme.colors.gray[5] : theme.colors.gray[7]
+                      }}
                     >
                       {feature.description}
                     </Text>
@@ -290,7 +319,7 @@ const Payment: React.FC = () => {
                   style={{ color: theme.white }}
                   mb={isMobile ? "xs" : "sm"}
                 >
-                Instagram Feature Package Includes
+                Starter Plan Includes
                 </Text>
                 <List
                   spacing={isMobile ? "4px" : "xs"}
@@ -309,9 +338,9 @@ const Payment: React.FC = () => {
                     </ThemeIcon>
                   }
                 >
-                <List.Item>Featured post on university Instagram</List.Item>
-                <List.Item>Peak engagement time posting</List.Item>
-                <List.Item>24-hour posting guarantee</List.Item>
+                <List.Item>1 post submission to Instagram + website</List.Item>
+                <List.Item>Access to view 10 student profiles</List.Item>
+                <List.Item>Basic profile browsing features</List.Item>
                 </List>
               </Box>
             </Paper>
@@ -344,7 +373,7 @@ const Payment: React.FC = () => {
                 </Text>
               </Group>
 
-            {/* Instagram Feature Plan */}
+            {/* Starter Plan */}
               <Card
                 p={isMobile ? "md" : "lg"}
                 radius="md"
@@ -361,13 +390,13 @@ const Payment: React.FC = () => {
                       size={isMobile ? "md" : "lg"}
                       style={{ color: theme.white }}
                     >
-                    Instagram Feature
+                    Starter Plan
                     </Text>
                     <Text
                       size={isMobile ? "xs" : "sm"}
                       style={{ color: theme.colors.gray[4] }}
                     >
-                    Get your post featured on your university's Instagram page
+                    Monthly subscription with essential features
                     </Text>
                   </Box>
                   <Text
@@ -375,7 +404,7 @@ const Payment: React.FC = () => {
                     size={isMobile ? "lg" : "xl"}
                     style={{ color: theme.white }}
                   >
-                  ${price.toFixed(2)}
+                  ${price.toFixed(2)}/mo
                   </Text>
                 </Group>
               </Card>
@@ -404,7 +433,7 @@ const Payment: React.FC = () => {
                       style={{ color: theme.white }}
                       size={isMobile ? "xs" : "sm"}
                     >
-                    Instagram Feature Post
+                    Starter Plan (Monthly)
                     </Text>
                     <Text
                       fw={500}
@@ -465,7 +494,7 @@ const Payment: React.FC = () => {
             </Alert>
           )}
 
-            {/* Get Featured Button */}
+            {/* Get Started Button */}
             <Button
               size={isMobile ? "md" : "lg"}
               fullWidth
@@ -474,9 +503,9 @@ const Payment: React.FC = () => {
               onClick={initiatePayment}
               variant="gradient"
               gradient={{ from: "indigo", to: "cyan" }}
-              leftSection={<IconShare size={isMobile ? 16 : 18} />}
+              leftSection={<IconRocket size={isMobile ? 16 : 18} />}
             >
-              {isInitiatingPayment ? "Redirecting to Checkout..." : "Get Featured on Instagram"}
+              {isInitiatingPayment ? "Redirecting to Checkout..." : "Get Started with Starter Plan"}
             </Button>
 
             {/* Security & Guarantee text */}
@@ -495,7 +524,7 @@ const Payment: React.FC = () => {
                 size={isMobile ? "10px" : "xs"}
                 style={{ color: theme.colors.gray[5] }}
               >
-                Posted within 24 hours • 100% satisfaction guarantee
+                Monthly billing • Cancel anytime
               </Text>
             </Stack>
           </Paper>

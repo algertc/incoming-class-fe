@@ -43,6 +43,7 @@ const API_ENDPOINTS = {
     getById: (id: string) => `/posts/${id}`,
     byUser: (userId: string) => `/posts/user/${userId}`,
     comments: (postId: string) => `/posts/${postId}/comments`,
+    getAllPosts: '/post/getAllPosts',
   },
 
   payment: {

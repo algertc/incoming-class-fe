@@ -1,38 +1,26 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 import { useFeedStore } from '../../store/feed.store';
+import { useAuthStore } from '../../store/auth.store';
 
-export const useFeedInitializer = (isAuthenticated: boolean, userId?: string) => {
-  const { initializeFeed } = useFeedStore();
+export const useFeedInitializer = () => {
+  const { user } = useAuthStore();
   const hasInitialized = useRef(false);
-  const lastUserId = useRef<string | undefined>(userId);
+  const lastUserId = useRef<string | undefined>(user?.id);
 
-  // Memoize the initialization to prevent multiple calls
-  const initializeFeedMemoized = useCallback(() => {
+  // Initialize feed on component mount or when user changes
+  useEffect(() => {
     // Only initialize if:
     // 1. Not already initialized
-    // 2. User authentication status changed
-    // 3. User ID changed (login/logout)
-    if (!hasInitialized.current || lastUserId.current !== userId) {
+    // 2. User ID changed (login/logout)
+    if (!hasInitialized.current || lastUserId.current !== user?.id) {
       hasInitialized.current = true;
-      lastUserId.current = userId;
-      initializeFeed(isAuthenticated);
+      lastUserId.current = user?.id;
+      // Call initializeFeed directly from store to avoid dependency issues
+      useFeedStore.getState().initializeFeed();
     }
-  }, [initializeFeed, isAuthenticated, userId]);
-
-  // Initialize feed on component mount or auth change
-  useEffect(() => {
-    initializeFeedMemoized();
-  }, [initializeFeedMemoized]);
-
-  // Reset initialization flag when user changes
-  useEffect(() => {
-    if (lastUserId.current !== userId) {
-      hasInitialized.current = false;
-    }
-  }, [userId]);
+  }, [user?.id]); // Only depend on user?.id, avoid unstable initializeFeed
 
   return {
-    initializeFeed: initializeFeedMemoized,
     hasInitialized: hasInitialized.current
   };
 }; 

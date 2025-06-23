@@ -18,9 +18,9 @@ import {
   IconCrown,
   IconRocket,
   IconFilter,
-  IconEye,
-  IconHeartHandshake,
-  IconLock,
+  IconInfinity,
+  IconBolt,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
 import { useCreateSubscriptionSession, usePricing } from "../../../hooks/api";
@@ -109,21 +109,30 @@ export const PremiumFeatures: React.FC = () => {
         }}
       />
 
-      {/* Premium Badge */}
+      {/* Premium Badge with Most Popular tag */}
       <Group mb="md" justify="space-between">
         <Group>
           <IconCrown size={20} color={theme.colors.yellow[4]} />
           <Text fw={600} size="sm" c={theme.white}>
-            Premium Features
+            Premium Match+
           </Text>
         </Group>
-        <Badge
-          variant="gradient"
-          gradient={{ from: "indigo", to: "cyan" }}
-          size="sm"
-        >
-          {isPremium ? "Active" : "Upgrade"}
-        </Badge>
+        <Stack gap={4} align="flex-end">
+          <Badge
+            variant="gradient"
+            gradient={{ from: "orange", to: "red" }}
+            size="xs"
+          >
+            Most Popular
+          </Badge>
+          <Badge
+            variant="gradient"
+            gradient={{ from: "indigo", to: "cyan" }}
+            size="sm"
+          >
+            {isPremium ? "Active" : "Upgrade"}
+          </Badge>
+        </Stack>
       </Group>
 
       {/* Premium Content */}
@@ -147,10 +156,10 @@ export const PremiumFeatures: React.FC = () => {
           </ThemeIcon>
           <Box>
             <Text fw={600} size="sm" c={theme.white}>
-              {isPremium ? "Premium Active" : "Unlock Premium"}
+              {isPremium ? "Premium Match+ Active" : "Unlock Premium Match+"}
             </Text>
             <Text size="xs" c="dimmed">
-              {isPremium ? "Your premium benefits" : "Enhance your matching experience"}
+              {isPremium ? "Your premium benefits" : "Get the ultimate matching experience"}
             </Text>
           </Box>
         </Group>
@@ -172,32 +181,39 @@ export const PremiumFeatures: React.FC = () => {
           }
         >
           <List.Item icon={
+            <ThemeIcon color="orange" size="sm" radius="xl">
+              <IconBolt size={12} />
+            </ThemeIcon>
+          }>
+            Expedited posting (front of queue)
+          </List.Item>
+          <List.Item icon={
             <ThemeIcon color="blue" size="sm" radius="xl">
+              <IconInfinity size={12} />
+            </ThemeIcon>
+          }>
+            Unlimited profile views
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="cyan" size="sm" radius="xl">
+              <IconInfinity size={12} />
+            </ThemeIcon>
+          }>
+            Unlimited posts
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="purple" size="sm" radius="xl">
+              <IconSparkles size={12} />
+            </ThemeIcon>
+          }>
+            AI-powered roommate matching
+          </List.Item>
+          <List.Item icon={
+            <ThemeIcon color="green" size="sm" radius="xl">
               <IconFilter size={12} />
             </ThemeIcon>
           }>
-            Advanced matching filters
-          </List.Item>
-          <List.Item icon={
-            <ThemeIcon color="blue" size="sm" radius="xl">
-              <IconEye size={12} />
-            </ThemeIcon>
-          }>
-            View unlimited profiles
-          </List.Item>
-          <List.Item icon={
-            <ThemeIcon color="blue" size="sm" radius="xl">
-              <IconHeartHandshake size={12} />
-            </ThemeIcon>
-          }>
-            Priority matching algorithm
-          </List.Item>
-          <List.Item icon={
-            <ThemeIcon color="blue" size="sm" radius="xl">
-              <IconLock size={12} />
-            </ThemeIcon>
-          }>
-            Edit your profile anytime
+            Full filter access (major, vibe, interests, dorm)
           </List.Item>
         </List>
 
@@ -211,7 +227,7 @@ export const PremiumFeatures: React.FC = () => {
             loading={isInitiatingPayment}
             disabled={isInitiatingPayment || isPricingLoading}
           >
-            {isInitiatingPayment ? "Processing..." : `Upgrade Now - $${price.toFixed(2)}/month`}
+            {isInitiatingPayment ? "Processing..." : `Upgrade - $${price.toFixed(2)}/month`}
           </Button>
         )}
         {paymentError && (
@@ -232,26 +248,27 @@ export const PremiumFeatures: React.FC = () => {
           </Text>
           <Stack gap="sm">
             <PremiumContentCard
-              title="Advanced Filtering"
-              description="Filter by major, interests, and location"
-              badge="Popular"
-              icon={<IconFilter size={16} />}
+              title="Expedited Posting"
+              description="Your posts move to the front of the queue"
+              badge="Priority"
+              icon={<IconBolt size={16} />}
             />
             <PremiumContentCard
-              title="Unlimited Profile Views"
-              description="Browse through all profiles without restrictions"
+              title="Unlimited Everything"
+              description="Unlimited profile views and posts"
               badge="Exclusive"
-              icon={<IconEye size={16} />}
+              icon={<IconInfinity size={16} />}
             />
             <PremiumContentCard
-              title="Smart Matching"
-              description="Get matched with compatible classmates"
-              icon={<IconHeartHandshake size={16} />}
+              title="AI Roommate Matching"
+              description="Smart AI finds your perfect roommate match"
+              badge="New"
+              icon={<IconSparkles size={16} />}
             />
             <PremiumContentCard
-              title="Profile Flexibility"
-              description="Edit your profile whenever you need to"
-              icon={<IconLock size={16} />}
+              title="Full Filter Access"
+              description="Filter by major, vibe, interests, dorm & more"
+              icon={<IconFilter size={16} />}
             />
           </Stack>
         </>

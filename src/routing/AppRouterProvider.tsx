@@ -89,6 +89,10 @@ const router = createBrowserRouter([
         element: <PaymentErrorPage />,
     },
     {
+        path: ROUTES.PAYMENT_GENERAL_ERROR,
+        element: <PaymentErrorPage />,
+    },
+    {
         path: ROUTES.PREMIUM_SUCCESS,
         element: <PremiumSuccessPage />,
     },

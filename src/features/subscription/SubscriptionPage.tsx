@@ -146,7 +146,7 @@ const SubscriptionPage: React.FC = () => {
       <Box
         style={{
           background: `linear-gradient(135deg, #000000 0%, #1a0030 100%)`,
-          padding: "120px 0 80px",
+          padding: "80px 0 60px",
           position: "relative",
           overflow: "hidden"
         }}
@@ -157,11 +157,11 @@ const SubscriptionPage: React.FC = () => {
             position: "absolute",
             top: "20%",
             left: "10%",
-            width: 160,
-            height: 160,
+            width: 120,
+            height: 120,
             borderRadius: "50%",
-            background: "radial-gradient(circle at center, rgba(67, 97, 238, 0.1) 0%, rgba(67, 97, 238, 0) 70%)",
-            filter: "blur(30px)",
+            background: "radial-gradient(circle at center, rgba(67, 97, 238, 0.08) 0%, rgba(67, 97, 238, 0) 70%)",
+            filter: "blur(25px)",
             zIndex: 0
           }}
         />
@@ -170,38 +170,29 @@ const SubscriptionPage: React.FC = () => {
             position: "absolute",
             bottom: "30%",
             right: "15%",
-            width: 120,
-            height: 120,
+            width: 100,
+            height: 100,
             borderRadius: "50%",
-            background: "radial-gradient(circle at center, rgba(229, 56, 59, 0.08) 0%, rgba(229, 56, 59, 0) 70%)",
+            background: "radial-gradient(circle at center, rgba(229, 56, 59, 0.06) 0%, rgba(229, 56, 59, 0) 70%)",
             filter: "blur(20px)",
             zIndex: 0
           }}
         />
 
         <Container size="lg" style={{ position: "relative", zIndex: 1 }}>
-          <Stack align="center" gap="xl" ref={heroRef}>
-            <Badge
-              size="lg"
-              variant="gradient"
-              gradient={{ from: "#4361ee", to: "#3a0ca3" }}
-              style={{ fontWeight: 600 }}
-            >
-              SUBSCRIPTION
-            </Badge>
-            
+          <Stack align="center" gap="lg" ref={heroRef}>
             <Title
               order={1}
               ta="center"
               style={{
-                fontSize: "3rem",
-                lineHeight: 1.1,
+                fontSize: "2.5rem",
+                lineHeight: 1.2,
                 fontWeight: 500,
-                maxWidth: 700
+                maxWidth: 600
               }}
             >
               <Text inherit component="span" c={theme.white}>
-                Manage your{" "}
+                Subscription{" "}
               </Text>
               <Text
                 inherit
@@ -209,24 +200,24 @@ const SubscriptionPage: React.FC = () => {
                 variant="gradient"
                 gradient={{ from: "#4361ee", to: "#3a0ca3", deg: 45 }}
               >
-                subscription
+                Management
               </Text>
             </Title>
 
             <Text
               size="lg"
-              c="gray.3"
+              c="gray.4"
               ta="center"
-              style={{ maxWidth: 600, lineHeight: 1.6 }}
+              style={{ maxWidth: 500, lineHeight: 1.5 }}
             >
-              View your premium status and payment history.
+              View your premium status and payment history
             </Text>
           </Stack>
         </Container>
       </Box>
 
       {/* Current Subscription Status */}
-      <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
+      <Box py={60} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="lg">
           <Stack gap="xl">
             {/* Premium Status Card */}

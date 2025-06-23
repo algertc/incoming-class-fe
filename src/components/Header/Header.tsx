@@ -27,7 +27,9 @@ const Header: React.FC = () => {
           <Group justify="space-between" align="center" h="100%">
             {/* Logo */}
             <Box>
-              <Logo darkMode />
+              <Link to="/">
+                <Logo darkMode />
+              </Link>
             </Box>
 
             {/* Desktop Navigation */}

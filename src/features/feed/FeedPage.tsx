@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Box, Container, Grid, Button, Text, Group } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
-import { useFeedStore } from "../../store/feed.store";
 import { useNavigate } from "react-router";
 import { FiltersSidebar } from "../../components/Feed/FiltersSidebar/FiltersSidebar";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
@@ -33,13 +32,8 @@ const responsiveStyles = `
 
 const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
-  const { initializeFeed } = useFeedStore();
   const navigate = useNavigate();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
-
-  useEffect(() => {
-    initializeFeed(!!user);
-  }, [user, initializeFeed]);
 
   return (
     <Box

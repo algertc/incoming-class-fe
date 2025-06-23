@@ -4,6 +4,7 @@ import { request } from './http.client';
 interface PricingData {
   post: number;
   premium: number;
+  subscription: number;
 }
 
 const pricingKeys = {

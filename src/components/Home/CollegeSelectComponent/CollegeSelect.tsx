@@ -43,8 +43,8 @@ const CollegeSelect: React.FC = () => {
   // Handle college selection
   const handleSelect = useCallback((college: Suggestion) => {
     setSelectedCollege(college.id);
-    // Set the college filter in feed store (false for not authenticated)
-    setCollege(college.id, false);
+    // Set the college filter in feed store
+    setCollege(college.id);
     // Redirect to feed page
     navigate("/feed");
   }, [setSelectedCollege, setCollege, navigate]);

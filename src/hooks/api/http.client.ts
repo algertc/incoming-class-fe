@@ -2,13 +2,11 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import type { IServerResponse } from '../../models/serverResponse.model';
 
-const baseURL = import.meta.env.VITE_API_URL ?? 'http://192.168.1.10:4000/api/v1';
-// const baseURL='https://api.incomingclass.com/api/v1'
+// const baseURL = import.meta.env.VITE_APP_API ?? 'http://localhost:4000/api';
+const baseURL = 'https://api.incomingclass.com/api/v1';
 
 const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServerResponse<T>> => {
   const token = localStorage.getItem('token');
-  
- 
 
   const headers = {
     'Content-Type': 'application/json',
@@ -16,16 +14,12 @@ const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServe
     ...options.headers,
   };
 
-
-
   try {
     const response = await axios({
       ...options,
       baseURL,
       headers,
     });
-
-
 
     // Ensure the response matches our IServerResponse interface
     const serverResponse: IServerResponse<T> = {
@@ -39,8 +33,6 @@ const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServe
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<IServerResponse>;
-      
-    
       
       throw new Error(
         axiosError.response?.data?.message ||

@@ -1,6 +1,8 @@
 import type { Post } from '../features/feed/components/PostCard';
-import { API_CONFIG } from '../config/api.config';
+// import { API_CONFIG } from '../config/api.config';  
 import { request } from '../hooks/api/http.client';
+import API_ENDPOINTS from '../hooks/api/api.endpoints';
+
 export interface FetchPostsParams {
   page?: number;
   limit?: number;
@@ -9,6 +11,9 @@ export interface FetchPostsParams {
   sortBy?: 'newest' | 'popular' | 'comments';
   lastDays?: number; // Number of days to look back from today
   college?: string | null;
+  substances?: string | null;
+  personality?: string[] | null;
+  hometown?: string | null;
 }
 
 export interface FetchPostsResponse {
@@ -99,26 +104,48 @@ class FeedService {
       queryParams.lastDays = params.lastDays.toString();
     }
 
+    // Handle substances filter
+    if (params.substances) {
+      queryParams.substances = params.substances;
+    }
+
+    // Handle personality filter (array of strings)
+    if (params.personality && params.personality.length > 0) {
+      queryParams.personality = params.personality;
+    }
+
+    // Handle hometown filter
+    if (params.hometown) {
+      queryParams.hometown = params.hometown;
+    }
+
     return queryParams;
   }
 
   // Fetch posts - backend handles all filtering, pagination, sorting
   async fetchPosts(params: FetchPostsParams = {}): Promise<ApiResponse<FetchPostsResponse>> {
+    console.log('FeedService: fetchPosts called with params:', params);
+    
     try {
       const queryParams = this.buildQueryParams(params);
+      
+      console.log('FeedService: Making API request to:', API_ENDPOINTS.posts.getAllPosts);
+      console.log('FeedService: Query params:', queryParams);
+      console.log('FeedService: Full URL will be: http://localhost:4000/api/posts/getAllPosts');
 
       const response = await request<GetAllPostsApiResponse>({
         method: 'GET',
-        url: API_CONFIG.ENDPOINTS.GET_ALL_POSTS,
+        url: API_ENDPOINTS.posts.getAllPosts,
         params: queryParams,
       });
+
+      console.log('FeedService: Raw API response:', response);
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to fetch posts');
       }
 
-      console.log("response  : ", response);
-
+      console.log("FeedService: Transforming posts, count:", response.data.posts.length);
 
       const transformedPosts = response.data.posts.map(this.transformApiPost);
 
@@ -139,23 +166,8 @@ class FeedService {
       };
 
     } catch (error) {
-      console.error('Feed Service Error:', error);
-      return {
-        data: {
-          posts: [],
-          totalDocs: 0,
-          page: 1,
-          limit: 10,
-          totalPages: 0,
-          hasNextPage: false,
-          hasPrevPage: false,
-          nextPage: 1,
-          prevPage: null
-        },
-        status: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        message: 'Failed to fetch posts'
-      };
+      console.error('FeedService: Error during fetchPosts:', error);
+      throw error; // Re-throw the error to be handled by the store
     }
   }
 
@@ -180,12 +192,7 @@ class FeedService {
       }
     } catch (error) {
       console.error('Feed Service Error:', error);
-      return {
-        data: [],
-        status: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        message: 'Failed to fetch posts'
-      };
+      throw error;
     }
   }
 
@@ -198,32 +205,17 @@ class FeedService {
   async getTrendingTopics(): Promise<ApiResponse<{ tag: string; posts: string }[]>> {
     try {
       // This would be a separate endpoint in a real backend
-      const trendingTopics = [
-        { tag: "#IncomingClass", posts: "2.5k" },
-        { tag: "#CollegeLife", posts: "1.8k" },
-        { tag: "#Roommates", posts: "950" },
-        { tag: "#CampusTips", posts: "720" },
-        { tag: "#StudyGroup", posts: "640" },
-        { tag: "#CampusEvents", posts: "520" }
-      ];
-
-      return {
-        data: trendingTopics,
-        status: true,
-        message: 'Successfully fetched trending topics'
-      };
-    } catch (error) {
       return {
         data: [],
-        status: false,
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        message: 'Failed to fetch trending topics'
+        status: true,
+        message: 'Trending topics feature not implemented yet'
       };
+    } catch (error) {
+      console.error('Feed Service Error:', error);
+      throw error;
     }
   }
 }
 
-// Export singleton instance
-export const feedService = new FeedService();
-
-export default feedService; 
+// Export as a singleton
+export const feedService = new FeedService(); 

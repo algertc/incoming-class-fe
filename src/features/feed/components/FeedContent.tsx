@@ -36,7 +36,6 @@ const FeedContent: React.FC = () => {
     isLoadingMore,
     hasMore,
     hasReachedLimit,
-    maxPostsWithoutLogin,
     modalShownAndDismissed,
     filters,
     error,
@@ -44,10 +43,11 @@ const FeedContent: React.FC = () => {
     loadMorePosts,
     refreshFeed,
     markModalDismissed,
+    maxPostsForUnauthenticated,
   } = useFeedStore();
   
   // Use custom hook for feed initialization
-  useFeedInitializer(isAuthenticated, user?.id);
+  useFeedInitializer();
   
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,7 +56,7 @@ const FeedContent: React.FC = () => {
     if (!hasMore || isLoading || isLoadingMore || hasReachedLimit || (!isAuthenticated && modalShownAndDismissed)) {
       return;
     }
-    loadMorePosts(isAuthenticated);
+    loadMorePosts();
   }, [hasMore, isLoading, isLoadingMore, hasReachedLimit, modalShownAndDismissed, loadMorePosts, isAuthenticated]);
 
   // Intersection Observer for infinite scroll
@@ -160,7 +160,7 @@ const FeedContent: React.FC = () => {
               Error loading posts: {error}
             </Text>
           </Group>
-          <Button variant="light" color="red" size="xs" onClick={() => refreshFeed(isAuthenticated)}>
+          <Button variant="light" color="red" size="xs" onClick={() => refreshFeed()}>
             Retry
           </Button>
         </Group>
@@ -235,7 +235,7 @@ const FeedContent: React.FC = () => {
           {/* Error during load more */}
           {error && posts.length > 0 && (
             <Center py="md">
-              <Button variant="light" color="red" onClick={() => loadMorePosts(isAuthenticated)}>
+              <Button variant="light" color="red" onClick={() => loadMorePosts()}>
                 Retry loading more posts
               </Button>
             </Center>
@@ -287,7 +287,7 @@ const FeedContent: React.FC = () => {
                 </Title>
                 
                 <Text size="md" c="dimmed" mb="xl" style={{ maxWidth: '400px', margin: '0 auto' }}>
-                  You've viewed {maxPostsWithoutLogin} posts. Join our community to see unlimited content and connect with your classmates.
+                  You've viewed {maxPostsForUnauthenticated} posts. Join our community to see unlimited content and connect with your classmates.
                 </Text>
                 
                 <Button 
@@ -368,7 +368,7 @@ const FeedContent: React.FC = () => {
               Continue Reading
             </Title>
             <Text size="md" c="dimmed" style={{ maxWidth: '350px', margin: '0 auto' }}>
-              You've enjoyed {maxPostsWithoutLogin} posts! Create an account to see unlimited content and connect with your classmates.
+              You've enjoyed {maxPostsForUnauthenticated} posts! Create an account to see unlimited content and connect with your classmates.
             </Text>
           </Box>
 
