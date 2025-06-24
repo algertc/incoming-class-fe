@@ -4,7 +4,6 @@ import { useMediaQuery } from "@mantine/hooks";
 import LoginPage from "../../auth/login/LoginPage";
 import SignupPage from "../../auth/signup/SignupPage";
 import ForgotPasswordPage from "../../auth/forgot-password/ForgotPasswordPage";
-import FeatureSlideshow from "../../../components/auth/FeatureSlideshow/FeatureSlideshow";
 import Logo from "../../../components/Header/Logo";
 import { withAuthRedirect } from "../../auth/components/withAuthRedirect";
 
@@ -30,9 +29,10 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
 
   return (
     <Flex
-      direction={{ base: "column", md: "row" }}
       w={"100vw"}
       h={"100vh"}
+      justify={"center"}
+      align={"center"}
       style={{
         background: `
           radial-gradient(circle at 0% 0%, #1971C2 0%, transparent 40%),
@@ -89,35 +89,19 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
         }}
       />
 
-      {/* Feature Slideshow - desktop version (left side) */}
-      <Flex
-        display={{ base: "none", md: "flex" }}
-        h={"100vh"}
-        w={{ md: "50%", lg: "60%" }}
-        style={{ 
-          overflow: "hidden",
-          boxShadow: "inset -10px 0 30px rgba(0, 0, 0, 0.1)",
-          position: "relative",
-          zIndex: 1,
-        }}
-      >
-        <FeatureSlideshow />
-      </Flex>
-      
-      {/* Form section */}
+      {/* Centered form container */}
       <Flex
         justify={"center"}
         align={"center"}
         direction={"column"}
-        w={{ base: "100%", md: "50%", lg: "40%" }}
+        w={"100%"}
         h={"100%"}
         style={{
-          background: `linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.8) 100%)`,
+          background: `linear-gradient(135deg, rgba(15, 23, 42, 0.4) 0%, rgba(30, 41, 59, 0.3) 100%)`,
           backdropFilter: "blur(15px)",
           position: "relative",
           zIndex: 1,
-          // Different padding for mobile vs desktop
-          padding: isMobile ? "0" : "40px 30px",
+          padding: isMobile ? "20px" : "40px",
         }}
       >
         {/* Glass overlay for enhanced effect */}
@@ -129,56 +113,31 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
             right: 0,
             bottom: 0,
             background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
-            borderLeft: isMobile ? "none" : "1px solid rgba(255, 255, 255, 0.08)",
             zIndex: 0,
           }}
         />
 
-        {/* Logo at the top - only show on desktop as mobile will have it in forms */}
-        {!isMobile && (
-          <Flex
-            justify={"center"}
-            mb={30}
-            style={{
-              position: "absolute",
-              top: "30px",
-              left: 0,
-              right: 0,
-              zIndex: 2,
-            }}
-          >
-            <Logo darkMode />
-          </Flex>
-        )}
+        {/* Logo at the top - show on both mobile and desktop */}
+        <Flex
+          justify={"center"}
+          mb={isMobile ? 20 : 40}
+          style={{
+            zIndex: 2,
+          }}
+        >
+          <Logo darkMode />
+        </Flex>
 
         {/* Form content */}
-        <Flex
+        <Box
           style={{
             width: "100%",
-            maxWidth: isMobile ? "100%" : "650px",
-            height: isMobile ? "100%" : "auto",
-            margin: "0 auto",
-            marginTop: isMobile ? "0" : "80px", // Remove top margin on mobile
+            maxWidth: "500px",
             position: "relative",
             zIndex: 2,
           }}
         >
           {renderForm()}
-        </Flex>
-        
-        {/* Mobile footer with copyright - replaces slideshow */}
-        <Box
-          display={{ base: "block", md: "none" }}
-          style={{
-            position: "absolute",
-            bottom: "20px",
-            left: 0,
-            right: 0,
-            textAlign: "center",
-            zIndex: 2,
-          }}
-        >
-          
         </Box>
       </Flex>
 

@@ -485,7 +485,7 @@ const AboutPage: React.FC = () => {
       </Box>
 
       {/* Team Section */}
-      <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
+      {/* <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="xl">
           <Stack gap="xl" ref={teamRef}>
             <Box ta="center" mb={40}>
@@ -551,7 +551,7 @@ const AboutPage: React.FC = () => {
             </Grid>
           </Stack>
         </Container>
-      </Box>
+      </Box> */}
 
       {/* CTA Section */}
       <Box py={80} style={{ backgroundColor: theme.colors.dark[8] }}>

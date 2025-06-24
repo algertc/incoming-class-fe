@@ -309,7 +309,7 @@ const ContactPage: React.FC = () => {
       </Box>
 
       {/* Contact Methods Section */}
-      <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
+      {/* <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="xl">
           <Stack gap="xl" ref={contactMethodsRef}>
             <Box ta="center" mb={40}>
@@ -387,7 +387,7 @@ const ContactPage: React.FC = () => {
             </Grid>
           </Stack>
         </Container>
-      </Box>
+      </Box> */}
 
       {/* Contact Form Section */}
       <Box py={80} style={{ backgroundColor: theme.colors.dark[8] }}>
@@ -541,7 +541,7 @@ const ContactPage: React.FC = () => {
       </Box>
 
       {/* Office Locations Section */}
-      <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
+      {/* <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="xl">
           <Stack gap="xl" ref={officesRef}>
             <Box ta="center" mb={40}>
@@ -601,7 +601,7 @@ const ContactPage: React.FC = () => {
             </Grid>
           </Stack>
         </Container>
-      </Box>
+      </Box> */}
     </Box>
   );
 };
