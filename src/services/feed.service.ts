@@ -38,22 +38,33 @@ export interface ApiResponse<T> {
 // API Response types - simplified to match backend response
 interface ApiPost {
   _id: string;
+  title?: string;
   content: string;
   author: {
     _id: string;
     firstName: string;
     lastName: string;
     email: string;
-    profileImage?: string;
+    profilePicture?: string;
     verified?: boolean;
   };
   images?: string[];
+  videos?: string[];
   createdAt: string;
   updatedAt: string;
   likes?: string[];
+  likedBy?: string[];
+  likesCount?: number;
   comments?: Array<{ _id: string; content: string; author: string; createdAt: string }>;
-  college?: string;
-  categories?: string[];
+  college?: {
+    _id: string;
+    name: string;
+  };
+  tags?: string[];
+  isPublished?: boolean;
+  isArchived?: boolean;
+  isPostedToInstagram?: boolean;
+  allowComments?: boolean;
 }
 
 interface GetAllPostsApiResponse {
@@ -74,16 +85,17 @@ class FeedService {
   private transformApiPost(apiPost: ApiPost): Post {
     return {
       id: apiPost._id,
+      title: apiPost.title,
       content: apiPost.content,
       author: {
         id: apiPost.author._id,
         name: `${apiPost.author.firstName} ${apiPost.author.lastName}`,
-        avatar: apiPost.author.profileImage || '',
+        avatar: apiPost.author.profilePicture || '',
         verified: apiPost.author.verified || false,
       },
       timestamp: new Date(apiPost.createdAt),
       images: apiPost.images,
-      likes: apiPost.likes?.length || 0,
+      likes: apiPost.likesCount || apiPost.likes?.length || 0,
       comments: apiPost.comments?.length || 0,
       shares: 0,
       isLiked: false,
@@ -212,6 +224,142 @@ class FeedService {
       };
     } catch (error) {
       console.error('Feed Service Error:', error);
+      throw error;
+    }
+  }
+
+  // Fetch current user's posts - API returns single post, not array
+  async fetchUserPosts(params: { page?: number; limit?: number } = {}): Promise<ApiResponse<FetchPostsResponse>> {
+    console.log('FeedService: fetchUserPosts called with params:', params);
+    
+    try {
+      const queryParams: Record<string, string> = {};
+      if (params.page) queryParams.page = params.page.toString();
+      if (params.limit) queryParams.limit = params.limit.toString();
+      
+      console.log('FeedService: Making API request to:', API_ENDPOINTS.posts.getUserPosts);
+      console.log('FeedService: Query params:', queryParams);
+
+      const response = await request<ApiPost>({
+        method: 'GET',
+        url: API_ENDPOINTS.posts.getUserPosts,
+        params: queryParams,
+      });
+
+      console.log('FeedService: Raw API response:', response);
+
+      if (!response.status) {
+        throw new Error(response.message || 'Failed to fetch user posts');
+      }
+
+      // Transform single post to array
+      const transformedPost = this.transformApiPost(response.data);
+      const transformedPosts = [transformedPost];
+
+      console.log("FeedService: Transformed single user post:", transformedPost);
+
+      return {
+        data: {
+          posts: transformedPosts,
+          limit: 1,
+          totalDocs: 1,
+          page: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPrevPage: false,
+          nextPage: 1,
+          prevPage: null
+        },
+        status: true,
+        message: response.message || `Successfully fetched user post`
+      };
+
+    } catch (error) {
+      console.error('FeedService: Error during fetchUserPosts:', error);
+      throw error;
+    }
+  }
+
+  // Update a post - matches CreatePostDto structure
+  async updatePost(postId: string, updateData: { title: string; content?: string; images?: string[] }): Promise<ApiResponse<Post>> {
+        
+    try {
+      const response = await request<ApiPost>({
+        method: 'PATCH',
+        url: API_ENDPOINTS.posts.updatePost(postId),
+        data: updateData,
+      });
+
+      if (!response.status) {
+        throw new Error(response.message || 'Failed to update post');
+      }
+
+      const transformedPost = this.transformApiPost(response.data);
+
+      return {
+        data: transformedPost,
+        status: true,
+        message: response.message || 'Post updated successfully'
+      };
+
+    } catch (error) {
+      console.error('FeedService: Error during updatePost:', error);
+      throw error;
+    }
+  }
+
+  // Boost a post
+  async boostPost(postId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    console.log('FeedService: boostPost called with postId:', postId);
+    
+    try {
+      const response = await request<{ success: boolean; message: string }>({
+        method: 'PATCH',
+        url: API_ENDPOINTS.posts.boostPost(postId),
+      });
+
+      console.log('FeedService: Boost post response:', response);
+
+      if (!response.status) {
+        throw new Error(response.message || 'Failed to boost post');
+      }
+
+      return {
+        data: response.data,
+        status: true,
+        message: response.message || 'Post boosted successfully'
+      };
+
+    } catch (error) {
+      console.error('FeedService: Error during boostPost:', error);
+      throw error;
+    }
+  }
+
+  // Delete a post
+  async deletePost(postId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
+    console.log('FeedService: deletePost called with postId:', postId);
+    
+    try {
+      const response = await request<{ success: boolean; message: string }>({
+        method: 'DELETE',
+        url: API_ENDPOINTS.posts.deletePost(postId),
+      });
+
+      console.log('FeedService: Delete post response:', response);
+
+      if (!response.status) {
+        throw new Error(response.message || 'Failed to delete post');
+      }
+
+      return {
+        data: response.data,
+        status: true,
+        message: response.message || 'Post deleted successfully'
+      };
+
+    } catch (error) {
+      console.error('FeedService: Error during deletePost:', error);
       throw error;
     }
   }

@@ -1,88 +1,71 @@
 import React, { useState, useRef } from 'react';
-import { 
-  Paper, 
-  Avatar, 
-  Text, 
-  Group, 
-  Image, 
+import {
   Box,
-  SimpleGrid,
-  Overlay,
+  Stack,
+  Text,
+  Button,
+  Paper,
+  Skeleton,
+  Center,
+  Group,
   ActionIcon,
   Menu,
   Modal,
-  TextInput,
   Textarea,
-  Button,
-  Stack,
-  LoadingOverlay,
+  useMantineTheme,
   rem,
+  LoadingOverlay,
+  SimpleGrid,
+  Image,
 } from '@mantine/core';
 import { 
+  IconPhoto, 
   IconDots, 
   IconEdit, 
-  IconCheck, 
-  IconX,
-  IconUpload,
+  IconRocket, 
   IconPlus,
+  IconCheck,
+  IconX,
+  IconSparkles,
+  IconUpload,
 } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
-import { formatDistanceToNow } from 'date-fns';
-import { useNavigate } from 'react-router';
-import { useAuthStore } from '../../../store/auth.store';
-import { useUpdatePost } from '../../../hooks/api/usePosts';
+import { modals } from '@mantine/modals';
+import { useUserPosts, useUpdatePost, useBoostPost } from '../../../hooks/api';
 import { 
   useUploadMultipleImages, 
   createImageFormData, 
   validateImageFiles 
 } from '../../../hooks/api/useImageUpload';
 import { showSuccess, showError } from '../../../utils';
+import PostCard from '../../feed/components/PostCard';
+import type { Post } from '../../feed/components/PostCard';
+import { glassCardStyles } from '../utils/glassStyles';
 import ImageCropModal from '../../../pages/ProfileCompletion/components/ImageCropModal';
 
-export interface Post {
-  id: string;
-  title?: string;
-  author: {
-    id: string;
-    name: string;
-    avatar: string;
-    verified?: boolean;
-  };
-  content: string;
-  images?: string[];
-  timestamp: Date;
-  likes: number;
-  comments: number;
-  shares: number;
-  isLiked: boolean;
-}
 
-interface PostCardProps {
-  post: Post;
-}
-
-const PostCard: React.FC<PostCardProps> = ({ post }) => {
-  const navigate = useNavigate();
-  const { user } = useAuthStore();
-  const updatePostMutation = useUpdatePost();
-  const uploadImagesMutation = useUploadMultipleImages();
+const MyPostsTab: React.FC = () => {
+  const theme = useMantineTheme();
   const [editModalOpened, setEditModalOpened] = useState(false);
+  const [currentEditPost, setCurrentEditPost] = useState<Post | null>(null);
   const [cropModalOpened, setCropModalOpened] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const formattedTime = formatDistanceToNow(new Date(post.timestamp), { addSuffix: true });
   
-  // Check if current user is the author of this post
-  const isAuthor = user?.id === post.author.id;
-  
-  // Form for editing post
+  // Hooks for API operations
+  const { data: userPostsResponse, isLoading, error, refetch } = useUserPosts({ page: 1, limit: 50 });
+  const updatePostMutation = useUpdatePost();
+  const uploadImagesMutation = useUploadMultipleImages();
+  const boostPostMutation = useBoostPost();
+
+  // Form for editing posts
   const editForm = useForm({
     initialValues: {
-      title: post.title || '',
-      content: post.content || '',
+      title: '',
+      content: '',
     },
     validate: {
       title: (value) => (value.trim().length < 3 ? 'Title must be at least 3 characters long' : null),
@@ -90,23 +73,14 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     },
   });
 
-  // Handle navigation to student profile
-  const handleProfileClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate(`/profile/student/${post.author.id}`);
-  };
-
-  // Handle post content click
-  const handlePostClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigate(`/profile/student/${post.author.id}`);
-  };
+  const posts = userPostsResponse?.data?.posts || [];
 
   // Handle edit post
-  const handleEditPost = () => {
-    editForm.setValues({
+  const handleEditPost = (post: Post) => {
+    setCurrentEditPost(post);
+    editForm.setValues({ 
       title: post.title || '',
-      content: post.content || '',
+      content: post.content 
     });
     // Initialize with empty preview images - only show new images
     setPreviewImages([]);
@@ -205,6 +179,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
 
   // Handle save edit
   const handleSaveEdit = async (values: { title: string; content: string }) => {
+    if (!currentEditPost) return;
+
     try {
       let finalImages: string[] = [];
 
@@ -218,17 +194,18 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           finalImages = uploadResponse.data;
         }
       }
-
+      console.log("finalImages",finalImages);
+      
       await updatePostMutation.mutateAsync({
-        postId: post.id,
-        updateData: {
+        postId: currentEditPost.id,
+        updateData: { 
           title: values.title,
           content: values.content,
-          images: finalImages,
+          images: finalImages
         }
       });
-      
       setEditModalOpened(false);
+      setCurrentEditPost(null);
       setPreviewImages([]);
       setSelectedFiles([]);
       editForm.reset();
@@ -238,270 +215,191 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       showError('Failed to update post. Please try again.');
     }
   };
-  
-  // Function to determine grid layout based on number of images
-  const getImageGridProps = (imageCount: number) => {
-    if (imageCount === 1) {
-      return { cols: 1 };
-    } else if (imageCount === 2) {
-      return { cols: 2 };
-    } else if (imageCount === 3) {
-      return { cols: { base: 1, sm: 2 } }; // 1 on mobile, 2 on larger screens
-    } else {
-      return { cols: { base: 2, sm: 2 } }; // 2x2 grid
-    }
+
+  // Handle boost post
+  const handleBoostPost = async (postId: string) => {
+    modals.openConfirmModal({
+      title: 'Boost Post',
+      children: (
+        <Text size="sm">
+          Are you sure you want to boost this post? This will increase its visibility in the feed.
+        </Text>
+      ),
+      labels: { confirm: 'Boost Post', cancel: 'Cancel' },
+      confirmProps: { color: 'blue', leftSection: <IconRocket size={16} /> },
+      onConfirm: () => boostPostMutation.mutate(postId),
+    });
   };
 
-  // Function to render images with optimized loading
-  const renderImages = () => {
-    if (!post.images || post.images.length === 0) return null;
 
-    const imageCount = post.images.length;
-    const maxDisplayImages = 4;
-    const imagesToShow = imageCount > maxDisplayImages ? maxDisplayImages : imageCount;
-    const remainingImages = imageCount - 3;
 
-    if (imageCount === 1) {
-      return (
-        <Box       style={{
-        transform: 'translate3d(0,0,0)',
-        WebkitTransform: 'translate3d(0,0,0)',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        perspective: '1000px',
-        WebkitPerspective: '1000px',
-        willChange: 'transform',
-        backgroundColor: 'rgba(15, 23, 42, 0.6)',
-        backdropFilter: 'blur(10px)',
-        border: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-          <Image
-            src={post.images[0]}
-            alt="Post image"
-            radius="md"
-            fit="cover"
-            style={{ 
-              maxHeight: '400px',
-              WebkitBackfaceVisibility: 'hidden'
-            }}
-            loading="lazy"
-          />
-        </Box>
-      );
-    }
-
-    return (
-      <SimpleGrid
-        {...getImageGridProps(imagesToShow)}
-        spacing="xs"
-      >
-        {post.images.slice(0, imagesToShow).map((imageUrl, index) => {
-          const isLastImage = index === imagesToShow - 1;
-          const shouldShowOverlay = isLastImage && imageCount > maxDisplayImages;
-          
-          return (
-            <Box 
-              key={index} 
-              style={{ 
-                position: 'relative',
-                transform: 'translate3d(0,0,0)',
-                WebkitTransform: 'translate3d(0,0,0)',
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-                perspective: '1000px',
-                WebkitPerspective: '1000px',
-                willChange: 'transform'
-              }}
-            >
-              <Image
-                src={imageUrl}
-                alt={`Post image ${index + 1}`}
-                radius="md"
-                fit="cover"
-                style={{ 
-                  height: imageCount === 2 ? '200px' : '150px',
-                  width: '100%',
-                  WebkitBackfaceVisibility: 'hidden'
-                }}
-                loading="lazy"
-              />
-              {shouldShowOverlay && (
-                <Overlay
-                  color="#000"
-                  opacity={0.6}
-                  radius="md"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    cursor: 'pointer',
-                    transform: 'translate3d(0,0,0)',
-                    WebkitTransform: 'translate3d(0,0,0)',
-                    backfaceVisibility: 'hidden',
-                    WebkitBackfaceVisibility: 'hidden'
-                  }}
-                >
-                  <Text
-                    size="lg"
-                    fw={600}
-                    c="white"
-                    style={{ fontSize: '1.5rem' }}
-                  >
-                    +{remainingImages}
-                  </Text>
-                </Overlay>
-              )}
-            </Box>
-          );
-        })}
-      </SimpleGrid>
-    );
-  };
-  
-  return (
-    <>
-      <Paper 
-        shadow="sm" 
-        p="md" 
-        radius="md" 
-        withBorder 
-        mb="md"
-        style={{
-          transform: 'translate3d(0,0,0)',
-          WebkitTransform: 'translate3d(0,0,0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          perspective: '1000px',
-          WebkitPerspective: '1000px',
-          willChange: 'transform',
-          backgroundColor: 'rgba(15, 23, 42, 0.6)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-        }}
-      >
-      {/* Post Header */}
-      <Group justify="space-between" mb="md">
-        <Group>
-          <Avatar 
-            src={post.author.avatar} 
-            alt={post.author.name} 
-            radius="xl"
-            onClick={handleProfileClick}
-            style={{
-              WebkitBackfaceVisibility: 'hidden',
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'scale(1.05)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-          />
-          <Box 
-            onClick={handleProfileClick} 
-            style={{ 
-              cursor: 'pointer',
-              transition: 'opacity 0.2s ease',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.8';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-            }}
-          >
-            <Group gap={5}>
-              <Text fw={600} size="sm" c="white">{post.author.name}</Text>
-              {post.author.verified && (
-                <Text size="xs" c="blue">✓</Text>
-              )}
-            </Group>
-            <Text size="xs" c="dimmed">{formattedTime}</Text>
-          </Box>
-        </Group>
-        
-        {/* Edit button - only show for post author */}
-        {isAuthor && (
-          <Menu shadow="md" width={200} position="bottom-end" withinPortal>
-            <Menu.Target>
-              <ActionIcon
-                variant="filled"
-                color="dark"
-                size="lg"
-                radius="xl"
-                style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                  backdropFilter: 'blur(10px)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
-              >
-                <IconDots size={18} />
-              </ActionIcon>
-            </Menu.Target>
-
-            <Menu.Dropdown
+  // Enhanced PostCard with edit/boost/delete actions
+  const EnhancedPostCard: React.FC<{ post: Post }> = ({ post }) => (
+    <Box style={{ position: 'relative' }}>
+      <PostCard post={post} />
+      
+             {/* Action buttons overlay */}
+       <Box
+         style={{
+           position: 'absolute',
+           top: rem(16),
+           right: rem(16),
+           zIndex: 10,
+         }}
+       >
+         <Menu shadow="md" width={200} position="bottom-end" withinPortal>
+          <Menu.Target>
+            <ActionIcon
+              variant="filled"
+              color="dark"
+              size="lg"
+              radius="xl"
               style={{
-                backgroundColor: 'rgba(15, 23, 42, 0.95)',
-                backdropFilter: 'blur(20px)',
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
               }}
             >
-              <Menu.Item
-                leftSection={<IconEdit size={16} />}
-                onClick={handleEditPost}
-                style={{ color: 'white' }}
-              >
-                Edit Post
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        )}
-      </Group>
-      
-      {/* Post Content - Clickable */}
-      <Box 
-        onClick={handlePostClick} 
-        style={{ 
-          cursor: 'pointer',
-          transition: 'background-color 0.2s ease, transform 0.2s ease',
-          borderRadius: '8px',
-          padding: '8px',
-          margin: '-8px',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-          e.currentTarget.style.transform = 'translateY(-1px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = 'transparent';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }}
-      >
-        {/* Post Title */}
-        {post.title && (
-          <Text fw={600} size="lg" c="white" mb="sm">
-            {post.title}
-          </Text>
-        )}
-        
-        <Text mb="md" c="white">{post.content}</Text>
-        
-        {/* Post Images */}
-        {post.images && post.images.length > 0 && (
-          <Box mb="md">
-            {renderImages()}
+              <IconDots size={18} />
+            </ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown
+            style={{
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              backdropFilter: 'blur(20px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            <Menu.Item
+              leftSection={<IconEdit size={16} />}
+              onClick={() => handleEditPost(post)}
+              c={"white"}
+            >
+              Edit Post
+            </Menu.Item>
+            
+            <Menu.Item
+              leftSection={<IconRocket size={16} />}
+              onClick={() => handleBoostPost(post.id)}
+              style={{ color: '#3b82f6' }}
+              disabled={boostPostMutation.isPending}
+            >
+              Boost Post
+            </Menu.Item>
+            
+            <Menu.Divider style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
+          
+          </Menu.Dropdown>
+        </Menu>
+      </Box>
+    </Box>
+  );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
+        <Stack gap="md">
+          {Array(3).fill(0).map((_, index) => (
+            <Paper key={index} p="md" radius="md" withBorder style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
+              <Group mb="md">
+                <Skeleton height={40} circle />
+                <Box style={{ flex: 1 }}>
+                  <Skeleton height={12} width="40%" mb="xs" />
+                  <Skeleton height={10} width="20%" />
+                </Box>
+              </Group>
+              <Skeleton height={12} mb="xs" />
+              <Skeleton height={12} mb="xs" />
+              <Skeleton height={12} width="80%" mb="md" />
+              <Skeleton height={200} />
+            </Paper>
+          ))}
+        </Stack>
+      </Box>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
+        <Center py="xl">
+          <Stack align="center" gap="md">
+            <Text size="lg" c="red">Failed to load your posts</Text>
+            <Text size="sm" c="dimmed" ta="center">
+              There was an error loading your posts. Please try again.
+            </Text>
+            <Button variant="light" color="blue" onClick={() => refetch()}>
+              Try Again
+            </Button>
+          </Stack>
+        </Center>
+      </Box>
+    );
+  }
+
+  return (
+    <>
+      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
+        {/* Header */}
+        <Group justify="space-between" mb="xl" style={{ flexWrap: 'wrap', gap: rem(16) }}>
+          <Box style={{ flex: '1', minWidth: rem(200) }}>
+            <Group gap="md" align="center" style={{ flexWrap: 'wrap' }}>
+              <IconPhoto size={24} color={theme.colors.blue[4]} />
+              <Text size="xl" fw={600} c="white">
+                My Post
+              </Text>
+              {/* <Badge variant="light" color="blue" size="lg">
+                {posts.length}
+              </Badge> */}
+            </Group>
+            <Text size="sm" c="dimmed" mt="xs">
+              Manage your post and boost visibility, 
+            </Text>
           </Box>
+        </Group>
+
+        {/* Posts List */}
+        {posts.length > 0 ? (
+          <Stack gap="lg">
+            {posts.map((post) => (
+              <EnhancedPostCard key={post.id} post={post} />
+            ))}
+          </Stack>
+        ) : (
+          <Center py="xl">
+            <Stack align="center" gap="md" style={{ maxWidth: rem(400) }}>
+              <Box
+                style={{
+                  padding: rem(32),
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                  border: '2px dashed rgba(59, 130, 246, 0.3)',
+                }}
+              >
+                <IconSparkles size={48} color={theme.colors.blue[4]} />
+              </Box>
+              
+              <Text size="xl" fw={600} c="white" ta="center">
+                No posts yet
+              </Text>
+              
+              <Text size="sm" c="dimmed" ta="center">
+                You haven't created any posts yet. Share your thoughts, photos, or updates with your classmates to get started.
+              </Text>
+            </Stack>
+          </Center>
         )}
       </Box>
-      </Paper>
-      
+
       {/* Edit Post Modal */}
       <Modal
         opened={editModalOpened}
         onClose={() => {
           setEditModalOpened(false);
+          setCurrentEditPost(null);
           setPreviewImages([]);
           setSelectedFiles([]);
           editForm.reset();
@@ -509,6 +407,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         title="Edit Post"
         size="xl"
         centered
+        fullScreen={false}
+        withCloseButton
         styles={{
           content: {
             background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
@@ -545,26 +445,25 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         
         <form onSubmit={editForm.onSubmit(handleSaveEdit)}>
           <Stack gap="md">
-            <TextInput
+            <Textarea
               label="Post Title"
-              placeholder="Enter a title for your post"
+              placeholder="Enter post title"
+              minRows={1}
+              maxRows={3}
+              autosize
               {...editForm.getInputProps('title')}
               styles={{
-                label: { color: 'white', marginBottom: '8px' },
+                label: { color: 'white', marginBottom: rem(8) },
                 input: {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: 'white',
                   '&:focus': {
-                    borderColor: '#3b82f6',
-                  },
-                  '&::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    borderColor: theme.colors.blue[4],
                   },
                 },
               }}
             />
-            
             <Textarea
               label="Post Content"
               placeholder="What's on your mind?"
@@ -572,16 +471,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               maxRows={8}
               {...editForm.getInputProps('content')}
               styles={{
-                label: { color: 'white', marginBottom: '8px' },
+                label: { color: 'white', marginBottom: rem(8) },
                 input: {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
                   color: 'white',
                   '&:focus': {
-                    borderColor: '#3b82f6',
-                  },
-                  '&::placeholder': {
-                    color: 'rgba(255, 255, 255, 0.5)',
+                    borderColor: theme.colors.blue[4],
                   },
                 },
               }}
@@ -688,6 +584,7 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
                 color="gray"
                 onClick={() => {
                   setEditModalOpened(false);
+                  setCurrentEditPost(null);
                   setPreviewImages([]);
                   setSelectedFiles([]);
                   editForm.reset();
@@ -722,4 +619,4 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   );
 };
 
-export default PostCard;
+export default MyPostsTab; 

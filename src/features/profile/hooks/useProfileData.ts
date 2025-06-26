@@ -51,8 +51,8 @@ export const useProfileData = () => {
       return;
     }
     
-    // Use the user data directly as profileData
-    setProfileData(user);
+   /* eslint-disable  @typescript-eslint/no-explicit-any */
+    setProfileData((user as unknown as any).user);
     
     const timer = setTimeout(() => {
       setIsLoading(false);

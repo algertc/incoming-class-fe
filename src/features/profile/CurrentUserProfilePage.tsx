@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import {
   Container,
   Stack,
@@ -11,9 +11,13 @@ import { useProfileData, useProfileEditing } from './hooks';
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
+const ModernTabNavigation = lazy(() => import('./components/ModernTabNavigation'));
 const ProfileOverviewTab = lazy(() => import('./components/ProfileOverviewTab'));
+const MyPostsTab = lazy(() => import('./components/MyPostsTab'));
 
 const CurrentUserProfilePage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<string>('overview');
+  
   // Custom hooks for data and editing logic
   const { profileData, setProfileData, user } = useProfileData();
   const {
@@ -77,6 +81,8 @@ const CurrentUserProfilePage: React.FC = () => {
     );
   }
 
+  console.log("ptroflifleDapt",profileData);
+  
   // Compute derived values from User data
   const fullName = profileData.firstName && profileData.lastName 
     ? `${profileData.firstName} ${profileData.lastName}` 
@@ -110,7 +116,16 @@ const CurrentUserProfilePage: React.FC = () => {
           />
         </Suspense>
         
-        {/* Profile Overview Content */}
+        {/* Modern Tab Navigation */}
+        <Suspense fallback={<Skeleton height={50} radius="xl" mb="md" />}>
+          <ModernTabNavigation
+            activeTab={activeTab}
+            onTabChange={(value) => setActiveTab(value as string)}
+          />
+        </Suspense>
+        
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
         <Suspense fallback={
           <Stack gap="md">
             <Skeleton height={200} radius="xl" />
@@ -131,6 +146,20 @@ const CurrentUserProfilePage: React.FC = () => {
             handleSaveContact={handleSaveContact}
           />
         </Suspense>
+        )}
+        
+        {activeTab === 'posts' && (
+          <Suspense fallback={
+            <Stack gap="md">
+              <Skeleton height={200} radius="xl" />
+              <Skeleton height={200} radius="xl" />
+            </Stack>
+          }>
+            <MyPostsTab
+               
+            />
+          </Suspense>
+        )}
       </Container>
 
       <style>{`

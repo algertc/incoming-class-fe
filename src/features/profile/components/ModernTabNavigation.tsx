@@ -64,7 +64,7 @@ const ModernTabNavigation: React.FC<ModernTabNavigationProps> = ({
               transition: 'all 0.3s ease',
             }}
           >
-            Posts
+            My Posts
           </Tabs.Tab>
         </Tabs.List>
       </Tabs>

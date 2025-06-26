@@ -57,3 +57,13 @@ export {
 // Testimonials hooks
 export * from './useTestimonials';
 export * from './useStats'; 
+
+// Post hooks
+export {
+  useUserPosts,
+  useUpdatePost,
+  useBoostPost,
+  useDeletePost,
+  usePost,
+  postKeys
+} from './usePosts'; 

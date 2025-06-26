@@ -10,9 +10,9 @@ const LoginPage: React.FC = () => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-      }}
-    >
-      <LoginForm />
+        }}
+      >
+        <LoginForm />
     </Box>
   );
 };

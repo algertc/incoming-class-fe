@@ -8,11 +8,8 @@ import { authKeys } from './useAuth';
 /**
  * Response interface for image upload
  */
-interface ImageUploadResponse {
-  images: string[];
-  profilePicture?: string;
-  message: string;
-}
+type ImageUploadResponse =string[];
+
 
 /**
  * Hook for uploading multiple user images
@@ -89,8 +86,8 @@ export const useUploadMultipleImages = () => {
               ...currentUser,
               data: {
                 ...currentUser.data,
-                images: data.data.images,
-                profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
+                // images: data.data.images,
+                // profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
               },
             };
           }
@@ -255,7 +252,7 @@ export const useUploadProfilePicture = () => {
               ...currentUser,
               data: {
                 ...currentUser.data,
-                profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
+                // profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
               },
             };
           }

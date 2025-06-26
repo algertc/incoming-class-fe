@@ -14,10 +14,10 @@ const ForgotPasswordPage: React.FC = () => {
       style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center',
-      }}
-    >
-      {isResetStep ? <ForgotPasswordReset /> : <ForgotPasswordRequest />}
+          justifyContent: 'center',
+        }}
+      >
+        {isResetStep ? <ForgotPasswordReset /> : <ForgotPasswordRequest />}
     </Box>
   )
 }

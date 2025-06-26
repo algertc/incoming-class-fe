@@ -63,6 +63,13 @@ const ProfilePostCard: React.FC<ProfilePostCardProps> = ({ post }) => {
       </Group>
       
       {/* Post Content */}
+      {/* Post Title */}
+      {post.title && (
+        <Text fw={600} size="lg" mb="sm">
+          {post.title}
+        </Text>
+      )}
+      
       <Text mb="md">{post.content}</Text>
       
       {/* Post Images */}

@@ -116,7 +116,7 @@ export const FeaturedSection: React.FC = () => {
                   <TestimonialCard
                     content={testimonial.message}
                     author={testimonial.user.firstName + " " + testimonial.user.lastName}
-                    title={`${testimonial.user.major} at ${testimonial.user.college.name}`}
+                    title={`${testimonial.user.major} at ${"testimonial.user.college.name"}`}
                     avatar={testimonial.user.profilePicture || `https://i.pravatar.cc/150?u=${testimonial.id}`}
                   />
                 </Grid.Col>

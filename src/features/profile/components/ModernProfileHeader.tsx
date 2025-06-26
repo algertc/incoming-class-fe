@@ -16,7 +16,6 @@ import {
   IconCopy,
   IconMapPin,
   IconCamera,
-  IconSchool as IconGraduation,
   IconSparkles,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -276,16 +275,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               >
                 <IconCopy style={{ width: rem(14), height: rem(14) }} />
               </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                color="white"
-                component="a"
-                href="#academic-info"
-                size="sm"
-                title="View academic info"
-              >
-                <IconGraduation style={{ width: rem(14), height: rem(14) }} />
-              </ActionIcon>
+             
             </Group>
           </Stack>
 

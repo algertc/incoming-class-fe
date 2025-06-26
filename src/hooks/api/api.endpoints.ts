@@ -44,6 +44,10 @@ const API_ENDPOINTS = {
     byUser: (userId: string) => `/posts/user/${userId}`,
     comments: (postId: string) => `/posts/${postId}/comments`,
     getAllPosts: '/post/getAllPosts',
+    getUserPosts: '/post/my-post',
+    updatePost: (postId: string) => `/post/updatePostById/${postId}`,
+    boostPost: (postId: string) => `/post/bump/${postId}`,
+    deletePost: (postId: string) => `/posts/${postId}`,
   },
 
   payment: {

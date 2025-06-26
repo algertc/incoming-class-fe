@@ -10,9 +10,9 @@ const SignupPage: React.FC = () => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-      }}
-    >
-      <SignupForm />
+        }}
+      >
+        <SignupForm />
     </Box>
   );
 };

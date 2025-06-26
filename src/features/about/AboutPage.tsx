@@ -30,33 +30,7 @@ import { useLandingPageStats } from '../../hooks/api/useStats';
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
-// Team member data
-const teamMembers = [
-  {
-    name: "Alex Johnson",
-    role: "Founder & CEO",
-    bio: "Former Stanford student who wished he had a platform like this during college.",
-    icon: "🚀"
-  },
-  {
-    name: "Sarah Chen",
-    role: "Head of Product",
-    bio: "MIT graduate passionate about building meaningful connections in college.",
-    icon: "💡"
-  },
-  {
-    name: "Mike Rodriguez",
-    role: "Engineering Lead",
-    bio: "Berkeley alum focused on creating seamless user experiences.",
-    icon: "⚡"
-  },
-  {
-    name: "Emma Thompson",
-    role: "Community Manager",
-    bio: "Harvard graduate dedicated to fostering inclusive college communities.",
-    icon: "🌟"
-  }
-];
+
 
 // Mission values data
 const values = [

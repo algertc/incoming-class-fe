@@ -7,8 +7,6 @@ import {
   Stack,
   Grid,
   Paper,
-  Group,
-  ThemeIcon,
   useMantineTheme,
   Badge,
   TextInput,
@@ -17,12 +15,12 @@ import {
   Select,
 } from '@mantine/core';
 import { 
-  IconMail, 
-  IconPhone, 
+  
+  
   IconSend,
   IconCheck,
-  IconHeadphones,
-  IconMessageCircle
+  
+  
 } from '@tabler/icons-react';
 import { useForm, yupResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';
@@ -34,38 +32,6 @@ import { contactSchema, contactInitialValues } from '../../forms';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
-
-// Contact methods data
-const contactMethods = [
-  {
-    icon: IconMail,
-    title: "Email Support",
-    description: "Get help via email within 24 hours",
-    value: "support@incomingclass.com",
-    action: "mailto:support@incomingclass.com"
-  },
-  {
-    icon: IconPhone,
-    title: "Phone Support",
-    description: "Speak with our team directly",
-    value: "+1 (555) 123-4567",
-    action: "tel:+15551234567"
-  },
-  {
-    icon: IconMessageCircle,
-    title: "Live Chat",
-    description: "Chat with us in real-time",
-    value: "Available 9 AM - 6 PM EST",
-    action: "#"
-  },
-  {
-    icon: IconHeadphones,
-    title: "Support Center",
-    description: "Browse our knowledge base",
-    value: "Visit Help Center",
-    action: "/help"
-  }
-];
 
 // Support categories
 const supportCategories = [
@@ -79,19 +45,6 @@ const supportCategories = [
   "Feature Request"
 ];
 
-// Office locations
-const offices = [
-  {
-    city: "San Francisco",
-    address: "123 Tech Street, Suite 100\nSan Francisco, CA 94105",
-    hours: "Monday - Friday\n9:00 AM - 6:00 PM PST"
-  },
-  {
-    city: "New York",
-    address: "456 Innovation Ave, Floor 15\nNew York, NY 10001", 
-    hours: "Monday - Friday\n9:00 AM - 6:00 PM EST"
-  }
-];
 
 const ContactPage: React.FC = () => {
   const theme = useMantineTheme();

@@ -118,15 +118,15 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
         />
 
         {/* Logo at the top - show on both mobile and desktop */}
-        <Flex
-          justify={"center"}
+          <Flex
+            justify={"center"}
           mb={isMobile ? 20 : 40}
-          style={{
-            zIndex: 2,
-          }}
-        >
-          <Logo darkMode />
-        </Flex>
+            style={{
+              zIndex: 2,
+            }}
+          >
+            <Logo darkMode />
+          </Flex>
 
         {/* Form content */}
         <Box
