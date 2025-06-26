@@ -7,15 +7,16 @@ import {
 } from '@mantine/core';
 import {
   IconUser,
+  IconPhoto,
 } from '@tabler/icons-react';
 import { glassCardStyles } from '../utils/glassStyles';
 
-interface ModernTabNavigationProps {
+interface CurrentUserTabNavigationProps {
   activeTab: string;
   onTabChange: (value: string | null) => void;
 }
 
-const ModernTabNavigation: React.FC<ModernTabNavigationProps> = ({
+const CurrentUserTabNavigation: React.FC<CurrentUserTabNavigationProps> = ({
   activeTab,
   onTabChange,
 }) => {
@@ -51,10 +52,24 @@ const ModernTabNavigation: React.FC<ModernTabNavigationProps> = ({
           >
             Overview
           </Tabs.Tab>
+          <Tabs.Tab 
+            value="posts" 
+            leftSection={<IconPhoto size={16} />}
+            style={{
+              fontWeight: 600,
+              color: activeTab === 'posts' ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              backgroundColor: activeTab === 'posts' ? 'rgba(59, 130, 246, 0.8)' : 'transparent',
+              backdropFilter: activeTab === 'posts' ? 'blur(10px)' : 'none',
+              borderRadius: rem(8),
+              transition: 'all 0.3s ease',
+            }}
+          >
+            My Posts
+          </Tabs.Tab>
         </Tabs.List>
       </Tabs>
     </Paper>
   );
 };
 
-export default ModernTabNavigation; 
+export default CurrentUserTabNavigation; 

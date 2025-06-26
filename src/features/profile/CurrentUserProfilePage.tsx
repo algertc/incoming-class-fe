@@ -11,7 +11,7 @@ import { useProfileData, useProfileEditing } from './hooks';
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
-const ModernTabNavigation = lazy(() => import('./components/ModernTabNavigation'));
+const CurrentUserTabNavigation = lazy(() => import('./components/CurrentUserTabNavigation'));
 const ProfileOverviewTab = lazy(() => import('./components/ProfileOverviewTab'));
 const MyPostsTab = lazy(() => import('./components/MyPostsTab'));
 
@@ -118,7 +118,7 @@ const CurrentUserProfilePage: React.FC = () => {
         
         {/* Modern Tab Navigation */}
         <Suspense fallback={<Skeleton height={50} radius="xl" mb="md" />}>
-          <ModernTabNavigation
+          <CurrentUserTabNavigation
             activeTab={activeTab}
             onTabChange={(value) => setActiveTab(value as string)}
           />

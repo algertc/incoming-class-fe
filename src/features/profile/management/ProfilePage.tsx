@@ -20,29 +20,19 @@ import { useForm } from '@mantine/form';
 import { IconUser, IconSchool, IconBriefcase, IconSettings, IconPencil, IconUpload } from '@tabler/icons-react';
 import { useAuthStore } from '../../../store/auth.store';
 
-interface ExtendedUser {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  bio?: string;
-  profileImage?: string;
-  collegeName?: string;
-}
-
 const ProfilePage: React.FC = () => {
   const { user } = useAuthStore();
-  const extendedUser = user as ExtendedUser;
   const [activeTab, setActiveTab] = useState<string | null>('personal');
 
   const form = useForm({
     initialValues: {
-      firstName: extendedUser?.firstName || '',
-      lastName: extendedUser?.lastName || '',
-      email: extendedUser?.email || '',
-      bio: extendedUser?.bio || '',
+      firstName: user?.firstName || '',
+      lastName: user?.lastName || '',
+      email: user?.email || '',
+      bio: user?.bio || '',
       location: '',
       phoneNumber: '',
-      collegeName: extendedUser?.collegeName || '',
+      collegeName: (typeof user?.college === 'object' && user?.college?.name) || '',
       major: '',
       graduationYear: '',
       gpa: '',
@@ -75,16 +65,16 @@ const ProfilePage: React.FC = () => {
           <Group justify="space-between">
             <Group>
               <Avatar 
-                src={extendedUser?.profileImage || "https://i.pravatar.cc/150?img=10"} 
+                src={user?.profilePicture || "https://i.pravatar.cc/150?img=10"} 
                 size={100} 
                 radius={100}
                 style={{ border: '3px solid white' }}
               />
               <Box>
-                <Title order={2}>{extendedUser?.firstName} {extendedUser?.lastName}</Title>
-                <Text>{extendedUser?.email}</Text>
-                {extendedUser?.collegeName && (
-                  <Text size="sm">Student at {extendedUser?.collegeName}</Text>
+                <Title order={2}>{user?.firstName} {user?.lastName}</Title>
+                <Text>{user?.email}</Text>
+                {(typeof user?.college === 'object' && user?.college?.name) && (
+                  <Text size="sm">Student at {typeof user?.college === 'object' && user?.college?.name}</Text>
                 )}
               </Box>
             </Group>
@@ -127,7 +117,7 @@ const ProfilePage: React.FC = () => {
                     <Group justify="center" mb="lg">
                       <Box style={{ textAlign: 'center' }}>
                         <Avatar 
-                          src={extendedUser?.profileImage || "https://i.pravatar.cc/150?img=10"} 
+                          src={user?.profilePicture || "https://i.pravatar.cc/150?img=10"} 
                           size={120} 
                           radius={120}
                           mb="sm"

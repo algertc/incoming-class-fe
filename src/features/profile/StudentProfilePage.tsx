@@ -17,14 +17,13 @@ import { glassCardStyles } from './utils/glassStyles';
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
 const ModernTabNavigation = lazy(() => import('./components/ModernTabNavigation'));
 const StudentProfileOverviewTab = lazy(() => import('./components/StudentProfileOverviewTab'));
-const PostsTab = lazy(() => import('./components/PostsTab'));
 
 const StudentProfilePage: React.FC = () => {
   const theme = useMantineTheme();
   const [activeTab, setActiveTab] = useState<string>('overview');
   
   // Custom hook for student profile data with API integration
-  const { profileData, studentPosts, isLoading, error } = useStudentProfileData();
+  const { profileData, isLoading, error } = useStudentProfileData();
 
   // Error state
   if (error) {
@@ -111,33 +110,18 @@ const StudentProfilePage: React.FC = () => {
           />
         </Suspense>
         
-        {/* Tab Content */}
-        {activeTab === 'overview' && (
-          <Suspense fallback={
-            <Stack gap="md">
-              <Skeleton height={200} radius="xl" />
-              <Skeleton height={200} radius="xl" />
-            </Stack>
-          }>
-            <StudentProfileOverviewTab
-              profileData={profileData}
-              isLoading={false}
-            />
-          </Suspense>
-        )}
-        
-        {activeTab === 'posts' && (
-          <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <Suspense fallback={<Skeleton height={300} radius="md" />}>
-              <PostsTab
-                posts={studentPosts}
-                isLoading={false}
-                isCurrentUser={false}
-                userName={profileData.firstName + " " + profileData.lastName}
-              />
-            </Suspense>
-          </Box>
-        )}
+        {/* Tab Content - Only Overview Tab */}
+        <Suspense fallback={
+          <Stack gap="md">
+            <Skeleton height={200} radius="xl" />
+            <Skeleton height={200} radius="xl" />
+          </Stack>
+        }>
+          <StudentProfileOverviewTab
+            profileData={profileData}
+            isLoading={false}
+          />
+        </Suspense>
       </Container>
 
       <style>{`

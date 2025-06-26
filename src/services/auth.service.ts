@@ -2,7 +2,7 @@ import { request } from '../hooks/api/http.client';
 import API_ENDPOINTS from '../hooks/api/api.endpoints';
 import type { IServerResponse } from '../models/serverResponse.model';
 import type {
-  User,
+  UserResponse,
   LoginCredentials,
   SignupData,
   ResetPasswordData,
@@ -88,7 +88,7 @@ class AuthService {
    * Get current user profile
    * Mock implementation for development
    */
-  async getCurrentUser(): Promise<IServerResponse<User>> {
+  async getCurrentUser(): Promise<IServerResponse<UserResponse>> {
     // Simulate API delay
     return request({
       url: API_ENDPOINTS.auth.me

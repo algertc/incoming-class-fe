@@ -79,6 +79,13 @@ export interface College {
   name: string;
 }
 
+/**
+ * User response structure from /auth/me endpoint
+ */
+export interface UserResponse {
+  user: User;
+}
+
 export interface User {
   _id?: string;
   id?: string; // Keep both _id and id for compatibility

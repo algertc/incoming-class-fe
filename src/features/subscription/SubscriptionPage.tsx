@@ -50,7 +50,7 @@ const SubscriptionPage: React.FC = () => {
   const { data: currentUserData, isLoading: isLoadingUser } = useCurrentUser();
   const { data: transactionsData, isLoading: isLoadingTransactions, refetch: refetchTransactions } = useCurrentUserTransactions();
 
-  const user = currentUserData?.data;
+  const user = currentUserData?.data.user;
   const transactions = transactionsData?.data.transactions || [];
 
   useEffect(() => {

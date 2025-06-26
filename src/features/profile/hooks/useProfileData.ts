@@ -51,8 +51,7 @@ export const useProfileData = () => {
       return;
     }
     
-   /* eslint-disable  @typescript-eslint/no-explicit-any */
-    setProfileData((user as unknown as any).user);
+    setProfileData(user);
     
     const timer = setTimeout(() => {
       setIsLoading(false);

@@ -35,6 +35,9 @@ const FeedPage: React.FC = () => {
   const navigate = useNavigate();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
 
+  // Show premium features if user is not logged in OR if user is logged in but not subscribed
+  const shouldShowPremiumFeatures = !user || !user.isSubscribed;
+
   return (
     <Box
       className="ios-optimized"
@@ -102,13 +105,15 @@ const FeedPage: React.FC = () => {
                 <FiltersSidebar />
               </Grid.Col>
               
-              <Grid.Col span={{ base: 12, md: 6 }}>
+              <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 6 : 9 }}>
                 <FeedContent />
               </Grid.Col>
               
-              <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-                <PremiumFeatures />
-              </Grid.Col>
+              {shouldShowPremiumFeatures && (
+                <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
+                  <PremiumFeatures />
+                </Grid.Col>
+              )}
             </Grid>
           </Box>
         ) : (
@@ -117,16 +122,18 @@ const FeedPage: React.FC = () => {
               <FiltersSidebar />
             </Grid.Col>
             
-            <Grid.Col span={{ base: 12, md: 6 }}>
+            <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 6 : 9 }}>
               <Box className="mobile-only mobile-optimized">
                 <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
               </Box>
               <FeedContent />
             </Grid.Col>
             
-            <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-              <PremiumFeatures />
-            </Grid.Col>
+            {shouldShowPremiumFeatures && (
+              <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
+                <PremiumFeatures />
+              </Grid.Col>
+            )}
           </Grid>
         )}
       </Container>

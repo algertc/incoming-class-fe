@@ -1,41 +1,4 @@
-import type { User, College } from '../../models/user.model';
-
-/**
- * Extended user interface that includes all profile completion fields
- */
-interface ExtendedUser extends User {
-  instagram?: string;
-  snapchat?: string;
-  major?: string;
-  hometown?: string;
-  university?: string;
-  batch?: string;
-  lookingForRoommate?: boolean;
-  sleepSchedule?: string;
-  cleanliness?: string;
-  guests?: string;
-  studying?: string;
-  substances?: string;
-  personality?: string[];
-  physicalActivity?: string[];
-  pastimes?: string[];
-  food?: string[];
-  other?: string[];
-  college?: College | string;
-  collegeName?: string;
-  traits?: {
-    sleepSchedule?: string;
-    cleanliness?: string;
-    guests?: string;
-    studying?: string;
-    substances?: string;
-    personality?: string[];
-    physicalActivity?: string[];
-    pastimes?: string[];
-    food?: string[];
-    other?: string[];
-  };
-}
+import type { User } from '../../models/user.model';
 
 /**
  * Initial values for the profile basic information form
@@ -57,20 +20,19 @@ export const profileBasicInfoInitialValues = {
 export const getProfileBasicInfoInitialValues = (user?: User | null) => {
   if (!user) return profileBasicInfoInitialValues;
   
-  const extendedUser = user as ExtendedUser;
-  const collegeName = typeof extendedUser.college === 'object' && extendedUser.college 
-    ? extendedUser.college.name 
-    : extendedUser.collegeName;
+  const collegeName = typeof user.college === 'object' && user.college 
+    ? user.college.name 
+    : '';
   
   return {
-    instagram: extendedUser.instagram || '',
-    snapchat: extendedUser.snapchat || '',
-    major: extendedUser.major || '',
-    hometown: extendedUser.hometown || '',
-    university: extendedUser.university || collegeName || '',
-    batch: extendedUser.batch || '',
-    bio: extendedUser.bio || '',
-    lookingForRoommate: extendedUser.lookingForRoommate || false
+    instagram: user.instagram || '',
+    snapchat: user.snapchat || '',
+    major: user.major || '',
+    hometown: user.hometown || '',
+    university: user.university || collegeName || '',
+    batch: user.collegeGraduationYear || '',
+    bio: user.bio || '',
+    lookingForRoommate: false // This field doesn't exist in User model
   };
 };
 
@@ -96,20 +58,17 @@ export const traitsPreferencesInitialValues = {
 export const getTraitsPreferencesInitialValues = (user?: User | null) => {
   if (!user) return traitsPreferencesInitialValues;
   
-  const extendedUser = user as ExtendedUser;
-  const traits = extendedUser.traits || {};
-  
   return {
-    sleepSchedule: extendedUser.sleepSchedule || traits.sleepSchedule || '',
-    cleanliness: extendedUser.cleanliness || traits.cleanliness || '',
-    guests: extendedUser.guests || traits.guests || '',
-    studying: extendedUser.studying || traits.studying || '',
-    substances: extendedUser.substances || traits.substances || '',
-    personality: extendedUser.personality || traits.personality || [],
-    physicalActivity: extendedUser.physicalActivity || traits.physicalActivity || [],
-    pastimes: extendedUser.pastimes || traits.pastimes || [],
-    food: extendedUser.food || traits.food || [],
-    other: extendedUser.other || traits.other || []
+    sleepSchedule: user.sleepSchedule || '',
+    cleanliness: user.cleanliness || '',
+    guests: user.guests || '',
+    studying: '', // This field doesn't exist in User model
+    substances: user.substances || '',
+    personality: user.personality || [],
+    physicalActivity: user.physicalActivity || [],
+    pastimes: user.pastimes || [],
+    food: user.food || [],
+    other: user.other || []
   };
 };
 

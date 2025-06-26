@@ -58,8 +58,7 @@ export const Header: React.FC = () => {
       "-=0.2"
     );
   }, []);
-/* eslint-disable  @typescript-eslint/no-explicit-any */
-  const fullName = user ? `${(user as any).user.firstName} ${(user as any).user.lastName}` : "";
+  const fullName = user ? `${user.firstName} ${user.lastName}` : "";
 
   return (
     <Box
