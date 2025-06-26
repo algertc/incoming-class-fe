@@ -55,6 +55,14 @@ export const FiltersSidebar: React.FC = () => {
   const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
   const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
 
+  // Local state for debounced time period
+  const [timePeriod, setTimePeriod] = useState(filters.lastDays);
+  const [debouncedTimePeriod] = useDebouncedValue(timePeriod, 500);
+
+  // Local state for debounced hometown
+  const [hometownQuery, setHometownQuery] = useState(filters.hometown || "");
+  const [debouncedHometown] = useDebouncedValue(hometownQuery, 400);
+
   // Check if user has access to filters
   const hasFilterAccess = checkFilterAccess();
 
@@ -87,6 +95,20 @@ export const FiltersSidebar: React.FC = () => {
     }
   }, [debouncedSearchQuery, searchPosts, hasFilterAccess]);
 
+  // Handle debounced time period (only if user has access)
+  useEffect(() => {
+    if (hasFilterAccess) {
+      setDateRange(debouncedTimePeriod);
+    }
+  }, [debouncedTimePeriod, setDateRange, hasFilterAccess]);
+
+  // Handle debounced hometown (only if user has access)
+  useEffect(() => {
+    if (hasFilterAccess) {
+      setHometown(debouncedHometown || null);
+    }
+  }, [debouncedHometown, setHometown, hasFilterAccess]);
+
   // Handle filter interaction for non-premium users
   const handleFilterInteraction = (trigger: string) => {
     if (!hasFilterAccess) {
@@ -104,6 +126,8 @@ export const FiltersSidebar: React.FC = () => {
     }
     setSearchQuery("");
     setCollegeSearchQuery("");
+    setTimePeriod(30); // Reset to default value
+    setHometownQuery("");
     resetFilters();
   };
 
@@ -122,7 +146,7 @@ export const FiltersSidebar: React.FC = () => {
       handleFilterInteraction("date-filter");
       return;
     }
-    setDateRange(value);
+    setTimePeriod(value);
   };
 
   // Handle college selection change
@@ -205,12 +229,12 @@ export const FiltersSidebar: React.FC = () => {
         <Box mb="md">
           <Group mb="xs" justify="space-between">
             <Text size="xs" c="dimmed">
-              Last {filters.lastDays} days
+              Last {timePeriod} days
             </Text>
             <IconCalendarEvent size={16} color={theme.colors.dark[2]} />
           </Group>
           <Slider
-            value={filters.lastDays}
+            value={timePeriod}
             onChange={handleDateRangeChange}
             min={1}
             max={90}
@@ -391,13 +415,13 @@ export const FiltersSidebar: React.FC = () => {
         </Text>
         <TextInput
           placeholder="Filter by hometown"
-          value={filters.hometown || ""}
+          value={hometownQuery}
           onChange={(e) => {
             if (!hasFilterAccess) {
               handleFilterInteraction("hometown-filter");
               return;
             }
-            setHometown(e.target.value || null);
+            setHometownQuery(e.target.value);
           }}
           mb="md"
           styles={{
