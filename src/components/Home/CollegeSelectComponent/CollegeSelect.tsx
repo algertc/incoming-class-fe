@@ -10,7 +10,7 @@ import { useFeedStore } from "../../../store/feed.store";
 
 const CollegeSelect: React.FC = () => {
   const navigate = useNavigate();
-  const { setCollege } = useFeedStore();
+  const { setCollegeFromHero } = useFeedStore();
   const [, setSelectedCollege] = useLocalStorage({
     key: "college",
     defaultValue: "",
@@ -43,11 +43,11 @@ const CollegeSelect: React.FC = () => {
   // Handle college selection
   const handleSelect = useCallback((college: Suggestion) => {
     setSelectedCollege(college.id);
-    // Set the college filter in feed store
-    setCollege(college.id);
-    // Redirect to feed page with college parameter to show modal
-    navigate(`/feed?college=${encodeURIComponent(college.label)}&from=hero`);
-  }, [setSelectedCollege, setCollege, navigate]);
+    // Set the college filter in feed store using college ID directly
+    setCollegeFromHero(college.id);
+    // Redirect to feed page with college ID and name for modal display
+    navigate(`/feed?collegeId=${encodeURIComponent(college.id)}&collegeName=${encodeURIComponent(college.label)}&from=hero`);
+  }, [setSelectedCollege, setCollegeFromHero, navigate]);
 
   return (
     <Box style={{ width: "100%" }}>

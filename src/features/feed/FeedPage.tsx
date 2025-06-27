@@ -10,7 +10,6 @@ import { MobileSearchBar } from "./components/MobileSearchBar";
 import FiltersModal from "../../components/common/FiltersModal";
 import CollegeFeedModal from "./components/CollegeFeedModal";
 import { useFeedStore } from "../../store/feed.store";
-import { useCollegeSearch } from "../../hooks/api/useColleges";
 
 // Optimized CSS for responsive design and iOS Safari
 const responsiveStyles = `
@@ -44,14 +43,6 @@ const FeedPage: React.FC = () => {
   const [selectedCollege, setSelectedCollege] = useState<string>("");
   const { setCollegeFromHero, refreshFeed } = useFeedStore();
 
-  // State for college search to find college ID by name
-  const [collegeSearchQuery, setCollegeSearchQuery] = useState<string>("");
-  const { data: collegeData } = useCollegeSearch({
-    search: collegeSearchQuery,
-    limit: 10,
-    page: 1,
-  });
-
   // Refresh feed when user authentication state changes
   useEffect(() => {
     // Only refresh if user ID actually changed (login/logout)
@@ -62,39 +53,26 @@ const FeedPage: React.FC = () => {
 
   // Check if user came from hero section college select
   useEffect(() => {
-    const college = searchParams.get('college');
+    const collegeId = searchParams.get('collegeId');
+    const collegeName = searchParams.get('collegeName');
     const from = searchParams.get('from');
     
-    if (college && from === 'hero') {
-      setSelectedCollege(college);
+    if (collegeId && collegeName && from === 'hero') {
+      setSelectedCollege(collegeName);
       setCollegeFeedModalOpen(true);
       
-      // Search for the college to get its ID for filtering
-      setCollegeSearchQuery(college);
+      // Apply the college filter using the college ID directly
+      setCollegeFromHero(collegeId);
+      console.log('Applied college filter for:', collegeName, 'with ID:', collegeId);
       
       // Clean up URL parameters after showing modal
       const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.delete('college');
+      newSearchParams.delete('collegeId');
+      newSearchParams.delete('collegeName');
       newSearchParams.delete('from');
       setSearchParams(newSearchParams, { replace: true });
     }
-  }, [searchParams, setSearchParams]);
-
-  // Apply college filter when college data is loaded
-  useEffect(() => {
-    if (selectedCollege && collegeData?.data?.colleges) {
-      // Find the college by name (case-insensitive)
-      const foundCollege = collegeData.data.colleges.find(
-        (college) => college.name.toLowerCase() === selectedCollege.toLowerCase()
-      );
-      
-      if (foundCollege) {
-        // Apply the college filter using the college ID
-        setCollegeFromHero(foundCollege._id);
-        console.log('Applied college filter for:', foundCollege.name, 'with ID:', foundCollege._id);
-      }
-    }
-  }, [selectedCollege, collegeData, setCollegeFromHero]);
+  }, [searchParams, setSearchParams, setCollegeFromHero]);
 
   // Show premium features if user is not logged in OR if user is logged in but not subscribed
   const shouldShowPremiumFeatures = !user || !user.isSubscribed;
