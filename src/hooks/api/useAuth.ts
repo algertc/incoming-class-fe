@@ -17,7 +17,7 @@ export const authKeys = {
  * Hook for logging in a user
  */
 export const useLogin = () => {
-  const queryClient = useQueryClient();
+  // const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (credentials: LoginCredentials) => authService.login(credentials),
@@ -25,13 +25,13 @@ export const useLogin = () => {
       if (data.status && data.data?.token) {
         // Store token in localStorage
         localStorage.setItem('token', data.data.token);
-
+        console.log("data", data);
     
-        queryClient.setQueryData(authKeys.currentUser(), {
-          status: true,
-          message: 'User profile retrieved',
-          data: data.data.user
-        });
+        // queryClient.setQueryData(authKeys.currentUser(), {
+        //   status: true,
+        //   message: 'User profile retrieved',
+        //   data: data.data.user
+        // });
         
       }
     }

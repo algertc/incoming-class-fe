@@ -22,9 +22,22 @@ export interface PaymentConfirmationResponse {
   message: string;
 }
 
+export interface CancelSubscriptionResponse {
+  success: boolean;
+  message: string;
+  canceledAt: string;
+}
+
 export interface PricingData {
   post: number;
   premium: number;
+}
+
+export interface SubscriptionStatusResponse {
+  isSubscribed: boolean;
+  isAutoRenewalOn: boolean;
+  subscriptionStartDate: string | null;
+  subscriptionEndDate: string | null;
 }
 
 /**
@@ -226,6 +239,94 @@ class PaymentService {
       console.error("🔍 Service error details:", {
         error: (error as Error).message,
         stack: (error as Error).stack,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Get subscription status including auto-renewal status
+   * 
+   * @returns Promise with the subscription status data
+   */
+  async getSubscriptionStatus(): Promise<IServerResponse<SubscriptionStatusResponse>> {
+    console.log("📊 PaymentService: Fetching subscription status");
+    console.log("📍 Endpoint:", API_ENDPOINTS.payment.subscriptionStatus);
+
+    try {
+      const startTime = performance.now();
+      
+      const response = await request<SubscriptionStatusResponse>({
+        url: API_ENDPOINTS.payment.subscriptionStatus,
+        method: 'GET',
+      });
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      console.log("✅ PaymentService: Subscription status fetched successfully");
+      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+      console.log("📦 Service response:", {
+        status: response.status,
+        message: response.message,
+        data: response.data,
+        timestamp: new Date().toISOString(),
+        duration: `${duration.toFixed(2)}ms`
+      });
+
+      return response;
+    } catch (error) {
+      console.error("💥 PaymentService: Failed to fetch subscription status");
+      console.error("🔍 Service error details:", {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        endpoint: API_ENDPOINTS.payment.subscriptionStatus,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel user's premium subscription
+   * 
+   * @returns Promise with the cancellation response
+   */
+  async cancelSubscription(): Promise<IServerResponse<CancelSubscriptionResponse>> {
+    console.log("🚫 PaymentService: Canceling subscription");
+    console.log("📍 Endpoint:", API_ENDPOINTS.payment.cancelSubscription);
+
+    try {
+      const startTime = performance.now();
+      
+      const response = await request<CancelSubscriptionResponse>({
+        url: API_ENDPOINTS.payment.cancelSubscription,
+        method: 'PATCH',
+      });
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      console.log("✅ PaymentService: Subscription canceled successfully");
+      console.log("⏱️ Cancellation duration:", `${duration.toFixed(2)}ms`);
+      console.log("📦 Cancellation response:", {
+        status: response.status,
+        message: response.message,
+        data: response.data,
+        timestamp: new Date().toISOString(),
+        duration: `${duration.toFixed(2)}ms`
+      });
+
+      return response;
+    } catch (error) {
+      console.error("💥 PaymentService: Subscription cancellation failed");
+      console.error("🔍 Cancellation error details:", {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        endpoint: API_ENDPOINTS.payment.cancelSubscription,
         timestamp: new Date().toISOString()
       });
       

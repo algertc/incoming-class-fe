@@ -89,10 +89,29 @@ class AuthService {
    * Mock implementation for development
    */
   async getCurrentUser(): Promise<IServerResponse<UserResponse>> {
-    // Simulate API delay
-    return request({
-      url: API_ENDPOINTS.auth.me
-    })
+    console.log("🔍 AuthService: Getting current user");
+    console.log("📍 Endpoint:", API_ENDPOINTS.auth.me);
+    
+    try {
+      const result = await request<UserResponse>({
+        url: API_ENDPOINTS.auth.me
+      });
+      
+      console.log("✅ AuthService: Current user retrieved successfully");
+      console.log("📦 Raw response:", result);
+      
+      return result;
+    } catch (error) {
+      console.error("💥 AuthService: Failed to get current user");
+      console.error("🔍 Error details:", {
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        endpoint: API_ENDPOINTS.auth.me,
+        timestamp: new Date().toISOString()
+      });
+      
+      throw error;
+    }
   }
 
   /**

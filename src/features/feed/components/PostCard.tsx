@@ -16,6 +16,7 @@ import {
   Button,
   Stack,
   LoadingOverlay,
+  Chip,
   rem,
 } from '@mantine/core';
 import { 
@@ -38,6 +39,7 @@ import {
 } from '../../../hooks/api/useImageUpload';
 import { showSuccess, showError } from '../../../utils';
 import ImageCropModal from '../../../pages/ProfileCompletion/components/ImageCropModal';
+import { PremiumSubscriptionModal } from '../../../components/common/PremiumSubscriptionModal';
 
 export interface Post {
   id: string;
@@ -47,6 +49,7 @@ export interface Post {
     name: string;
     avatar: string;
     verified?: boolean;
+    isSubscribed?: boolean;
   };
   content: string;
   images?: string[];
@@ -68,12 +71,16 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const uploadImagesMutation = useUploadMultipleImages();
   const [editModalOpened, setEditModalOpened] = useState(false);
   const [cropModalOpened, setCropModalOpened] = useState(false);
+  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formattedTime = formatDistanceToNow(new Date(post.timestamp), { addSuffix: true });
+  
+  // Check if user is authenticated
+  const isAuthenticated = !!user;
   
   // Check if current user is the author of this post
   const isAuthor = user?.id === post.author.id;
@@ -93,12 +100,26 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   // Handle navigation to student profile
   const handleProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // If user is not authenticated, show premium modal instead
+    if (!isAuthenticated) {
+      setPremiumModalOpened(true);
+      return;
+    }
+    
     navigate(`/profile/student/${post.author.id}`);
   };
 
   // Handle post content click
   const handlePostClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // If user is not authenticated, show premium modal instead
+    if (!isAuthenticated) {
+      setPremiumModalOpened(true);
+      return;
+    }
+    
     navigate(`/profile/student/${post.author.id}`);
   };
 
@@ -417,6 +438,62 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
               {post.author.verified && (
                 <Text size="xs" c="blue">✓</Text>
               )}
+              {post.author.isSubscribed && (
+                <Chip
+                  size="xs"
+                  variant="filled"
+                  color="orange"
+                  styles={{
+                    root: {
+                      background: 'linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa500 100%)',
+                      border: '1px solid rgba(255, 107, 53, 0.8)',
+                      borderRadius: '12px',
+                      height: '22px',
+                      fontSize: '10px',
+                      boxShadow: '0 2px 8px rgba(255, 107, 53, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+                      animation: 'wiggle 0.8s ease-in-out',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      '&::before': {
+                        content: '""',
+                        position: 'absolute',
+                        top: 0,
+                        left: '-100%',
+                        width: '100%',
+                        height: '100%',
+                        background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent)',
+                        animation: 'shimmer 2s ease-in-out infinite',
+                      },
+                      '@keyframes wiggle': {
+                        '0%, 100%': { transform: 'rotate(0deg)' },
+                        '10%': { transform: 'rotate(-3deg) scale(1.05)' },
+                        '20%': { transform: 'rotate(3deg) scale(1.05)' },
+                        '30%': { transform: 'rotate(-3deg) scale(1.05)' },
+                        '40%': { transform: 'rotate(3deg) scale(1.05)' },
+                        '50%': { transform: 'rotate(-2deg) scale(1.02)' },
+                        '60%': { transform: 'rotate(2deg) scale(1.02)' },
+                        '70%': { transform: 'rotate(-1deg) scale(1.01)' },
+                        '80%': { transform: 'rotate(1deg) scale(1.01)' },
+                        '90%': { transform: 'rotate(0deg) scale(1)' },
+                      },
+                      '@keyframes shimmer': {
+                        '0%': { left: '-100%' },
+                        '100%': { left: '100%' },
+                      },
+                    },
+                    label: {
+                      color: '#000000',
+                      fontWeight: 700,
+                      padding: '0 8px',
+                      textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
+                      fontSize: '10px',
+                      letterSpacing: '0.5px',
+                    },
+                  }}
+                >
+                  🔥 Highly Popular
+                </Chip>
+              )}
             </Group>
             <Text size="xs" c="dimmed">{formattedTime}</Text>
           </Box>
@@ -717,6 +794,13 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         onClose={() => setCropModalOpened(false)}
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
+      />
+      
+      {/* Premium Subscription Modal for unauthenticated users */}
+      <PremiumSubscriptionModal
+        opened={premiumModalOpened}
+        onClose={() => setPremiumModalOpened(false)}
+        trigger="profile-access"
       />
     </>
   );

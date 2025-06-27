@@ -104,6 +104,8 @@ export const PremiumSubscriptionModal: React.FC<PremiumSubscriptionModalProps> =
         return "Unlock personality trait filtering";
       case "hometown-filter":
         return "Unlock hometown-based filtering";
+      case "profile-access":
+        return "Sign up to view student profiles and connect with potential roommates";
       default:
         return "Unlock premium features";
     }

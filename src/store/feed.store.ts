@@ -37,6 +37,7 @@ export interface FeedState {
   hasReachedLimit: boolean;
   modalShownAndDismissed: boolean; // Track if modal was shown and user dismissed it
   modalType: 'signup' | 'premium' | null; // Type of modal to show
+  isInitialLoad: boolean; // Track if this is the first load to prevent initial modal
   
   // Filters
   filters: FeedFilters;
@@ -50,6 +51,7 @@ export interface FeedState {
   searchPosts: (query: string) => void;
   setDateRange: (lastDays: number) => void;
   setCollege: (college: string | null) => void;
+  setCollegeFromHero: (college: string | null) => void; // Set college without permission check
   setSubstances: (substances: string | null) => void;
   setPersonality: (personality: string[] | null) => void;
   setHometown: (hometown: string | null) => void;
@@ -71,25 +73,67 @@ const initialFilters: FeedFilters = {
 const getPostLimit = (): number | null => {
   const { user } = useAuthStore.getState();
   
+  console.log('Feed: getPostLimit called with user:', {
+    hasUser: !!user,
+    isSubscribed: user?.isSubscribed,
+    isProfileCompleted: user?.isProfileCompleted,
+    email: user?.email
+  });
+  
+  // Premium users get unlimited posts
   if (user?.isSubscribed) {
+    console.log('Feed: User is subscribed - unlimited posts');
     return null; // Unlimited
   }
+  
+  // Authenticated users with completed profile get 10 posts
   if (user && user.isProfileCompleted) {
+    console.log('Feed: User authenticated with completed profile - 10 posts');
     return 10; // Non-premium users with completed profile get 10 posts
   }
-  return 6; // Unauthenticated users get 6 posts
+  
+  // Authenticated users without completed profile get 6 posts (same as unauthenticated)
+  if (user && !user.isProfileCompleted) {
+    console.log('Feed: User authenticated but profile not completed - 6 posts');
+    return 6;
+  }
+  
+  // Unauthenticated users get 6 posts
+  console.log('Feed: Unauthenticated user - 6 posts');
+  return 6;
 };
 
 // Helper function to determine modal type
 const getModalType = (): 'signup' | 'premium' | null => {
   const { user } = useAuthStore.getState();
   
+  console.log('Feed: getModalType called with user:', {
+    hasUser: !!user,
+    isSubscribed: user?.isSubscribed,
+    isProfileCompleted: user?.isProfileCompleted,
+    email: user?.email
+  });
+  
+  // No user - show signup modal
   if (!user) {
+    console.log('Feed: No user - showing signup modal');
     return 'signup';
   }
+  
+  // User exists but profile not completed - show signup modal (to complete profile)
+  if (user && !user.isProfileCompleted) {
+    console.log('Feed: User exists but profile not completed - showing signup modal');
+    return 'signup';
+  }
+  
+  // User exists, profile completed, but not subscribed - show premium modal
   if (user && user.isProfileCompleted && !user.isSubscribed) {
+    console.log('Feed: User authenticated, profile completed, not subscribed - showing premium modal');
     return 'premium';
   }
+  
+  // Premium users don't need any modal
+  console.log('Feed: Premium user - no modal needed');
   return null;
 };
 
@@ -110,6 +154,7 @@ export const useFeedStore = create<FeedState>()(
   hasReachedLimit: false,
   modalShownAndDismissed: false,
   modalType: null,
+  isInitialLoad: true, // Start as initial load
   filters: initialFilters,
   
   // Check if user can access filters (only premium users)
@@ -149,7 +194,8 @@ export const useFeedStore = create<FeedState>()(
       hasMore: true, 
       hasReachedLimit: false,
       modalShownAndDismissed: false, // Reset modal state on initialization
-      modalType: null
+      modalType: null,
+      isInitialLoad: true // Reset to initial load when initializing
     });
     
     try {
@@ -171,16 +217,21 @@ export const useFeedStore = create<FeedState>()(
         let finalPosts = posts;
         let reachedLimit = false;
         
+        // On initial load, don't trigger the limit modal even if we have exactly the limit
+        // Only trigger it if we have MORE than the limit
+        const isInitial = get().isInitialLoad;
+        
         if (postLimit !== null && posts.length > postLimit) {
           finalPosts = posts.slice(0, postLimit);
           reachedLimit = true;
-        } else if (postLimit !== null && posts.length >= postLimit) {
+        } else if (postLimit !== null && posts.length >= postLimit && !isInitial) {
+          // Only set reachedLimit if not initial load and we have exactly the limit
           reachedLimit = true;
         }
         
         const modalType = reachedLimit ? getModalType() : null;
         
-        console.log('Feed: Setting posts:', finalPosts.length, 'reachedLimit:', reachedLimit);
+        console.log('Feed: Setting posts:', finalPosts.length, 'reachedLimit:', reachedLimit, 'isInitial:', isInitial);
         
         set({
           posts: finalPosts,
@@ -190,6 +241,7 @@ export const useFeedStore = create<FeedState>()(
           hasMore: hasNextPage && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType,
+          isInitialLoad: false, // Mark as no longer initial load
           isLoading: false,
           error: null,
         });
@@ -245,6 +297,7 @@ export const useFeedStore = create<FeedState>()(
         let finalPosts = allPosts;
         let reachedLimit = false;
         
+        // For loadMorePosts, always check limits normally since this is not initial load
         if (postLimit !== null && allPosts.length > postLimit) {
           finalPosts = allPosts.slice(0, postLimit);
           reachedLimit = true;
@@ -294,7 +347,8 @@ export const useFeedStore = create<FeedState>()(
       hasMore: true, 
       hasReachedLimit: false,
       modalShownAndDismissed: false, // Reset modal state when applying filters
-      modalType: null
+      modalType: null,
+      isInitialLoad: true // Reset to initial load when applying filters
     });
     
     try {
@@ -312,10 +366,15 @@ export const useFeedStore = create<FeedState>()(
         let finalPosts = posts;
         let reachedLimit = false;
         
+        // On filter application (which is like initial load), don't trigger the limit modal 
+        // even if we have exactly the limit - only trigger it if we have MORE than the limit
+        const isInitial = get().isInitialLoad;
+        
         if (postLimit !== null && posts.length > postLimit) {
           finalPosts = posts.slice(0, postLimit);
           reachedLimit = true;
-        } else if (postLimit !== null && posts.length >= postLimit) {
+        } else if (postLimit !== null && posts.length >= postLimit && !isInitial) {
+          // Only set reachedLimit if not initial load and we have exactly the limit
           reachedLimit = true;
         }
         
@@ -329,6 +388,7 @@ export const useFeedStore = create<FeedState>()(
           hasMore: hasNextPage && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType,
+          isInitialLoad: false, // Mark as no longer initial load
           isLoading: false,
           error: null,
         });
@@ -401,6 +461,14 @@ export const useFeedStore = create<FeedState>()(
     
     get().updateFilter('college', college);
   },
+
+  // Set college filter without permission check (for auto-filtering from hero)
+  setCollegeFromHero: (college: string | null) => {
+    set(state => ({
+      filters: { ...state.filters, college }
+    }));
+    get().applyFilters();
+  },
   
   // Set substances filter
   setSubstances: (substances) => {
@@ -442,7 +510,8 @@ export const useFeedStore = create<FeedState>()(
       hasMore: true, 
       hasReachedLimit: false,
       modalShownAndDismissed: false, // Reset modal state when refreshing
-      modalType: null
+      modalType: null,
+      isInitialLoad: true // Reset to initial load when refreshing
     });
     
     try {
@@ -460,10 +529,15 @@ export const useFeedStore = create<FeedState>()(
         let finalPosts = posts;
         let reachedLimit = false;
         
+        // On refresh (which is like initial load), don't trigger the limit modal 
+        // even if we have exactly the limit - only trigger it if we have MORE than the limit
+        const isInitial = get().isInitialLoad;
+        
         if (postLimit !== null && posts.length > postLimit) {
           finalPosts = posts.slice(0, postLimit);
           reachedLimit = true;
-        } else if (postLimit !== null && posts.length >= postLimit) {
+        } else if (postLimit !== null && posts.length >= postLimit && !isInitial) {
+          // Only set reachedLimit if not initial load and we have exactly the limit
           reachedLimit = true;
         }
         
@@ -477,6 +551,7 @@ export const useFeedStore = create<FeedState>()(
           hasMore: hasNextPage && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType,
+          isInitialLoad: false, // Mark as no longer initial load
           isLoading: false,
           error: null,
         });

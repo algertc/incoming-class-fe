@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { MantineProvider, createTheme } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { Notifications } from "@mantine/notifications";
@@ -9,6 +9,7 @@ import "./index.css";
 import THEME from "./theme";
 import AppRouterProvider from "./routing/AppRouterProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useAuthStore } from "./store/auth.store";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -34,6 +35,29 @@ const theme = createTheme({
     // },
   },
 });
+
+// Auth initializer component
+const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { fetchUser } = useAuthStore();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    console.log('App: Checking for existing token:', !!token);
+    
+    if (token) {
+      console.log('App: Token found, fetching user data');
+      fetchUser().catch((error) => {
+        console.error('App: Failed to fetch user on initialization:', error);
+        // If token is invalid, remove it
+        localStorage.removeItem('token');
+      });
+    } else {
+      console.log('App: No token found, skipping user fetch');
+    }
+  }, [fetchUser]);
+
+  return <>{children}</>;
+};
 
 const App: React.FC = () => {
   return (
@@ -73,7 +97,9 @@ const App: React.FC = () => {
           labels={{ confirm: "Confirm", cancel: "Cancel" }}
         >
           <Notifications position={"top-right"} limit={1} />
-          <AppRouterProvider />
+          <AuthInitializer>
+            <AppRouterProvider />
+          </AuthInitializer>
         </ModalsProvider>
       </MantineProvider>
     </QueryClientProvider>

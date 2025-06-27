@@ -45,8 +45,8 @@ const CollegeSelect: React.FC = () => {
     setSelectedCollege(college.id);
     // Set the college filter in feed store
     setCollege(college.id);
-    // Redirect to feed page
-    navigate("/feed");
+    // Redirect to feed page with college parameter to show modal
+    navigate(`/feed?college=${encodeURIComponent(college.label)}&from=hero`);
   }, [setSelectedCollege, setCollege, navigate]);
 
   return (

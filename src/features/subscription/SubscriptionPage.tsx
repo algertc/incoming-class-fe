@@ -17,6 +17,7 @@ import {
   Alert,
   ActionIcon,
   Tooltip,
+  Button,
 } from '@mantine/core';
 import { 
   IconCreditCard, 
@@ -34,6 +35,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedBackground from '../feed/components/AnimatedBackground';
 import { useCurrentUser, useCurrentUserTransactions } from '../../hooks/api';
 import { format } from 'date-fns';
+import { CancelSubscriptionCard } from './components';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -47,11 +49,18 @@ const SubscriptionPage: React.FC = () => {
   const tableRef = useRef<HTMLDivElement>(null);
 
   // API hooks
-  const { data: currentUserData, isLoading: isLoadingUser } = useCurrentUser();
+  const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser, error: userError } = useCurrentUser();
   const { data: transactionsData, isLoading: isLoadingTransactions, refetch: refetchTransactions } = useCurrentUserTransactions();
-
-  const user = currentUserData?.data.user;
-  const transactions = transactionsData?.data.transactions || [];
+  
+  console.log("currentUserData", currentUserData);
+  console.log("userError", userError);
+  
+  // Check if user is authenticated
+  const token = localStorage.getItem('token');
+  console.log("token exists:", !!token);
+  
+  const user = currentUserData?.data?.user;
+  const transactions = transactionsData?.data?.transactions || [];
 
   useEffect(() => {
     // Hero section animation
@@ -220,6 +229,43 @@ const SubscriptionPage: React.FC = () => {
       <Box py={60} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="lg">
           <Stack gap="xl">
+            {/* Authentication Error */}
+            {!token && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                color="orange"
+                variant="light"
+                title="Authentication Required"
+              >
+                <Text size="sm">
+                  Please log in to view your subscription information.
+                </Text>
+              </Alert>
+            )}
+
+            {/* API Error State */}
+            {token && userError && (
+              <Alert
+                icon={<IconAlertCircle size={16} />}
+                color="red"
+                variant="light"
+                title="Failed to load user data"
+              >
+                <Text size="sm">
+                  {(userError as Error).message || 'Unable to load your subscription information. Please try refreshing the page.'}
+                </Text>
+                <Button
+                  variant="light"
+                  color="red"
+                  size="sm"
+                  mt="sm"
+                  onClick={() => refetchUser()}
+                >
+                  Retry
+                </Button>
+              </Alert>
+            )}
+
             {/* Premium Status Card */}
             <Paper
               ref={statusRef}
@@ -241,6 +287,26 @@ const SubscriptionPage: React.FC = () => {
                     <Skeleton height={60} />
                   </SimpleGrid>
                 </Stack>
+              ) : !user ? (
+                <Alert
+                  icon={<IconAlertCircle size={16} />}
+                  color="gray"
+                  variant="light"
+                  title="No user data available"
+                >
+                  <Text size="sm">
+                    Unable to load user information. Please try refreshing the page.
+                  </Text>
+                  <Button
+                    variant="light"
+                    color="gray"
+                    size="sm"
+                    mt="sm"
+                    onClick={() => refetchUser()}
+                  >
+                    Refresh
+                  </Button>
+                </Alert>
               ) : (
                 <Stack gap="lg">
                   <Group align="center">
@@ -437,6 +503,16 @@ const SubscriptionPage: React.FC = () => {
                 )}
               </Stack>
             </Paper>
+
+            {/* Cancel Subscription Card */}
+            <CancelSubscriptionCard
+              onSubscriptionCanceled={() => {
+                // Refetch user data to update premium status
+                refetchUser();
+                // Optionally refetch transactions to show updated history
+                refetchTransactions();
+              }}
+            />
           </Stack>
         </Container>
       </Box>

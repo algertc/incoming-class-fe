@@ -50,7 +50,9 @@ export {
   useCreateCheckoutSession,
   useConfirmPayment,
   useCreateSubscriptionSession,
+  useCancelSubscription,
   usePricing,
+  useSubscriptionStatus,
   paymentKeys
 } from './usePayment';
 

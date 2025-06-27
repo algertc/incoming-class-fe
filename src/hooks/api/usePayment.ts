@@ -3,7 +3,8 @@ import { paymentService } from '../../services/payment.service';
 import type { 
   CreateCheckoutSessionRequest, 
   CheckoutSessionResponse, 
-  PaymentConfirmationResponse 
+  PaymentConfirmationResponse,
+  CancelSubscriptionResponse
 } from '../../services/payment.service';
 import type { IServerResponse } from '../../models/serverResponse.model';
 
@@ -18,6 +19,8 @@ export const paymentKeys = {
   checkout: () => [...paymentKeys.all, 'checkout'] as const,
   confirmation: () => [...paymentKeys.all, 'confirmation'] as const,
   subscription: () => [...paymentKeys.all, 'subscription'] as const,
+  subscriptionStatus: () => [...paymentKeys.all, 'subscriptionStatus'] as const,
+  cancelSubscription: () => [...paymentKeys.all, 'cancelSubscription'] as const,
   pricing: () => [...paymentKeys.all, 'pricing'] as const,
 };
 
@@ -286,5 +289,133 @@ export const usePricing = () => {
     queryFn: () => paymentService.getCurrentPricing(),
     staleTime: 1000 * 60 * 5, // Cache for 5 minutes
     refetchOnWindowFocus: false,
+  });
+};
+
+/**
+ * Hook for fetching subscription status including auto-renewal status
+ * 
+ * This hook fetches the current subscription status to determine if the user
+ * has an active subscription and if auto-renewal is enabled.
+ * 
+ * @example
+ * ```tsx
+ * import { useSubscriptionStatus } from '../hooks/api';
+ * 
+ * const MyComponent = () => {
+ *   const { data: subscriptionStatus, isLoading, error } = useSubscriptionStatus();
+ *   
+ *   if (isLoading) return <div>Loading subscription status...</div>;
+ *   if (error) return <div>Error loading subscription status</div>;
+ *   
+ *   const canCancel = subscriptionStatus?.data.isSubscribed && subscriptionStatus?.data.isAutoRenewalOn;
+ *   
+ *   return (
+ *     <div>
+ *       <p>Subscribed: {subscriptionStatus?.data.isSubscribed ? 'Yes' : 'No'}</p>
+ *       <p>Auto-renewal: {subscriptionStatus?.data.isAutoRenewalOn ? 'On' : 'Off'}</p>
+ *       {canCancel && <button>Cancel Subscription</button>}
+ *     </div>
+ *   );
+ * };
+ */
+export const useSubscriptionStatus = () => {
+  return useQuery({
+    queryKey: paymentKeys.subscriptionStatus(),
+    queryFn: () => paymentService.getSubscriptionStatus(), 
+    refetchOnWindowFocus: true,
+    retry: 1, // Only retry once on failure
+  });
+};
+
+/**
+ * Hook for canceling a user's premium subscription
+ * 
+ * This hook handles the cancellation of premium subscriptions.
+ * It will call the backend API to cancel the subscription and update the user's status.
+ * 
+ * @example
+ * ```tsx
+ * import { useCancelSubscription } from '../hooks/api';
+ * 
+ * const MyComponent = () => {
+ *   const { mutateAsync: cancelSubscription, isPending, error } = useCancelSubscription();
+ *   
+ *   const handleCancelSubscription = async () => {
+ *     try {
+ *       const response = await cancelSubscription();
+ *       console.log('Subscription canceled:', response.data.message);
+ *       // Handle success (e.g., show notification, refresh user data)
+ *     } catch (error) {
+ *       console.error('Subscription cancellation failed:', error);
+ *     }
+ *   };
+ *   
+ *   return (
+ *     <button onClick={handleCancelSubscription} disabled={isPending}>
+ *       {isPending ? 'Canceling...' : 'Cancel Subscription'}
+ *     </button>
+ *   );
+ * };
+ */
+export const useCancelSubscription = () => {
+  return useMutation<
+    IServerResponse<CancelSubscriptionResponse>,
+    Error,
+    void
+  >({
+    mutationFn: async () => {
+      console.log("🚫 useCancelSubscription: Mutation started");
+      
+      try {
+        const result = await paymentService.cancelSubscription();
+        
+        console.log("✅ useCancelSubscription: Mutation successful");
+        console.log("🎉 Hook cancellation result:", {
+          status: result.status,
+          success: result.data?.success,
+          message: result.data?.message,
+          canceledAt: result.data?.canceledAt,
+          timestamp: new Date().toISOString()
+        });
+        
+        return result;
+      } catch (error) {
+        console.error("💥 useCancelSubscription: Mutation failed");
+        console.error("🔍 Hook cancellation error:", {
+          error: (error as Error).message,
+          stack: (error as Error).stack,
+          timestamp: new Date().toISOString()
+        });
+        
+        throw error;
+      }
+    },
+    onSuccess: (data) => {
+      console.log("🎊 useCancelSubscription: onSuccess callback");
+      console.log("📈 Cancellation success:", {
+        status: data.status,
+        success: data.data?.success,
+        message: data.data?.message,
+        canceledAt: data.data?.canceledAt,
+        timestamp: new Date().toISOString()
+      });
+    },
+    onError: (error) => {
+      console.error("💔 useCancelSubscription: onError callback");
+      console.error("📉 Cancellation error:", {
+        error: error.message,
+        timestamp: new Date().toISOString()
+      });
+    },
+    onSettled: (data, error) => {
+      console.log("🏁 useCancelSubscription: onSettled callback");
+      console.log("📋 Cancellation settlement:", {
+        success: !!data && !error,
+        hasData: !!data,
+        hasError: !!error,
+        timestamp: new Date().toISOString()
+      });
+    }
   });
 }; 

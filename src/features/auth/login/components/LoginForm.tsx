@@ -18,10 +18,12 @@ import type {
 import { loginSchema, loginInitialValues } from "../../../../forms";
 import { showSuccess } from "../../../../utils";
 import { ROUTES } from "../../../../routing/routes";
+import { useAuthStore } from "../../../../store/auth.store";
 
 const LoginForm: React.FC = () => {
   const navigate = useNavigate();
   const login = useLogin();
+  const { fetchUser, setUser } = useAuthStore();
   const [apiError, setApiError] = useState<string | null>(null);
 
   const form = useForm({
@@ -48,9 +50,25 @@ const LoginForm: React.FC = () => {
       showSuccess("Login Successful!");
       const authResponse = response.data as AuthResponse;
 
-      navigate(
-        authResponse.isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION
-      );
+      // Fetch fresh user data from server instead of using login response
+      try {
+        console.log('Login: Fetching fresh user data from server');
+        await fetchUser();
+        console.log('Login: User data fetched successfully');
+      } catch (fetchError) {
+        console.error('Login: Failed to fetch user data:', fetchError);
+        // Fallback to login response data if fetchUser fails
+        if (authResponse.user) {
+          console.log('Login: Using login response user data as fallback');
+          setUser(authResponse.user);
+        }
+      }
+
+      const redirectRoute = authResponse.isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION;
+      console.log('Login successful, redirecting to:', redirectRoute);
+      console.log('User profile completed:', authResponse.isProfileCompleted);
+
+      navigate(redirectRoute);
     } catch (error) {
       setApiError((error as Error).message);
     }

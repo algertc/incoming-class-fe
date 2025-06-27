@@ -1,13 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Container, Grid, Button, Text, Group } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { FiltersSidebar } from "../../components/Feed/FiltersSidebar/FiltersSidebar";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
 import { MobileSearchBar } from "./components/MobileSearchBar";
 import FiltersModal from "../../components/common/FiltersModal";
+import CollegeFeedModal from "./components/CollegeFeedModal";
+import { useFeedStore } from "../../store/feed.store";
+import { useCollegeSearch } from "../../hooks/api/useColleges";
 
 // Optimized CSS for responsive design and iOS Safari
 const responsiveStyles = `
@@ -32,8 +35,66 @@ const responsiveStyles = `
 
 const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
+  console.log("log auth state", user);
+  
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
+  const [collegeFeedModalOpen, setCollegeFeedModalOpen] = useState(false);
+  const [selectedCollege, setSelectedCollege] = useState<string>("");
+  const { setCollegeFromHero, refreshFeed } = useFeedStore();
+
+  // State for college search to find college ID by name
+  const [collegeSearchQuery, setCollegeSearchQuery] = useState<string>("");
+  const { data: collegeData } = useCollegeSearch({
+    search: collegeSearchQuery,
+    limit: 10,
+    page: 1,
+  });
+
+  // Refresh feed when user authentication state changes
+  useEffect(() => {
+    // Only refresh if user ID actually changed (login/logout)
+    const currentUserId = user?.id;
+    console.log('FeedPage: User ID changed, refreshing feed. User ID:', currentUserId);
+    refreshFeed();
+  }, [user?.id, refreshFeed]); // Only depend on user ID change
+
+  // Check if user came from hero section college select
+  useEffect(() => {
+    const college = searchParams.get('college');
+    const from = searchParams.get('from');
+    
+    if (college && from === 'hero') {
+      setSelectedCollege(college);
+      setCollegeFeedModalOpen(true);
+      
+      // Search for the college to get its ID for filtering
+      setCollegeSearchQuery(college);
+      
+      // Clean up URL parameters after showing modal
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.delete('college');
+      newSearchParams.delete('from');
+      setSearchParams(newSearchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  // Apply college filter when college data is loaded
+  useEffect(() => {
+    if (selectedCollege && collegeData?.data?.colleges) {
+      // Find the college by name (case-insensitive)
+      const foundCollege = collegeData.data.colleges.find(
+        (college) => college.name.toLowerCase() === selectedCollege.toLowerCase()
+      );
+      
+      if (foundCollege) {
+        // Apply the college filter using the college ID
+        setCollegeFromHero(foundCollege._id);
+        console.log('Applied college filter for:', foundCollege.name, 'with ID:', foundCollege._id);
+      }
+    }
+  }, [selectedCollege, collegeData, setCollegeFromHero]);
 
   // Show premium features if user is not logged in OR if user is logged in but not subscribed
   const shouldShowPremiumFeatures = !user || !user.isSubscribed;
@@ -141,6 +202,16 @@ const FeedPage: React.FC = () => {
       <FiltersModal
             open={isFiltersModalOpen}
         onClose={() => setIsFiltersModalOpen(false)}
+      />
+      
+      {/* College Feed Modal */}
+      <CollegeFeedModal
+        opened={collegeFeedModalOpen}
+        onClose={() => {
+          setCollegeFeedModalOpen(false)
+         
+        }}
+        collegeName={selectedCollege}
       />
     </Box>
   );

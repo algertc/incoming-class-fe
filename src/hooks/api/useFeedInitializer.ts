@@ -9,14 +9,24 @@ export const useFeedInitializer = () => {
 
   // Initialize feed on component mount or when user changes
   useEffect(() => {
+    console.log('useFeedInitializer: Effect triggered', {
+      hasInitialized: hasInitialized.current,
+      currentUserId: user?.id,
+      lastUserId: lastUserId.current,
+      userChanged: lastUserId.current !== user?.id
+    });
+
     // Only initialize if:
     // 1. Not already initialized
     // 2. User ID changed (login/logout)
     if (!hasInitialized.current || lastUserId.current !== user?.id) {
+      console.log('useFeedInitializer: Initializing feed');
       hasInitialized.current = true;
       lastUserId.current = user?.id;
       // Call initializeFeed directly from store to avoid dependency issues
       useFeedStore.getState().initializeFeed();
+    } else {
+      console.log('useFeedInitializer: Skipping initialization - already done and user unchanged');
     }
   }, [user?.id]); // Only depend on user?.id, avoid unstable initializeFeed
 

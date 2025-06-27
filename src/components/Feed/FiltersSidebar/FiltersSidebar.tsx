@@ -55,6 +55,14 @@ export const FiltersSidebar: React.FC = () => {
   const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
   const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
 
+  // Keep a broader search to ensure we can find colleges set programmatically
+  const [broadCollegeSearch, setBroadCollegeSearch] = useState("");
+  const { data: broadCollegeData } = useCollegeSearch({
+    search: broadCollegeSearch,
+    limit: 100, // Higher limit to find more colleges
+    page: 1,
+  });
+
   // Local state for debounced time period
   const [timePeriod, setTimePeriod] = useState(filters.lastDays);
   const [debouncedTimePeriod] = useDebouncedValue(timePeriod, 500);
@@ -77,8 +85,19 @@ export const FiltersSidebar: React.FC = () => {
   const collegeOptions = React.useMemo(() => {
     const options = [{ value: "all", label: "All Colleges" }];
     
-    if (collegeData?.data.colleges) {
-      const apiColleges = collegeData.data.colleges.map((college) => ({
+    // Combine both college search results
+    const allColleges = [
+      ...(collegeData?.data.colleges || []),
+      ...(broadCollegeData?.data.colleges || [])
+    ];
+    
+    // Remove duplicates by ID
+    const uniqueColleges = allColleges.filter((college, index, self) => 
+      index === self.findIndex(c => c._id === college._id)
+    );
+    
+    if (uniqueColleges.length > 0) {
+      const apiColleges = uniqueColleges.map((college) => ({
         value: college._id,
         label: college.name,
       }));
@@ -86,7 +105,7 @@ export const FiltersSidebar: React.FC = () => {
     }
     
     return options;
-  }, [collegeData]);
+  }, [collegeData, broadCollegeData]);
 
   // Handle debounced search (only if user has access)
   useEffect(() => {
@@ -108,6 +127,20 @@ export const FiltersSidebar: React.FC = () => {
       setHometown(debouncedHometown || null);
     }
   }, [debouncedHometown, setHometown, hasFilterAccess]);
+
+  // When a college filter is set programmatically, ensure we have the college name
+  useEffect(() => {
+    if (filters.college && filters.college !== "all") {
+      // Check if we already have this college in our options
+      const hasCollege = collegeOptions.some(option => option.value === filters.college);
+      
+      if (!hasCollege) {
+        // We don't have this college, so search for it
+        // Since we don't have the name, we'll search with a broad query
+        setBroadCollegeSearch("university college");
+      }
+    }
+  }, [filters.college, collegeOptions]);
 
   // Handle filter interaction for non-premium users
   const handleFilterInteraction = (trigger: string) => {

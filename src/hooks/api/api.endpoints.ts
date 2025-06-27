@@ -55,7 +55,9 @@ const API_ENDPOINTS = {
     createCheckoutSession: '/users/payment/post',
     confirmPayment: '/users/payment/confirm',
     createSubscriptionSession: '/users/payment/subscription',
+    cancelSubscription: '/webhook/cancel-auto-renew',
     pricing: '/pricing',
+    subscriptionStatus: '/users/subscription-status',
   },
 
   transactions: {
