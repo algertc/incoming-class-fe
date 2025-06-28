@@ -24,7 +24,6 @@ import { InstagramIcon, SnapchatIcon } from './icons';
 import { glassCardStyles } from '../utils/glassStyles';
 
 interface ContactData {
-  email: string;
   instagram: string;
   snapchat: string;
   university: string;

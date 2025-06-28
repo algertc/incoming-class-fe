@@ -22,12 +22,10 @@ import {
 } from "@tabler/icons-react";
 import { useFeedStore, type FeedFilters } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useAuthStore } from "../../../store/auth.store";
 import { useCollegeSearch } from "../../../hooks/api/useColleges";
 
 export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen?: () => void }> = ({ showSearch = false, onPremiumModalOpen }) => {
   const theme = useMantineTheme();
-  const { user } = useAuthStore();
   
   // Get feed store state and actions
   const {

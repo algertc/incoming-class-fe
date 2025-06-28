@@ -8,17 +8,14 @@ import {
   useMantineTheme,
   Collapse,
   Paper,
-  Text,
 } from "@mantine/core";
 import {
   IconSearch,
   IconFilter,
   IconX,
-  IconCrown,
 } from "@tabler/icons-react";
 import { useFeedStore } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useAuthStore } from "../../../store/auth.store";
 import { PremiumSubscriptionModal } from "../../../components/common/PremiumSubscriptionModal";
 
 interface MobileSearchBarProps {
@@ -29,11 +26,10 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   onFiltersClick,
 }) => {
   const theme = useMantineTheme();
-  const { user } = useAuthStore();
   
   // State for premium modal
   const [premiumModalOpened, setPremiumModalOpened] = useState(false);
-  const [modalTrigger, setModalTrigger] = useState<string>("search");
+  const [modalTrigger, _setModalTrigger] = useState<string>("search");
   
   // Get feed store state and actions
   const { 
@@ -58,11 +54,7 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
     setSearchQuery(filters.searchQuery);
   }, [filters.searchQuery]);
 
-  // Handle filter interaction for non-premium users
-  const handleFilterInteraction = (trigger: string) => {
-    setModalTrigger(trigger);
-    setPremiumModalOpened(true);
-  };
+ 
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, Container, Grid, Button, Text, Group } from "@mantine/core";
+import { Box, Container, Grid } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
-import { useNavigate, useSearchParams } from "react-router";
+import { useSearchParams } from "react-router";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
@@ -34,7 +34,6 @@ const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
   console.log("log auth state", user);
   
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
   const [collegeFeedModalOpen, setCollegeFeedModalOpen] = useState(false);

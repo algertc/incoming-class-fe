@@ -8,7 +8,6 @@ export interface FetchPostsParams {
   limit?: number;
   searchQuery?: string;
   categories?: string[];
-  sortBy?: 'newest' | 'popular' | 'comments';
   lastDays?: number; // Number of days to look back from today
   college?: string | null;
   substances?: string | null;
