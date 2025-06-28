@@ -11,7 +11,10 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import gsap from "gsap";
-import CollegeSelect from "../CollegeSelectComponent/CollegeSelect";
+import CollegeSearchSelect from "../../../components/common/CollegeSearchSelect";
+import { useLocalStorage } from "@mantine/hooks";
+import { useNavigate } from "react-router";
+import { useFeedStore } from "../../../store/feed.store";
 
 // CSS keyframes for the floating animations and stars twinkling - OPTIMIZED FOR IOS SAFARI
 const animationStyles = `
@@ -87,6 +90,12 @@ const animationStyles = `
 
 export const HeroSection: React.FC = () => {
   const theme = useMantineTheme();
+  const navigate = useNavigate();
+  const { setCollegeFromHero } = useFeedStore();
+  const [, setSelectedCollege] = useLocalStorage({
+    key: "college",
+    defaultValue: "",
+  });
 
   // Refs for animations
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
@@ -103,6 +112,12 @@ export const HeroSection: React.FC = () => {
   const bgCircle3Ref = useRef<HTMLDivElement>(null);
   const bgGradient1Ref = useRef<HTMLDivElement>(null);
   const bgGradient2Ref = useRef<HTMLDivElement>(null);
+
+  const handleCollegeSelect = (college: { id: string; name: string }) => {
+    setSelectedCollege(college.id);
+    setCollegeFromHero(college.id);
+    navigate(`/feed?collegeId=${encodeURIComponent(college.id)}&collegeName=${encodeURIComponent(college.name)}&from=hero`);
+  };
 
   useEffect(() => {
     // Set up initial states for hero elements
@@ -476,7 +491,7 @@ export const HeroSection: React.FC = () => {
             }}
           >
             <Text inherit component="span" c={theme.white}>
-              Find your squad before{" "}
+             Your College Network{" "}
             </Text>
             <Text
               inherit
@@ -484,7 +499,7 @@ export const HeroSection: React.FC = () => {
               variant="gradient"
               gradient={{ from: "#4361ee", to: "#3a0ca3", deg: 45 }}
             >
-              freshman year starts.
+              Starts Here.
             </Text>
           </Title>
 
@@ -497,24 +512,14 @@ export const HeroSection: React.FC = () => {
             className="hero-text"
             style={{ maxWidth: 700 }}
           >
-            Connect with your future classmates, find your perfect roomie, and
-            build your college circle—all before orientation.
+            Skip the awkward intros later- start connecting now. Link your social media, post your profile, and match with roommates and friends before move-in day.
           </Text>
 
           <Box 
             ref={heroButtonsRef}
-            className="hero-buttons"
-            style={{ 
-              width: '100%', 
-              display: 'flex', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              marginBottom: 'xl'
-            }}
+            style={{ width: "100%", maxWidth: 500, opacity: 0 }}
           >
-            <Box style={{ width: '100%', maxWidth: '500px' }}>
-              <CollegeSelect />
-            </Box>
+            <CollegeSearchSelect onSelect={handleCollegeSelect} />
           </Box>
 
           <Group

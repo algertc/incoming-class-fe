@@ -12,6 +12,7 @@ import {
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
+  IconBuildingBank,
   IconPhoto,
   IconUser,
   IconTags,
@@ -19,6 +20,7 @@ import {
   IconCreditCard,
 } from "@tabler/icons-react";
 // import { useNavigate } from "react-router";
+import CollegeSelectStep from "../../pages/ProfileCompletion/components/CollegeSelectStep";
 import PhotoUpload from "../../pages/ProfileCompletion/components/PhotoUpload";
 import BasicInfo from "../../pages/ProfileCompletion/components/BasicInfo";
 import TraitsPreferences from "../../pages/ProfileCompletion/components/TraitsPreferences";
@@ -32,19 +34,20 @@ import { withProfileStageGuard } from "./withProfileStageGuard";
 import { useUpdateCurrentUserProfile } from "../../hooks/api";
 
 const stageToIndex = {
-  [ProfileStage.UPLOAD_PHOTOS]: 0,
-  [ProfileStage.ABOUT_YOU]: 1,
-  [ProfileStage.PREFERENCES]: 2,
-  [ProfileStage.PROFILE_PREVIEW]: 3,
-  [ProfileStage.PAYMENT]: 4,
+  [ProfileStage.UPLOAD_PHOTOS]: 1,
+  [ProfileStage.ABOUT_YOU]: 2,
+  [ProfileStage.PREFERENCES]: 3,
+  [ProfileStage.PROFILE_PREVIEW]: 4,
+  [ProfileStage.PAYMENT]: 5,
 };
 
 const indexToStage: Record<number, ProfileStage> = {
   0: ProfileStage.UPLOAD_PHOTOS,
-  1: ProfileStage.ABOUT_YOU,
-  2: ProfileStage.PREFERENCES,
-  3: ProfileStage.PROFILE_PREVIEW,
-  4: ProfileStage.PAYMENT,
+  1: ProfileStage.UPLOAD_PHOTOS,
+  2: ProfileStage.ABOUT_YOU,
+  3: ProfileStage.PREFERENCES,
+  4: ProfileStage.PROFILE_PREVIEW,
+  5: ProfileStage.PAYMENT,
 };
 
 const ProfileCompletion: React.FC = () => {
@@ -61,12 +64,20 @@ const ProfileCompletion: React.FC = () => {
   useEffect(() => {
     if (user?.profileStage) {
       const stageIndex = stageToIndex[user.profileStage];
-      setActive(stageIndex);
+      // If user hasn't selected a college yet, start at step 0 (college selection)
+      if (!user.college && !user.university) {
+        setActive(0);
+      } else {
+        setActive(stageIndex);
+      }
+    } else {
+      // If no profile stage, start at college selection
+      setActive(0);
     }
   }, [user]);
 
   const nextStep = () =>
-    setActive((current) => (current < 4 ? current + 1 : current));
+    setActive((current) => (current < 5 ? current + 1 : current));
   const prevStep = async () => {
     if (active === 0 || isNavigating) return;
     
@@ -97,6 +108,13 @@ const ProfileCompletion: React.FC = () => {
   };
 
   const steps = [
+    {
+      title: "College",
+      mobileTitle: "College",
+      description: "Select your college",
+      icon: <IconBuildingBank style={{ width: rem(18), height: rem(18) }} />,
+      stage: ProfileStage.UPLOAD_PHOTOS,
+    },
     {
       title: "Photos",
       mobileTitle: "Photos",
@@ -256,18 +274,21 @@ const ProfileCompletion: React.FC = () => {
               }}
             >
               {active === 0 && (
-                <PhotoUpload onComplete={() => handleStepComplete(0)} />
+                <CollegeSelectStep onComplete={() => handleStepComplete(0)} />
               )}
               {active === 1 && (
-                <BasicInfo onComplete={() => handleStepComplete(1)} />
+                <PhotoUpload onComplete={() => handleStepComplete(1)} />
               )}
               {active === 2 && (
-                <TraitsPreferences onComplete={() => handleStepComplete(2)} />
+                <BasicInfo onComplete={() => handleStepComplete(2)} />
               )}
               {active === 3 && (
-                <ProfilePreview onComplete={() => handleStepComplete(3)} />
+                <TraitsPreferences onComplete={() => handleStepComplete(3)} />
               )}
-              {active === 4 && <Payment />}
+              {active === 4 && (
+                <ProfilePreview onComplete={() => handleStepComplete(4)} />
+              )}
+              {active === 5 && <Payment />}
             </Box>
           </div>
 

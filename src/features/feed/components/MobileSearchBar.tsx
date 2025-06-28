@@ -39,7 +39,6 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   const { 
     filters, 
     searchPosts, 
-    checkFilterAccess
   } = useFeedStore();
 
   // Local state for debounced search
@@ -47,15 +46,12 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Check if user has access to filters
-  const hasFilterAccess = checkFilterAccess();
+
 
   // Handle debounced search (only if user has access)
   useEffect(() => {
-    if (hasFilterAccess) {
-      searchPosts(debouncedSearchQuery);
-    }
-  }, [debouncedSearchQuery, searchPosts, hasFilterAccess]);
+    searchPosts(debouncedSearchQuery);
+  }, [debouncedSearchQuery, searchPosts]);
 
   // Update local search when filters change externally
   useEffect(() => {
@@ -64,38 +60,23 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
 
   // Handle filter interaction for non-premium users
   const handleFilterInteraction = (trigger: string) => {
-    if (!hasFilterAccess) {
-      setModalTrigger(trigger);
-      setPremiumModalOpened(true);
-      return;
-    }
+    setModalTrigger(trigger);
+    setPremiumModalOpened(true);
   };
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("search");
-      return;
-    }
     setSearchQuery(e.target.value);
   };
 
   // Clear search
   const handleClearSearch = () => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("search");
-      return;
-    }
     setSearchQuery("");
     searchPosts("");
   };
 
   // Handle filters button click
   const handleFiltersClick = () => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("filters");
-      return;
-    }
     onFiltersClick();
   };
 
@@ -115,23 +96,21 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
         style={{
           backgroundColor: "rgba(0, 0, 0, 0.3)",
           backdropFilter: "blur(10px)",
-          border: hasFilterAccess 
-            ? "1px solid rgba(255, 255, 255, 0.1)"
-            : "1px solid rgba(255, 215, 0, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.1)"
         }}
       >
         <Group gap="xs" align="center">
           {/* Search Input */}
           <Box style={{ flex: 1 }}>
             <TextInput
-              placeholder={hasFilterAccess ? "Search posts..." : "Premium feature - Search posts"}
+              placeholder="Search posts..."
               value={searchQuery}
               onChange={handleSearchChange}
-              onFocus={() => hasFilterAccess && setIsSearchFocused(true)}
+              onFocus={() => setIsSearchFocused(true)}
               onBlur={() => setIsSearchFocused(false)}
               leftSection={<IconSearch size={16} />}
               rightSection={
-                searchQuery && hasFilterAccess ? (
+                searchQuery ? (
                   <ActionIcon
                     size="sm"
                     variant="transparent"
@@ -140,25 +119,18 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
                   >
                     <IconX size={14} />
                   </ActionIcon>
-                ) : !hasFilterAccess ? (
-                  <IconCrown size={16} color="#FFD700" />
                 ) : null
               }
               size="md"
-              disabled={!hasFilterAccess}
               styles={{
                 input: {
-                  backgroundColor: hasFilterAccess 
-                    ? "rgba(255, 255, 255, 0.05)"
-                    : "rgba(255, 215, 0, 0.05)",
-                  color: hasFilterAccess ? theme.white : theme.colors.gray[5],
+                  backgroundColor: "rgba(255, 255, 255, 0.05)",
+                  color: theme.white,
                   border: isSearchFocused 
                     ? `1px solid ${theme.colors.blue[5]}` 
-                    : hasFilterAccess 
-                      ? "1px solid rgba(255, 255, 255, 0.1)"
-                      : "1px solid rgba(255, 215, 0, 0.3)",
+                    : "1px solid rgba(255, 255, 255, 0.1)",
                   "&::placeholder": {
-                    color: hasFilterAccess ? theme.colors.dark[2] : theme.colors.gray[6],
+                    color: theme.colors.gray[6],
                   },
                   "&:disabled": {
                     backgroundColor: "rgba(255, 215, 0, 0.05)",
@@ -173,19 +145,17 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
           <ActionIcon
             size="lg"
             variant="light"
-            color={hasActiveFilters ? "blue" : hasFilterAccess ? "gray" : "yellow"}
+            color={hasActiveFilters ? "blue" : "gray"}
             onClick={handleFiltersClick}
             style={{
               position: "relative",
               backgroundColor: hasActiveFilters 
                 ? "rgba(67, 97, 238, 0.2)" 
-                : hasFilterAccess
-                  ? "rgba(255, 255, 255, 0.05)"
-                  : "rgba(255, 215, 0, 0.1)",
+                : "rgba(255, 255, 255, 0.05)"
             }}
           >
-            {hasFilterAccess ? <IconFilter size={20} /> : <IconCrown size={20} />}
-            {activeFiltersCount > 0 && hasFilterAccess && (
+            <IconFilter size={20} />
+            {activeFiltersCount > 0 && (
               <Badge
                 size="xs"
                 color="red"
@@ -207,20 +177,10 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
           </ActionIcon>
         </Group>
 
-        {/* Premium notice for non-premium users */}
-        {!hasFilterAccess && (
-          <Box pt="sm">
-            <Text size="xs" c="dimmed" ta="center">
-                {!user 
-                ? "Sign up to unlock search and filters"
-                : "Upgrade to Premium for advanced search and filters"
-              }
-            </Text>
-          </Box>
-        )}
+           
 
         {/* Active Filters Preview */}
-        <Collapse in={hasActiveFilters && hasFilterAccess}>
+        <Collapse in={hasActiveFilters}>
           <Box pt="sm">
             <Group gap="xs">
               {filters.lastDays !== 30 && (

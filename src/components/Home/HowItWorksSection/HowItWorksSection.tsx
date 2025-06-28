@@ -56,22 +56,22 @@ export const HowItWorksSection: React.FC = () => {
           <Grid.Col span={{ base: 12, sm: 4 }}>
             <StepCard
               number={1}
-              title="Create Your Profile"
-              description="Sign up and build your profile with your preferences, habits, and interests."
+              title="Search Your University"
+              description="Find your campus and explore who else is joining."
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 4 }}>
             <StepCard
               number={2}
-              title="Browse Matches"
-              description="Our AI will suggest potential roommates and classmates based on compatibility."
+              title="Create a Post"
+              description="Share your preferences, lifestyle, and what you're looking for."
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, sm: 4 }}>
             <StepCard
               number={3}
-              title="Connect & Chat"
-              description="Reach out through our secure messaging to get to know your matches better."
+              title="Start Connecting"
+              description="Discover like-minded students and message them directly."
             />
           </Grid.Col>
         </Grid>

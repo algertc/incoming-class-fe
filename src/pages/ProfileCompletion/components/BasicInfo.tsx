@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from "react";
 import {
   TextInput,
+  Button,
+  Group,
+  Stack,
   Select,
   Textarea,
   Checkbox,
-  Group,
-  Button,
-  Stack,
+  Paper,
   Text,
   rem,
-  Paper,
 } from "@mantine/core";
 import { useForm, yupResolver } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
-import { ProfileStage } from "../../../models/user.model";
 import type { User, College } from "../../../models/user.model";
+import { ProfileStage } from "../../../models/user.model";
 import { profileBasicInfoSchema, getProfileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
 import { useAuthStore } from "../../../store/auth.store";
-import CollegeSearchSelect from "./CollegeSearchSelect";
 import styles from "./BasicInfo.module.css";
 
 interface ExtendedUser extends User {
@@ -90,15 +89,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
     }
   };
 
-  const handleCollegeChange = (collegeName: string, collegeId?: string) => {
-    console.log('College selected:', { collegeName, collegeId });
-    form.setFieldValue("university", collegeName);
-    if (collegeId) {
-      setSelectedCollegeId(collegeId);
-      console.log('College ID set to:', collegeId);
-    }
-  };
-
   return (
     <Paper 
       className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`} 
@@ -134,7 +124,7 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
           />
 
           <TextInput
-            required
+            
             label="Snapchat Handle"
             placeholder="@username"
             leftSection={
@@ -175,24 +165,6 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             }}
             size={isMobile ? "sm" : "md"}
           />
-
-          <CollegeSearchSelect
-            label="University"
-            placeholder="Select your university"
-            value={form.values.university}
-            onChange={handleCollegeChange}
-            error={typeof form.errors.university === 'string' ? form.errors.university : undefined}
-            required
-            size={isMobile ? "sm" : "md"}
-            classNames={{
-              label: styles.label,
-              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
-              dropdown: styles.dropdown,
-              option: styles.item,
-            }}
-          />
-
-      
 
           <Select
             required

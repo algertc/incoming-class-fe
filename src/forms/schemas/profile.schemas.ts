@@ -7,15 +7,15 @@ export const profileBasicInfoSchema = Yup.object().shape({
   instagram: Yup.string()
     .matches(/^@?[\w\\.]+$/, 'Please enter a valid Instagram handle')
     .required('Instagram handle is required'),
-  snapchat: Yup.string()
-    .matches(/^@?[\w\\.]+$/, 'Please enter a valid Snapchat handle')
-    .notRequired(),
+  // snapchat: Yup.string()
+  //   .matches(/^@?[\w\\.]+$/, 'Please enter a valid Snapchat handle')
+  //   .notRequired(),
   major: Yup.string()
     .required('Major is required'),
   hometown: Yup.string()
     .required('Hometown is required'),
-  university: Yup.string()
-    .required('University is required'),
+  // university: Yup.string()
+  //   .required('University is required'),
   // batch: Yup.string()
   //   .required('Batch/Year is required'),
   bio: Yup.string()

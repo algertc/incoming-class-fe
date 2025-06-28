@@ -5,7 +5,6 @@ import {
   Stack,
   Text,
   Paper,
-  Select,
   Box,
   ScrollArea,
   LoadingOverlay,
@@ -107,102 +106,73 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                   Lifestyle
                 </Text>
                 <Stack gap="md">
-                  <Select
-                    required
-                    label="Sleep Schedule"
-                    placeholder="Select your sleep schedule"
+                  {/* Sleep Schedule */}
+                  <Text size="sm" fw={500} className={styles.label} c="white">
+                    Sleep Schedule
+                  </Text>
+                  <ChipGroup
                     data={[
                       'Early Bird',
                       'Night Owl',
                       'Flexible',
                     ]}
-                    {...form.getInputProps('sleepSchedule')}
-                    classNames={{
-                      input: styles.input,
-                      dropdown: styles.dropdown,
-                      label: styles.label,
-                      option: styles.item,
-                    }}
-                    c="white"
+                    multiple={false}
+                    value={form.values.sleepSchedule}
+                    onChange={(v) => form.setFieldValue('sleepSchedule', v)}
+                    error={form.errors.sleepSchedule as string}
                   />
 
-                  <Select
-                    required
-                    label="Cleanliness"
-                    placeholder="Select your cleanliness preference"
-                    data={[
-                      'Neat Freak',
-                      'Organized',
-                      'Casual',
-                      'Messy',
-                    ]}
-                    {...form.getInputProps('cleanliness')}
-                    classNames={{
-                      input: styles.input,
-                      dropdown: styles.dropdown,
-                      label: styles.label,
-                      option: styles.item,
-                    }}
-                    c="white"
+                  {/* Cleanliness */}
+                  <Text size="sm" fw={500} className={styles.label} c="white">
+                    Cleanliness
+                  </Text>
+                  <ChipGroup
+                    data={['Neat Freak', 'Organized', 'Casual', 'Messy']}
+                    multiple={false}
+                    value={form.values.cleanliness}
+                    onChange={(v) => form.setFieldValue('cleanliness', v)}
+                    error={form.errors.cleanliness as string}
                   />
 
-                  <Select
-                    required
-                    label="Guests"
-                    placeholder="Select your guest preference"
-                    data={[
-                      'Over Whenever',
-                      'With Notice',
-                      'Rarely',
-                    ]}
-                    {...form.getInputProps('guests')}
-                    classNames={{
-                      input: styles.input,
-                      dropdown: styles.dropdown,
-                      label: styles.label,
-                      option: styles.item,
-                    }}
-                    c="white"
+                  {/* Guests */}
+                  <Text size="sm" fw={500} className={styles.label} c="white">
+                    Guests
+                  </Text>
+                  <ChipGroup
+                    data={['Over Whenever', 'With Notice', 'Rarely']}
+                    multiple={false}
+                    value={form.values.guests}
+                    onChange={(v) => form.setFieldValue('guests', v)}
+                    error={form.errors.guests as string}
                   />
 
-                  <Select
-                    required
-                    label="Studying"
-                    placeholder="Select your studying preference"
-                    data={[
-                      'Around Campus',
-                      'In Room',
-                      'Library',
-                      'Flexible',
-                    ]}
-                    {...form.getInputProps('studying')}
-                    classNames={{
-                      input: styles.input,
-                      dropdown: styles.dropdown,
-                      label: styles.label,
-                      option: styles.item,
-                    }}
-                    c="white"
+                  {/* Studying */}
+                  <Text size="sm" fw={500} className={styles.label} c="white">
+                    Studying
+                  </Text>
+                  <ChipGroup
+                    data={['Around Campus', 'In Room', 'Library', 'Flexible']}
+                    multiple={false}
+                    value={form.values.studying}
+                    onChange={(v) => form.setFieldValue('studying', v)}
+                    error={form.errors.studying as string}
                   />
 
-                  <Select
-                    required
-                    label="Substances"
-                    placeholder="Select your substance preference"
+                  {/* Substances */}
+                  <Text size="sm" fw={500} className={styles.label} c="white">
+                    Substances
+                  </Text>
+                  <ChipGroup
                     data={[
                       'Fine with Drinking',
                       'Fine with Smoking',
                       'Fine with Both',
                       'No Substances',
                     ]}
-                    {...form.getInputProps('substances')}
-                    classNames={{
-                      input: styles.input,
-                      dropdown: styles.dropdown,
-                      label: styles.label,
-                      option: styles.item,
-                    }}
-                    c="white"
+                    multiple={false}
+                    value={form.values.substances}
+                    onChange={(v) => form.setFieldValue('substances', v)}
+                    error={form.errors.substances as string}
                   />
                 </Stack>
               </Box>

@@ -325,8 +325,7 @@ const AboutPage: React.FC = () => {
               ta="center"
               style={{ maxWidth: 700, lineHeight: 1.6 }}
             >
-              We're on a mission to help every student find their tribe before stepping foot on campus. 
-              Because college is better when you're not going it alone.
+              We're on a mission to help every student find their tribe before they set foot on campus—because college is better when you're not facing it alone.
             </Text>
           </Stack>
         </Container>

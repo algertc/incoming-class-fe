@@ -16,15 +16,21 @@ import gsap from "gsap";
 const features = [
   {
     icon: "🚀",
-    title: "Personalized Matching",
+    title: "Fast Posting",
     description:
-      "Our AI algorithms match you with like-minded roommates based on your lifestyle, habits, and preferences.",
+      "Quickly create and share your post to start connecting with potential roommates at your university.",
   },
   {
-    icon: "💬",
-    title: "Secure Messaging",
+    icon: "🤖",
+    title: "AI Matching",
     description:
-      "Connect with potential roommates through our secure in-app messaging system before making decisions.",
+      "Our smart algorithms suggest the most compatible matches based on your preferences and interests.",
+  },
+  {
+    icon: "🧩",
+    title: "Customizable Profile",
+    description:
+      "Show off your personality with a flexible profile tailored to your lifestyle, habits, and roommate expectations.",
   },
 ];
 
@@ -74,7 +80,7 @@ export const FeaturedSection: React.FC = () => {
             c={theme.white}
             style={{ fontSize: "2.5rem" }}
           >
-            Features & Testimonials
+            Features
           </Title>
           <Text
             ta="center"
@@ -89,9 +95,9 @@ export const FeaturedSection: React.FC = () => {
         </Stack>
 
         {/* Features section */}
-        <Title order={3} mb="lg" c={theme.white}>
-          Our Features
-        </Title>
+          {/* <Title order={3} mb="lg" c={theme.white}>
+            Our Features
+          </Title> */}
         <Grid gutter={30} mb={60}>
           {features.map((feature, index) => (
             <Grid.Col key={index} span={{ base: 12, sm: 6, md: 6 }}>

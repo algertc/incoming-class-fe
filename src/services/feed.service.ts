@@ -12,8 +12,11 @@ export interface FetchPostsParams {
   lastDays?: number; // Number of days to look back from today
   college?: string | null;
   substances?: string | null;
-  personality?: string[] | null;
-  hometown?: string | null;
+  homeState?: string | null;
+  religion?: string | null;
+  gender?: string | null;
+  campusInvolvement?: string | null;
+  other?: string | null;
 }
 
 export interface FetchPostsResponse {
@@ -121,14 +124,21 @@ class FeedService {
       queryParams.substances = params.substances;
     }
 
-    // Handle personality filter (array of strings)
-    if (params.personality && params.personality.length > 0) {
-      queryParams.personality = params.personality;
+    // New filters
+    if (params.homeState) {
+      queryParams.homeState = params.homeState;
     }
-
-    // Handle hometown filter
-    if (params.hometown) {
-      queryParams.hometown = params.hometown;
+    if (params.religion) {
+      queryParams.religion = params.religion;
+    }
+    if (params.gender) {
+      queryParams.gender = params.gender;
+    }
+    if (params.campusInvolvement) {
+      queryParams.campusInvolvement = params.campusInvolvement;
+    }
+    if (params.other) {
+      queryParams.other = params.other;
     }
 
     return queryParams;

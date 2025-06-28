@@ -51,7 +51,7 @@ const SubscriptionPage: React.FC = () => {
   // API hooks
   const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser, error: userError } = useCurrentUser();
   const { data: transactionsData, isLoading: isLoadingTransactions, refetch: refetchTransactions } = useCurrentUserTransactions();
-  
+
   console.log("currentUserData", currentUserData);
   console.log("userError", userError);
   

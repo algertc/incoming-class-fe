@@ -82,7 +82,7 @@ const CurrentUserProfilePage: React.FC = () => {
   }
 
   console.log("ptroflifleDapt",profileData);
-  
+
   // Compute derived values from User data
   const fullName = profileData.firstName && profileData.lastName 
     ? `${profileData.firstName} ${profileData.lastName}` 

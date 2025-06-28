@@ -18,7 +18,8 @@ import type { SignupData } from "../../../../models/user.model";
 import { signupSchema, signupInitialValues } from "../../../../forms";
 import { showSuccess } from "../../../../utils";
 import { useSendEmailOtp, useVerifyEmail } from "../../../../hooks/api/useAuth";
-import ROUTES from "../../../../constants/routes";
+import { useAuthStore } from "../../../../store/auth.store";
+import { ROUTES } from "../../../../routing/routes";
 
 // Keys for localStorage
 const LS_KEYS = {
@@ -54,8 +55,13 @@ const SignupForm: React.FC = () => {
   });
 
   const { mutateAsync, isPending } = useSendEmailOtp();
-  const { mutateAsync: mutateVerifyOtp, isPending: isOtpVerificationPending } =
-    useVerifyEmail();
+  const {
+    mutateAsync: mutateVerifyOtp,
+    isPending: isOtpVerificationPending,
+  } = useVerifyEmail();
+
+  // Access auth store actions
+  const { fetchUser, setUser } = useAuthStore();
 
   // Initialize form with stored values
   const form = useForm({
@@ -154,11 +160,36 @@ const SignupForm: React.FC = () => {
 
     try {
       const response = await mutateVerifyOtp(signupData);
-      if (!response.status) throw new Error(response.message);
-      showSuccess(response.message);
+
+      if (!response.status || !response.data) {
+        throw new Error(response.message || "Verification failed");
+      }
+
+      showSuccess("Account created successfully!");
+
+      const { token, user, isProfileCompleted } = response.data;
+
+      // Persist token (already done in useVerifyEmail onSuccess, but ensure fallback)
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
+      // Attempt to fetch fresh user data
+      try {
+        await fetchUser();
+      } catch (err) {
+        // Fallback to response user data
+        if (user) {
+          setUser(user);
+        }
+      }
+
       // Clear signup data on successful signup
       clearSignupData();
-      navigate(ROUTES.LOGIN);
+
+      // Redirect based on profile completion status
+      const redirectRoute = isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION;
+      navigate(redirectRoute);
     } catch (error) {
       setApiError((error as Error).message);
     }

@@ -6,18 +6,15 @@ import {
   Text,
   useMantineTheme,
   Paper,
-  Divider,
   Box,
-  List,
   ThemeIcon,
-  Card,
   SimpleGrid,
   LoadingOverlay,
   Alert,
+  Badge,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import {
-  IconCheck,
   IconBrandInstagram,
   IconEye,
   IconUsers,
@@ -30,9 +27,12 @@ import {
   IconRocket,
   IconFilter,
   IconUserSearch,
+  IconCrown,
+  IconBolt,
+  IconInfinity,
 } from "@tabler/icons-react";
 import { showError } from "../../../utils";
-import { useCreateCheckoutSession, usePricing } from "../../../hooks/api";
+import { useCreateCheckoutSession, useCreateSubscriptionSession, usePricing } from "../../../hooks/api";
 
 // Starter Plan features data
 const STARTER_FEATURES = [
@@ -87,187 +87,268 @@ const STARTER_FEATURES = [
   },
 ];
 
+// Premium Plan features data
+const PREMIUM_FEATURES = [
+  {
+    title: "Expedited Posting",
+    description: "Your posts move to the front of the queue",
+    icon: IconBolt,
+    color: "orange",
+    included: true,
+    badge: "Priority",
+  },
+  {
+    title: "Unlimited Profile Views",
+    description: "View unlimited student profiles",
+    icon: IconInfinity,
+    color: "blue",
+    included: true,
+    badge: "Unlimited",
+  },
+  {
+    title: "Unlimited Posts",
+    description: "Submit unlimited posts to the feed",
+    icon: IconInfinity,
+    color: "cyan",
+    included: true,
+    badge: "Unlimited",
+  },
+  {
+    title: "AI-Powered Matching",
+    description: "Smart AI finds your perfect roommate match",
+    icon: IconSparkles,
+    color: "purple",
+    included: true,
+    badge: "AI",
+  },
+  {
+    title: "Full Filter Access",
+    description: "Filter by major, vibe, interests, dorm & more",
+    icon: IconFilter,
+    color: "green",
+    included: true,
+    badge: "Advanced",
+  },
+  {
+    title: "Premium Support",
+    description: "Priority customer support and assistance",
+    icon: IconShield,
+    color: "indigo",
+    included: true,
+    badge: "Support",
+  },
+  {
+    title: "Early Access",
+    description: "Get early access to new features and updates",
+    icon: IconRocket,
+    color: "pink",
+    included: true,
+    badge: "Exclusive",
+  },
+];
+
 const Payment: React.FC = () => {
   const theme = useMantineTheme();
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [premiumPaymentError, setPremiumPaymentError] = useState<string | null>(null);
   const isMobile = useMediaQuery("(max-width: 768px)");
   
   const { mutateAsync: createCheckoutSession, isPending: isInitiatingPayment } = useCreateCheckoutSession();
+  const { mutateAsync: createSubscriptionSession, isPending: isInitiatingPremiumPayment } = useCreateSubscriptionSession();
   const { data: pricingData, isLoading: isPricingLoading } = usePricing();
 
-  const price = pricingData?.data?.premium || 0;
+  // Pricing keys: post (starter one-time), premium (monthly subscription)
+  const starterPrice = pricingData?.data?.post || 0;
+  const premiumPrice = pricingData?.data?.premium || 0;
+
   const tax = 0.0;
-  const total = price + tax;
+  const starterTotal = starterPrice + tax;
 
   const initiatePayment = async () => {
-    console.log("🔄 Payment initiation started");
-    console.log("💰 Payment details:", {
-      amount: Math.round(total * 100),
-      currency: "usd",
-      totalPrice: total,
-      price,
-      tax
-    });
-
+    console.log("🔄 Starter payment initiation started");
     setPaymentError(null);
 
     try {
-      console.log("📡 Creating checkout session...");
       const requestData = {
-        amount: Math.round(total * 100), // Convert to cents
+        amount: Math.round(starterTotal * 100), // Convert to cents (starter plan)
         currency: "usd",
         successUrl: `${window.location.origin}/payment/premium/success`,
         cancelUrl: `${window.location.origin}/payment/error`,
       };
       
-      console.log("📤 Request payload:", requestData);
-
       const response = await createCheckoutSession(requestData);
       
-      console.log("📥 Checkout session response:", {
-        status: response.status,
-        message: response.message,
-        data: response.data,
-        timestamp: new Date().toISOString()
-      });
-
       if (!response.status || !response.data?.checkoutUrl) {
         const errorMsg = response.message || "Failed to initialize payment";
-        console.error("❌ Checkout session failed:", {
-          error: errorMsg,
-          response: response,
-          timestamp: new Date().toISOString()
-        });
         throw new Error(errorMsg);
       }
 
-      console.log("✅ Checkout session created successfully");
-      console.log("🔗 Checkout URL:", response.data.checkoutUrl);
-      console.log("📊 Transaction Status:", response.data.transactionStatus);
-      console.log("🚀 Redirecting to Stripe Checkout...");
-
-      // Log redirect attempt
-      console.log("🌐 Redirect details:", {
-        from: window.location.href,
-        to: response.data.checkoutUrl,
-        timestamp: new Date().toISOString()
-      });
-
-      // Redirect to Stripe Checkout
-      window.location.href = response.data.checkoutUrl;
+      // Open Stripe checkout in a new tab
+      const newTab = window.open(response.data.checkoutUrl, '_blank');
+      if (!newTab) {
+        // Fallback if popup is blocked
+        window.location.href = response.data.checkoutUrl;
+      }
     } catch (error) {
       const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
-      
-      console.error("💥 Payment initiation failed:", {
-        error: errorMessage,
-        errorObject: error,
-        stack: (error as Error).stack,
-        timestamp: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        url: window.location.href
-      });
-
       setPaymentError(errorMessage);
       showError(errorMessage);
     }
   };
 
+  const initiatePremiumPayment = async () => {
+    console.log("🔄 Premium payment initiation started");
+    setPremiumPaymentError(null);
+
+    try {
+      const requestData = {
+        amount: Math.round(premiumPrice * 100), // Convert to cents
+        currency: "usd",
+        successUrl: `${window.location.origin}/payment/premium/success`,
+        cancelUrl: `${window.location.origin}/payment/post/error`,
+      };
+
+      const response = await createSubscriptionSession(requestData);
+
+      if (!response.status || !response.data?.checkoutUrl) {
+        const errorMsg = response.message || "Failed to initialize payment";
+        throw new Error(errorMsg);
+      }
+
+      // Open Stripe checkout in a new tab
+      const newTab = window.open(response.data.checkoutUrl, '_blank');
+      if (!newTab) {
+        // Fallback if popup is blocked
+        window.location.href = response.data.checkoutUrl;
+      }
+    } catch (error) {
+      const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
+      setPremiumPaymentError(errorMessage);
+      showError(errorMessage);
+    }
+  };
+
   return (
-      <Paper
-        p={isMobile ? "sm" : "xl"}
-        radius="md"
-        style={{
-          background: "rgba(255, 255, 255, 0.05)",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          position: "relative",
-          ...(isMobile && {
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            overflow: "auto",
-          }),
-        }}
-      >
-      <LoadingOverlay visible={isInitiatingPayment || isPricingLoading} overlayProps={{ blur: 2 }} />
+    <Paper
+      p={isMobile ? "sm" : "xl"}
+      radius="md"
+      style={{
+        background: "rgba(255, 255, 255, 0.05)",
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        position: "relative",
+        ...(isMobile && {
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          overflow: "auto",
+        }),
+      }}
+    >
+      <LoadingOverlay visible={isInitiatingPayment || isInitiatingPremiumPayment || isPricingLoading} overlayProps={{ blur: 2 }} />
 
-        <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
-          {/* Header */}
-          <Box ta="center">
-            <Group justify="center" mb={isMobile ? "xs" : "sm"}>
-              <ThemeIcon
-                size={isMobile ? "lg" : "xl"}
-                radius="md"
-                variant="gradient"
-                gradient={{ from: "blue", to: "cyan" }}
-              >
-              <IconStar size={isMobile ? 20 : 24} />
-              </ThemeIcon>
-            </Group>
-            <Text
+      <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
+        {/* Header */}
+        <Box ta="center">
+          <Group justify="center" mb={isMobile ? "xs" : "sm"}>
+            <ThemeIcon
               size={isMobile ? "lg" : "xl"}
-              fw={700}
-              style={{ color: theme.white }}
-              mb="xs"
+              radius="md"
+              variant="gradient"
+              gradient={{ from: "blue", to: "cyan" }}
             >
-            Get Started with Starter Plan
-            </Text>
-            <Text
-              size={isMobile ? "xs" : "sm"}
-              style={{ color: theme.colors.gray[4] }}
-            >
-            Begin your journey with essential features to connect with your university community
-            </Text>
-          </Box>
-
-          <SimpleGrid
-            cols={{ base: 1, md: isMobile ? 1 : 2 }}
-            spacing={isMobile ? "md" : "xl"}
+              <IconStar size={isMobile ? 20 : 24} />
+            </ThemeIcon>
+          </Group>
+          <Text
+            size={isMobile ? "lg" : "xl"}
+            fw={700}
+            style={{ color: theme.white }}
+            mb="xs"
           >
-          {/* Starter Plan Features Section */}
-            <Paper
-              p={isMobile ? "md" : "xl"}
-              radius="lg"
-              style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(10px)",
-              }}
-            >
-              <Group mb={isMobile ? "sm" : "lg"}>
-                <ThemeIcon
-                  size={isMobile ? "sm" : "md"}
-                  radius="md"
-                  variant="gradient"
-                  gradient={{ from: "indigo", to: "cyan" }}
-                >
-                  <IconSparkles size={isMobile ? 16 : 18} />
-                </ThemeIcon>
-                <Text
-                  fw={600}
-                  style={{ color: theme.white }}
-                  size={isMobile ? "sm" : "md"}
-                >
-                  Starter Plan Features
-                </Text>
-              </Group>
+            Choose Your Plan
+          </Text>
+          <Text
+            size={isMobile ? "xs" : "sm"}
+            style={{ color: theme.colors.gray[4] }}
+          >
+            Compare plans and pick what works best for you
+          </Text>
+        </Box>
 
-              <Stack gap={isMobile ? "sm" : "md"}>
-              {STARTER_FEATURES.map((feature, index) => (
-                  <Card
-                  key={index}
-                    p={isMobile ? "sm" : "md"}
+        <SimpleGrid
+          cols={{ base: 1, md: 2 }}
+          spacing={isMobile ? "md" : "xl"}
+        >
+          {/* Column 1: Starter Plan */}
+          <Paper
+            p={isMobile ? "md" : "xl"}
+            radius="lg"
+            style={{
+              background: "rgba(255, 255, 255, 0.05)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+              backdropFilter: "blur(10px)",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Stack gap={isMobile ? "md" : "lg"} style={{ flex: 1 }}>
+              {/* Starter Plan Header */}
+              <Box>
+                <Group mb={isMobile ? "xs" : "sm"}>
+                  <ThemeIcon
+                    size={isMobile ? "sm" : "md"}
                     radius="md"
-                    style={{
-                      background: feature.included 
-                        ? "rgba(255, 255, 255, 0.03)" 
-                        : "rgba(255, 255, 255, 0.01)",
-                      border: feature.included 
-                        ? "1px solid rgba(255, 255, 255, 0.08)" 
-                        : "1px solid rgba(255, 255, 255, 0.04)",
-                      opacity: feature.included ? 1 : 0.6,
-                    }}
+                    variant="gradient"
+                    gradient={{ from: "indigo", to: "cyan" }}
                   >
-                    <Group gap="sm" mb={isMobile ? "4px" : "xs"}>
+                    <IconSparkles size={isMobile ? 16 : 18} />
+                  </ThemeIcon>
+                  <Text
+                    fw={600}
+                    style={{ color: theme.white }}
+                    size={isMobile ? "lg" : "xl"}
+                  >
+                    Starter Plan
+                  </Text>
+                </Group>
+                <Text
+                  size={isMobile ? "xs" : "sm"}
+                  style={{ color: theme.colors.gray[4] }}
+                  mb="md"
+                >
+                  Essential features to get started
+                </Text>
+                <Group align="baseline" mb="lg">
+                  <Text
+                    fw={700}
+                    size={isMobile ? "xl" : "2xl"}
+                    style={{ color: theme.white }}
+                  >
+                    ${starterPrice.toFixed(2)}
+                  </Text>
+                  <Text
+                    size={isMobile ? "xs" : "sm"}
+                    style={{ color: theme.colors.gray[5] }}
+                  >
+                    /month
+                  </Text>
+                </Group>
+              </Box>
+
+              {/* Starter Features */}
+              <Box style={{ flex: 1 }}>
+                <Text
+                  fw={500}
+                  style={{ color: theme.white }}
+                  mb="md"
+                  size={isMobile ? "sm" : "md"}
+                >
+                  What's Included
+                </Text>
+                <Stack gap={isMobile ? "xs" : "sm"}>
+                  {STARTER_FEATURES.map((feature, index) => (
+                    <Group key={index} gap="sm" align="flex-start">
                       <ThemeIcon
                         size={isMobile ? "xs" : "sm"}
                         radius="xl"
@@ -280,256 +361,240 @@ const Payment: React.FC = () => {
                           <IconX size={isMobile ? 12 : 14} />
                         )}
                       </ThemeIcon>
-                      <Text
-                        size={isMobile ? "xs" : "sm"}
-                        fw={500}
-                        style={{ 
-                          color: feature.included ? theme.white : theme.colors.gray[6],
-                          textDecoration: feature.included ? "none" : "line-through"
-                        }}
-                      >
-                        {feature.title}
-                      </Text>
+                      <Box style={{ flex: 1 }}>
+                        <Text
+                          size={isMobile ? "xs" : "sm"}
+                          fw={500}
+                          style={{ 
+                            color: feature.included ? theme.white : theme.colors.gray[6],
+                            textDecoration: feature.included ? "none" : "line-through"
+                          }}
+                        >
+                          {feature.title}
+                        </Text>
+                        <Text
+                          size={isMobile ? "10px" : "xs"}
+                          style={{ 
+                            color: feature.included ? theme.colors.gray[5] : theme.colors.gray[7]
+                          }}
+                        >
+                          {feature.description}
+                        </Text>
+                      </Box>
                     </Group>
-                    <Text
-                      size={isMobile ? "10px" : "xs"}
-                      style={{ 
-                        color: feature.included ? theme.colors.gray[5] : theme.colors.gray[7]
-                      }}
-                    >
-                      {feature.description}
-                    </Text>
-                  </Card>
-                ))}
-              </Stack>
-
-              {/* What's Included Summary */}
-              <Box
-                p={isMobile ? "sm" : "md"}
-                mt={isMobile ? "sm" : "lg"}
-                style={{
-                  background: "rgba(74, 93, 253, 0.1)",
-                  borderRadius: theme.radius.md,
-                  border: "1px solid rgba(74, 93, 253, 0.2)",
-                }}
-              >
-                <Text
-                  size={isMobile ? "xs" : "sm"}
-                  fw={500}
-                  style={{ color: theme.white }}
-                  mb={isMobile ? "xs" : "sm"}
-                >
-                Starter Plan Includes
-                </Text>
-                <List
-                  spacing={isMobile ? "4px" : "xs"}
-                  size={isMobile ? "xs" : "sm"}
-                  center
-                  styles={{
-                    itemWrapper: { color: theme.white },
-                  }}
-                  icon={
-                    <ThemeIcon
-                      color="blue"
-                      size={isMobile ? "xs" : "xs"}
-                      radius="xl"
-                    >
-                      <IconCheck size={isMobile ? 8 : 10} />
-                    </ThemeIcon>
-                  }
-                >
-                <List.Item>1 post submission to Instagram + website</List.Item>
-                <List.Item>Access to view 10 student profiles</List.Item>
-                <List.Item>Basic profile browsing features</List.Item>
-                </List>
+                  ))}
+                </Stack>
               </Box>
-            </Paper>
 
-            {/* Billing Summary Section */}
-            <Paper
-              p={isMobile ? "md" : "xl"}
-              radius="lg"
+              {/* Starter Plan CTA */}
+              <Box>
+                {paymentError && (
+                  <Alert
+                    icon={<IconAlertCircle size={16} />}
+                    color="red"
+                    variant="light"
+                    mb="md"
+                  >
+                    {paymentError}
+                  </Alert>
+                )}
+                <Button
+                  size={isMobile ? "md" : "lg"}
+                  fullWidth
+                  loading={isInitiatingPayment}
+                  onClick={initiatePayment}
+                  variant="gradient"
+                  gradient={{ from: "indigo", to: "cyan" }}
+                  leftSection={<IconRocket size={isMobile ? 16 : 18} />}
+                >
+                  {isInitiatingPayment ? "Processing..." : "Get Started"}
+                </Button>
+                <Text
+                  size={isMobile ? "10px" : "xs"}
+                  style={{ color: theme.colors.gray[5] }}
+                  ta="center"
+                  mt="xs"
+                >
+                  Monthly billing • Cancel anytime
+                </Text>
+              </Box>
+            </Stack>
+          </Paper>
+
+          {/* Column 2: Premium Plan */}
+          <Paper
+            p={isMobile ? "md" : "xl"}
+            radius="lg"
+            style={{
+              background: "rgba(0, 0, 0, 0.3)",
+              border: "2px solid rgba(255, 215, 0, 0.3)",
+              backdropFilter: "blur(10px)",
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              position: "relative",
+            }}
+          >
+            {/* Popular Badge */}
+            <Badge
+              variant="gradient"
+              gradient={{ from: "orange", to: "red" }}
+              size="sm"
               style={{
-                background: "rgba(255, 255, 255, 0.05)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                backdropFilter: "blur(10px)",
+                position: "absolute",
+                top: isMobile ? 8 : 16,
+                right: isMobile ? 8 : 16,
               }}
             >
-              <Group mb={isMobile ? "sm" : "lg"}>
-                <ThemeIcon
-                  size={isMobile ? "sm" : "md"}
-                  radius="md"
-                  variant="gradient"
-                  gradient={{ from: "green", to: "teal" }}
-                >
-                  <IconStar size={isMobile ? 16 : 18} />
-                </ThemeIcon>
-                <Text
-                  fw={600}
-                  style={{ color: theme.white }}
-                  size={isMobile ? "sm" : "md"}
-                >
-                  Billing Summary
-                </Text>
-              </Group>
+              Most Popular
+            </Badge>
 
-            {/* Starter Plan */}
-              <Card
-                p={isMobile ? "md" : "lg"}
-                radius="md"
-                mb={isMobile ? "md" : "xl"}
-                style={{
-                  background: "rgba(74, 93, 253, 0.2)",
-                  border: "1px solid rgba(74, 93, 253, 0.4)",
-                }}
-              >
-                <Group justify="space-between" align="center">
-                  <Box>
-                    <Text
-                      fw={600}
-                      size={isMobile ? "md" : "lg"}
-                      style={{ color: theme.white }}
-                    >
-                    Starter Plan
-                    </Text>
-                    <Text
-                      size={isMobile ? "xs" : "sm"}
-                      style={{ color: theme.colors.gray[4] }}
-                    >
-                    Monthly subscription with essential features
-                    </Text>
-                  </Box>
-                  <Text
-                    fw={700}
-                    size={isMobile ? "lg" : "xl"}
-                    style={{ color: theme.white }}
+            <Stack gap={isMobile ? "md" : "lg"} style={{ flex: 1 }}>
+              {/* Premium Plan Header */}
+              <Box>
+                <Group mb={isMobile ? "xs" : "sm"}>
+                  <ThemeIcon
+                    size={isMobile ? "sm" : "md"}
+                    radius="md"
+                    variant="gradient"
+                    gradient={{ from: "yellow", to: "orange" }}
                   >
-                  ${price.toFixed(2)}/mo
+                    <IconCrown size={isMobile ? 16 : 18} />
+                  </ThemeIcon>
+                  <Text
+                    fw={600}
+                    style={{ color: theme.white }}
+                    size={isMobile ? "lg" : "xl"}
+                  >
+                    Premium Match+
                   </Text>
                 </Group>
-              </Card>
-
-              {/* Order Summary */}
-              <Box
-                p={isMobile ? "md" : "lg"}
-                style={{
-                  background: "rgba(255, 255, 255, 0.05)",
-                  borderRadius: theme.radius.md,
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
-                }}
-              >
                 <Text
-                  fw={600}
+                  size={isMobile ? "xs" : "sm"}
+                  style={{ color: theme.colors.gray[4] }}
+                  mb="md"
+                >
+                  The ultimate matching experience
+                </Text>
+                <Group align="baseline" mb="lg">
+                  <Text
+                    fw={700}
+                    size={isMobile ? "xl" : "2xl"}
+                    style={{ color: theme.white }}
+                  >
+                    ${premiumPrice.toFixed(2)}
+                  </Text>
+                  <Text
+                    size={isMobile ? "xs" : "sm"}
+                    style={{ color: theme.colors.gray[5] }}
+                  >
+                    /month
+                  </Text>
+                </Group>
+              </Box>
+
+              {/* Premium Features */}
+              <Box style={{ flex: 1 }}>
+                <Text
+                  fw={500}
                   style={{ color: theme.white }}
-                  mb={isMobile ? "sm" : "md"}
+                  mb="md"
                   size={isMobile ? "sm" : "md"}
                 >
-                  Order Summary
+                  Everything in Starter, plus:
                 </Text>
-
                 <Stack gap={isMobile ? "xs" : "sm"}>
-                  <Group justify="space-between">
-                    <Text
-                      style={{ color: theme.white }}
-                      size={isMobile ? "xs" : "sm"}
-                    >
-                    Starter Plan (Monthly)
-                    </Text>
-                    <Text
-                      fw={500}
-                      style={{ color: theme.white }}
-                      size={isMobile ? "xs" : "sm"}
-                    >
-                      ${price.toFixed(2)}
-                    </Text>
-                  </Group>
-
-                  <Group justify="space-between">
-                    <Text
-                      style={{ color: theme.colors.gray[5] }}
-                      size={isMobile ? "xs" : "sm"}
-                    >
-                      Tax
-                    </Text>
-                    <Text
-                      style={{ color: theme.colors.gray[5] }}
-                      size={isMobile ? "xs" : "sm"}
-                    >
-                      ${tax.toFixed(2)}
-                    </Text>
-                  </Group>
-
-                  <Divider
-                    style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
-                  />
-
-                  <Group justify="space-between">
-                    <Text
-                      fw={600}
-                      size={isMobile ? "md" : "lg"}
-                      style={{ color: theme.white }}
-                    >
-                      Total
-                    </Text>
-                    <Text
-                      fw={600}
-                      size={isMobile ? "md" : "lg"}
-                      style={{ color: theme.white }}
-                    >
-                      ${total.toFixed(2)}
-                    </Text>
-                  </Group>
+                  {PREMIUM_FEATURES.map((feature, index) => (
+                    <Group key={index} gap="sm" align="flex-start">
+                      <ThemeIcon
+                        size={isMobile ? "xs" : "sm"}
+                        radius="xl"
+                        variant="gradient"
+                        gradient={{ from: feature.color, to: feature.color === "orange" ? "red" : "blue" }}
+                      >
+                        <feature.icon size={isMobile ? 12 : 14} />
+                      </ThemeIcon>
+                      <Box style={{ flex: 1 }}>
+                        <Group gap="xs" mb="2px">
+                          <Text
+                            size={isMobile ? "xs" : "sm"}
+                            fw={500}
+                            style={{ color: theme.white }}
+                          >
+                            {feature.title}
+                          </Text>
+                          {feature.badge && (
+                            <Badge
+                              size="xs"
+                              variant="light"
+                              color={feature.color}
+                            >
+                              {feature.badge}
+                            </Badge>
+                          )}
+                        </Group>
+                        <Text
+                          size={isMobile ? "10px" : "xs"}
+                          style={{ color: theme.colors.gray[5] }}
+                        >
+                          {feature.description}
+                        </Text>
+                      </Box>
+                    </Group>
+                  ))}
                 </Stack>
-          </Box>
+              </Box>
 
-          {/* Error Display */}
-          {paymentError && (
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              color="red"
-              variant="light"
-                mt="md"
-            >
-              {paymentError}
-            </Alert>
-          )}
-
-            {/* Get Started Button */}
-            <Button
-              size={isMobile ? "md" : "lg"}
-              fullWidth
-              mt={isMobile ? "md" : "xl"}
-              loading={isInitiatingPayment}
-              onClick={initiatePayment}
-              variant="gradient"
-              gradient={{ from: "indigo", to: "cyan" }}
-              leftSection={<IconRocket size={isMobile ? 16 : 18} />}
-            >
-              {isInitiatingPayment ? "Redirecting to Checkout..." : "Get Started with Starter Plan"}
-            </Button>
-
-            {/* Security & Guarantee text */}
-            <Stack gap="xs" mt="sm" ta="center">
-              <Text
-                size={isMobile ? "10px" : "xs"}
-                style={{ color: theme.colors.gray[5] }}
-              >
-                <IconShield
-                  size={12}
-                  style={{ display: "inline", marginRight: 4 }}
-                />
-                Secure payment powered by Stripe
-              </Text>
-              <Text
-                size={isMobile ? "10px" : "xs"}
-                style={{ color: theme.colors.gray[5] }}
-              >
-                Monthly billing • Cancel anytime
-              </Text>
+              {/* Premium Plan CTA */}
+              <Box>
+                {premiumPaymentError && (
+                  <Alert
+                    icon={<IconAlertCircle size={16} />}
+                    color="red"
+                    variant="light"
+                    mb="md"
+                  >
+                    {premiumPaymentError}
+                  </Alert>
+                )}
+                <Button
+                  size={isMobile ? "md" : "lg"}
+                  fullWidth
+                  loading={isInitiatingPremiumPayment}
+                  onClick={initiatePremiumPayment}
+                  variant="gradient"
+                  gradient={{ from: "yellow", to: "orange" }}
+                  leftSection={<IconCrown size={isMobile ? 16 : 18} />}
+                >
+                  {isInitiatingPremiumPayment ? "Processing..." : "Upgrade to Premium"}
+                </Button>
+                <Text
+                  size={isMobile ? "10px" : "xs"}
+                  style={{ color: theme.colors.gray[5] }}
+                  ta="center"
+                  mt="xs"
+                >
+                  Monthly billing • Cancel anytime
+                </Text>
+              </Box>
             </Stack>
           </Paper>
         </SimpleGrid>
-        </Stack>
+
+        {/* Security Footer */}
+        <Box ta="center">
+          <Text
+            size={isMobile ? "10px" : "xs"}
+            style={{ color: theme.colors.gray[5] }}
+          >
+            <IconShield
+              size={12}
+              style={{ display: "inline", marginRight: 4 }}
+            />
+            Secure payment powered by Stripe
+          </Text>
+        </Box>
+      </Stack>
     </Paper>
   );
 };

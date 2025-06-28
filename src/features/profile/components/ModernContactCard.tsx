@@ -16,7 +16,6 @@ import {
 import {
   IconUser,
   IconEdit,
-  IconMail,
   IconSchool,
   IconCheck,
   IconX,
@@ -78,13 +77,13 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
   };
 
   const contacts = [
-    { 
-      icon: (props: { size: number }) => <IconMail {...props} />, 
-      label: 'Email', 
-      value: contactData.email, 
-      color: 'blue', 
-      editable: false 
-    },
+    // { 
+    //   icon: (props: { size: number }) => <IconMail {...props} />, 
+    //   label: 'Email', 
+    //   value: contactData.email, 
+    //   color: 'blue', 
+    //   editable: false 
+    // },
     { 
       icon: (props: { size: number }) => <InstagramIcon size={props.size} />, 
       label: 'Instagram', 

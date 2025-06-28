@@ -30,7 +30,7 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
 
   // Prepare contact data for the contact card
   const contactData = {
-    email: profileData.email || 'email@university.edu',
+    // email: profileData.email || 'email@university.edu',
     instagram: profileData.instagram || '@username',
     snapchat: profileData.snapchat || '@username',
     university: profileData.university || 'University',

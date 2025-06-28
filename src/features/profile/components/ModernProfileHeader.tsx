@@ -162,40 +162,40 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
         >
           {/* Avatar Section - Larger sizes */}
           <Box style={{ position: 'relative', flexShrink: 0 }}>
-            <Avatar
-              src={profilePicture}
-              radius="50%"
-              styles={{
-                root: {
+              <Avatar
+                src={profilePicture}
+                radius="50%"
+                styles={{
+                  root: {
                   width: rem(140), // Increased from lg (around 80px)
                   height: rem(140),
                   border: '4px solid rgba(255, 255, 255, 0.3)',
                   boxShadow: '0 12px 40px rgba(0, 0, 0, 0.3)',
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  backdropFilter: 'blur(10px)',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(10px)',
                   '@media (max-width: 768px)': {
                     width: rem(120), // Increased mobile size
                     height: rem(120),
-                  },
-                }
-              }}
-            />
-            <ActionIcon
-              variant="filled"
-              radius="xl"
+                    },
+                  }
+                }}
+              />
+              <ActionIcon
+                variant="filled"
+                radius="xl"
               size="lg"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              styles={{
-                root: {
-                  position: 'absolute',
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                styles={{
+                  root: {
+                    position: 'absolute',
                   bottom: rem(8),
                   right: rem(8),
-                  background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
+                    background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
                   border: '3px solid rgba(255, 255, 255, 0.3)',
                   boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3)',
-                  cursor: isUploading ? 'not-allowed' : 'pointer',
-                  opacity: isUploading ? 0.7 : 1,
+                    cursor: isUploading ? 'not-allowed' : 'pointer',
+                    opacity: isUploading ? 0.7 : 1,
                   width: rem(36),
                   height: rem(36),
                   '@media (max-width: 768px)': {
@@ -203,14 +203,14 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
                     height: rem(32),
                     bottom: rem(4),
                     right: rem(4),
-                  },
-                }
-              }}
-              title="Change profile picture"
-            >
+                    },
+                  }
+                }}
+                title="Change profile picture"
+              >
               <IconCamera style={{ width: rem(18), height: rem(18) }} />
-            </ActionIcon>
-          </Box>
+              </ActionIcon>
+            </Box>
 
           {/* Profile Info Section */}
           <Stack 
@@ -317,7 +317,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
                 opacity={0.9}
                 ta="center"
                 style={{
-                  lineHeight: 1.6,
+                    lineHeight: 1.6,
                   maxWidth: rem(500),
                   '@media (min-width: 768px)': {
                     textAlign: 'left'
@@ -328,32 +328,32 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               </Text>
             )}
 
-            {/* Profile Completion Progress */}
+          {/* Profile Completion Progress */}
             <Box style={{ width: '100%', maxWidth: rem(400) }}>
               <Group justify="space-between" mb={6}>
                 <Text size="sm" c="white" fw={500}>
-                  Profile Completion
-                </Text>
+                Profile Completion
+              </Text>
                 <Text size="sm" c="white" fw={600}>
-                  {profileCompletion}%
-                </Text>
-              </Group>
-              <Progress
-                value={profileCompletion}
-                color="white"
-                radius="xl"
+                {profileCompletion}%
+              </Text>
+            </Group>
+            <Progress
+              value={profileCompletion}
+              color="white"
+              radius="xl"
                 size="md"
-                styles={{
-                  root: {
+              styles={{
+                root: {
                     backgroundColor: 'rgba(255, 255, 255, 0.2)',
                   },
                   section: {
                     backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                  }
-                }}
-              />
-            </Box>
-          </Stack>
+                }
+              }}
+            />
+          </Box>
+        </Stack>
         </Flex>
       </Box>
     </Box>

@@ -20,19 +20,14 @@ import {
   IconSchool,
   IconCrown,
 } from "@tabler/icons-react";
-import { useFeedStore } from "../../../store/feed.store";
+import { useFeedStore, type FeedFilters } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useAuthStore } from "../../../store/auth.store";
 import { useCollegeSearch } from "../../../hooks/api/useColleges";
-import { PremiumSubscriptionModal } from "../../common/PremiumSubscriptionModal";
 
-export const FiltersSidebar: React.FC = () => {
+export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen?: () => void }> = ({ showSearch = false, onPremiumModalOpen }) => {
   const theme = useMantineTheme();
   const { user } = useAuthStore();
-  
-  // State for premium modal
-  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
-  const [modalTrigger, setModalTrigger] = useState<string>("filters");
   
   // Get feed store state and actions
   const {
@@ -41,43 +36,71 @@ export const FiltersSidebar: React.FC = () => {
     setDateRange,
     setCollege,
     setSubstances,
-    setPersonality,
-    setHometown,
+    setHomeState,
+    setReligion,
+    setGender,
+    setCampusInvolvement,
+    setOther,
     resetFilters,
     checkFilterAccess,
   } = useFeedStore();
 
-  // Local state for debounced search
+  // Local state for debounced inputs
   const [searchQuery, setSearchQuery] = useState(filters.searchQuery);
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
 
-  // College search state
-  const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
-  const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
-
-  // Keep a broader search to ensure we can find colleges set programmatically
-  const [broadCollegeSearch, setBroadCollegeSearch] = useState("");
-  const { data: broadCollegeData } = useCollegeSearch({
-    search: broadCollegeSearch,
-    limit: 100, // Higher limit to find more colleges
-    page: 1,
-  });
-
-  // Local state for debounced time period
   const [timePeriod, setTimePeriod] = useState(filters.lastDays);
   const [debouncedTimePeriod] = useDebouncedValue(timePeriod, 500);
 
-  // Local state for debounced hometown
-  const [hometownQuery, setHometownQuery] = useState(filters.hometown || "");
-  const [debouncedHometown] = useDebouncedValue(hometownQuery, 400);
+  // College search for dropdown
+  const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
+  const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
 
-  // Check if user has access to filters
-  const hasFilterAccess = checkFilterAccess();
+  // Check if user has premium access
+  const isPremium = checkFilterAccess();
 
-  // Use the API hook for college search (only if user has access)
+  // Count how many filters are currently active
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (showSearch && filters.searchQuery && filters.searchQuery.trim() !== '') count++;
+    if (filters.lastDays !== 30) count++;
+    if (filters.college !== null && filters.college !== 'all') count++;
+    if (filters.substances !== null) count++;
+    if (filters.homeState !== null) count++;
+    if (filters.religion !== null) count++;
+    if (filters.gender !== null) count++;
+    if (filters.campusInvolvement !== null) count++;
+    if (filters.other !== null) count++;
+    return count;
+  };
+
+  // Check if a specific filter is the ONLY one active, ignoring defaults
+  const isOnlyActiveFilter = (filterKey: keyof FeedFilters) => {
+    // If more than 1 filter is active, it's not the "only" one
+    if (getActiveFiltersCount() > 1) return false;
+
+    // Check if the specific filter is non-default
+    switch (filterKey) {
+      case 'searchQuery':
+        return filters.searchQuery.trim() !== '';
+      case 'lastDays':
+        return filters.lastDays !== 30;
+      default:
+        return filters[filterKey] !== null && filters[filterKey] !== 'all';
+    }
+  };
+
+  // Show premium modal when trying to use multiple filters
+  const showPremiumModal = () => {
+    if (onPremiumModalOpen) {
+      onPremiumModalOpen();
+    }
+  };
+
+  // College search API
   const { data: collegeData, isLoading: isLoadingColleges } = useCollegeSearch({
     search: debouncedCollegeSearch,
-    limit: 20,
+    limit: 50,
     page: 1,
   });
 
@@ -85,19 +108,8 @@ export const FiltersSidebar: React.FC = () => {
   const collegeOptions = React.useMemo(() => {
     const options = [{ value: "all", label: "All Colleges" }];
     
-    // Combine both college search results
-    const allColleges = [
-      ...(collegeData?.data.colleges || []),
-      ...(broadCollegeData?.data.colleges || [])
-    ];
-    
-    // Remove duplicates by ID
-    const uniqueColleges = allColleges.filter((college, index, self) => 
-      index === self.findIndex(c => c._id === college._id)
-    );
-    
-    if (uniqueColleges.length > 0) {
-      const apiColleges = uniqueColleges.map((college) => ({
+    if (collegeData?.data.colleges) {
+      const apiColleges = collegeData.data.colleges.map((college) => ({
         value: college._id,
         label: college.name,
       }));
@@ -105,137 +117,103 @@ export const FiltersSidebar: React.FC = () => {
     }
     
     return options;
-  }, [collegeData, broadCollegeData]);
+  }, [collegeData]);
 
-  // Handle debounced search (only if user has access)
+  // Handle debounced search
   useEffect(() => {
-    if (hasFilterAccess) {
+    if (showSearch) {
       searchPosts(debouncedSearchQuery);
     }
-  }, [debouncedSearchQuery, searchPosts, hasFilterAccess]);
+  }, [debouncedSearchQuery, searchPosts, showSearch]);
 
-  // Handle debounced time period (only if user has access)
+  // Handle debounced time period
   useEffect(() => {
-    if (hasFilterAccess) {
-      setDateRange(debouncedTimePeriod);
-    }
-  }, [debouncedTimePeriod, setDateRange, hasFilterAccess]);
+    setDateRange(debouncedTimePeriod);
+  }, [debouncedTimePeriod, setDateRange]);
 
-  // Handle debounced hometown (only if user has access)
+  // Sync local state with store state
   useEffect(() => {
-    if (hasFilterAccess) {
-      setHometown(debouncedHometown || null);
-    }
-  }, [debouncedHometown, setHometown, hasFilterAccess]);
+    setSearchQuery(filters.searchQuery);
+  }, [filters.searchQuery]);
 
-  // When a college filter is set programmatically, ensure we have the college name
   useEffect(() => {
-    if (filters.college && filters.college !== "all") {
-      // Check if we already have this college in our options
-      const hasCollege = collegeOptions.some(option => option.value === filters.college);
-      
-      if (!hasCollege) {
-        // We don't have this college, so search for it
-        // Since we don't have the name, we'll search with a broad query
-        setBroadCollegeSearch("university college");
-      }
-    }
-  }, [filters.college, collegeOptions]);
-
-  // Handle filter interaction for non-premium users
-  const handleFilterInteraction = (trigger: string) => {
-    if (!hasFilterAccess) {
-      setModalTrigger(trigger);
-      setPremiumModalOpened(true);
-      return;
-    }
-  };
-
-  // Handle reset (only if user has access)
-  const handleReset = () => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("filters");
-      return;
-    }
-    setSearchQuery("");
-    setCollegeSearchQuery("");
-    setTimePeriod(30); // Reset to default value
-    setHometownQuery("");
-    resetFilters();
-  };
+    setTimePeriod(filters.lastDays);
+  }, [filters.lastDays]);
 
   // Handle search input change
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("search");
+  const handleSearchChange = (value: string) => {
+    const activeFilterCount = getActiveFiltersCount();
+    if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter('searchQuery')) {
+      if (value.trim() !== '') showPremiumModal();
       return;
     }
-    setSearchQuery(e.target.value);
+    setSearchQuery(value);
   };
 
-  // Handle date range change
-  const handleDateRangeChange = (value: number) => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("date-filter");
+  // Handle time period change
+  const handleTimePeriodChange = (value: number) => {
+    const activeFilterCount = getActiveFiltersCount();
+    if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter('lastDays')) {
+      if (value !== 30) showPremiumModal();
       return;
     }
     setTimePeriod(value);
   };
 
-  // Handle college selection change
-  const handleCollegeChange = (value: string | null) => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("college-filter");
+  // Handle filter changes
+  const handleFilterChange = (value: any, setterFunction: (value: any) => void, filterKey: keyof FeedFilters) => {
+    const activeFilterCount = getActiveFiltersCount();
+    if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter(filterKey)) {
+      if (value !== null && value !== 'all') showPremiumModal();
       return;
     }
-    setCollege(value);
+    setterFunction(value);
   };
 
-  // Handle college search change
-  const handleCollegeSearchChange = (value: string) => {
-    if (!hasFilterAccess) {
-      handleFilterInteraction("college-filter");
-      return;
-    }
-    setCollegeSearchQuery(value);
+  // Handle reset
+  const handleReset = () => {
+    setSearchQuery("");
+    setCollegeSearchQuery("");
+    setTimePeriod(30);
+    resetFilters();
   };
 
   return (
-    <>
-      <Box
-        style={{
-          backgroundColor: "rgba(0, 0, 0, 0.3)",
-          backdropFilter: "blur(10px)",
-          borderRadius: theme.radius.md,
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          padding: theme.spacing.md,
-        }}
-      >
-        {/* Section Title */}
-        <Group mb="md" justify="space-between">
-          <Group gap="xs">
-            <IconFilter size={20} color={theme.colors.blue[5]} />
-            <Text fw={600} size="sm" c={theme.white}>
-              Filters & Search
-            </Text>
-          </Group>
-          {!hasFilterAccess && (
-            <Badge
-              variant="gradient"
-              gradient={{ from: 'yellow', to: 'orange' }}
-              size="xs"
-              leftSection={<IconCrown size={12} />}
-            >
-              Premium
-            </Badge>
-          )}
+    <Box
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.3)",
+        backdropFilter: "blur(10px)",
+        borderRadius: theme.radius.md,
+        border: "1px solid rgba(255, 255, 255, 0.1)",
+        padding: theme.spacing.md,
+      }}
+    >
+      {/* Section Title */}
+      <Group mb="md" justify="space-between">
+        <Group gap="xs">
+          <IconFilter size={20} color={theme.colors.blue[5]} />
+          <Text fw={600} size="sm" c={theme.white}>
+            Filters{showSearch && ' & Search'}
+          </Text>
         </Group>
+        {!isPremium && (
+          <Badge
+            variant="gradient"
+            gradient={{ from: 'yellow', to: 'orange' }}
+            size="xs"
+            leftSection={<IconCrown size={12} />}
+          >
+            Premium
+          </Badge>
+        )}
+      </Group>
 
-        {/* Search Box */}
+      {/* Search Box */}
+      {showSearch && (
         <TextInput
           placeholder="Search posts..."
           value={searchQuery}
-          onChange={handleSearchChange}
+          onChange={(e) => handleSearchChange(e.target.value)}
           leftSection={<IconSearch size={16} />}
           mb="md"
           styles={{
@@ -252,279 +230,312 @@ export const FiltersSidebar: React.FC = () => {
             },
           }}
         />
+      )}
 
-        <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
+      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
 
-        {/* Time Period */}
-        <Text size="sm" fw={500} c={theme.white} mb="xs">
-          Time Period
-        </Text>
-        <Box mb="md">
-          <Group mb="xs" justify="space-between">
-            <Text size="xs" c="dimmed">
-              Last {timePeriod} days
-            </Text>
-            <IconCalendarEvent size={16} color={theme.colors.dark[2]} />
-          </Group>
-          <Slider
-            value={timePeriod}
-            onChange={handleDateRangeChange}
-            min={1}
-            max={90}
-            step={1}
-            label={(value) => `${value} days`}
-            marks={[
-              { value: 1, label: '1d' },
-              { value: 7, label: '1w' },
-              { value: 30, label: '1m' },
-              { value: 90, label: '3m' },
-            ]}
-            styles={{
-              track: {
-                backgroundColor: "rgba(255, 255, 255, 0.1)",
-              },
-              bar: {
-                backgroundColor: theme.colors.blue[5],
-              },
-              thumb: {
-                borderColor: theme.colors.blue[5],
-                backgroundColor: theme.colors.dark[9],
-              },
-              mark: {
-                backgroundColor: "rgba(255, 255, 255, 0.3)",
-              },
-              markLabel: {
-                color: theme.colors.dark[2],
-                fontSize: theme.fontSizes.xs,
-              },
-            }}
-          />
-        </Box>
-
-        <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
-
-        {/* College Filter */}
-        <Text size="sm" fw={500} c={theme.white} mb="xs">
-          College
-        </Text>
-        <Select
-          placeholder="Filter by college"
-          value={filters.college}
-          onChange={handleCollegeChange}
-          onSearchChange={handleCollegeSearchChange}
-          searchValue={collegeSearchQuery}
-          data={collegeOptions}
-          searchable
-          leftSection={<IconSchool size={16} />}
-          rightSection={isLoadingColleges ? <Text size="xs" c="dimmed">Loading...</Text> : null}
-          mb="md"
-          styles={{
-            input: {
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: theme.white,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              "&::placeholder": {
-                color: theme.colors.dark[2],
-              },
-            },
-            dropdown: {
-              backgroundColor: theme.colors.dark[7],
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            },
-            option: {
-              color: theme.white,
-              "&[data-selected]": {
-                backgroundColor: theme.colors.blue[9],
-                color: theme.white,
-              },
-              "&[data-hovered]": {
-                backgroundColor: theme.colors.dark[5],
-              },
-            },
-          }}
-        />
-
-        {/* Substances Filter */}
-        <Text size="sm" fw={500} c={theme.white} mb="xs">
-          Substances
-        </Text>
-        <Select
-          placeholder="Filter by substance preference"
-          value={filters.substances}
-          onChange={(value) => {
-            if (!hasFilterAccess) {
-              handleFilterInteraction("substances-filter");
-              return;
-            }
-            setSubstances(value);
-          }}
-          data={[
-            { value: "Fine with Drinking", label: "Fine with Drinking" },
-            { value: "Fine with Smoking", label: "Fine with Smoking" },
-            { value: "Fine with Both", label: "Fine with Both" },
-            { value: "No Substances", label: "No Substances" },
-          ]}
-          mb="md"
-          styles={{
-            input: {
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: theme.white,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              "&::placeholder": {
-                color: theme.colors.dark[2],
-              },
-            },
-            dropdown: {
-              backgroundColor: theme.colors.dark[7],
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            },
-            option: {
-              color: theme.white,
-              "&[data-selected]": {
-                backgroundColor: theme.colors.blue[9],
-                color: theme.white,
-              },
-              "&[data-hovered]": {
-                backgroundColor: theme.colors.dark[5],
-              },
-            },
-          }}
-        />
-
-        {/* Personality Filter */}
-        <Text size="sm" fw={500} c={theme.white} mb="xs">
-          Personality
-        </Text>
-        <Select
-          placeholder="Filter by personality traits"
-          value={filters.personality?.[0] || null}
-          onChange={(value) => {
-            if (!hasFilterAccess) {
-              handleFilterInteraction("personality-filter");
-              return;
-            }
-            setPersonality(value ? [value] : null);
-          }}
-          data={[
-            { value: "Introvert", label: "Introvert" },
-            { value: "Extrovert", label: "Extrovert" },
-            { value: "Spontaneous", label: "Spontaneous" },
-            { value: "Organized", label: "Organized" },
-            { value: "Creative", label: "Creative" },
-            { value: "Analytical", label: "Analytical" },
-            { value: "Adventurous", label: "Adventurous" },
-            { value: "Cautious", label: "Cautious" },
-          ]}
-          mb="md"
-          styles={{
-            input: {
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: theme.white,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              "&::placeholder": {
-                color: theme.colors.dark[2],
-              },
-            },
-            dropdown: {
-              backgroundColor: theme.colors.dark[7],
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-            },
-            option: {
-              color: theme.white,
-              "&[data-selected]": {
-                backgroundColor: theme.colors.blue[9],
-                color: theme.white,
-              },
-              "&[data-hovered]": {
-                backgroundColor: theme.colors.dark[5],
-              },
-            },
-          }}
-        />
-
-        {/* Hometown Filter */}
-        <Text size="sm" fw={500} c={theme.white} mb="xs">
-          Hometown
-        </Text>
-        <TextInput
-          placeholder="Filter by hometown"
-          value={hometownQuery}
-          onChange={(e) => {
-            if (!hasFilterAccess) {
-              handleFilterInteraction("hometown-filter");
-              return;
-            }
-            setHometownQuery(e.target.value);
-          }}
-          mb="md"
-          styles={{
-            input: {
-              backgroundColor: "rgba(255, 255, 255, 0.05)",
-              color: theme.white,
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              "&::placeholder": {
-                color: theme.colors.dark[2],
-              },
-              "&:focus": {
-                borderColor: theme.colors.blue[5],
-              },
-            },
-          }}
-        />
-
-        {/* Action Buttons */}
-        <Group grow>
-          <Button
-            variant="outline"
-            color="gray"
-            size="sm"
-            onClick={handleReset}
-            styles={{
-              root: {
-                borderColor: "rgba(255, 255, 255, 0.2)",
-              },
-            }}
-          >
-            Reset
-          </Button>
+      {/* Time Period */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Time Period
+      </Text>
+      <Box mb="md">
+        <Group mb="xs" justify="space-between">
+          <Text size="xs" c="dimmed">
+            Last {timePeriod} days
+          </Text>
+          <IconCalendarEvent size={16} color={theme.colors.dark[2]} />
         </Group>
-
-        {/* Premium upgrade prompt for non-premium users */}
-        {!hasFilterAccess && (
-          <Paper
-            p="md"
-            radius="md"
-            mt="md"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)',
-              border: '1px solid rgba(255, 215, 0, 0.3)',
-              textAlign: 'center',
-            }}
-          >
-            <Stack align="center" gap="sm">
-              <Group gap="xs" justify="center">
-                <IconCrown size={16} color="#FFD700" />
-                <Text size="sm" fw={500} c="white">
-                  Unlock Premium Filters
-                </Text>
-              </Group>
-              <Text size="xs" c="dimmed" ta="center">
-                {!user 
-                  ? "Sign up to access advanced search and filtering"
-                  : "Upgrade to Premium for full filter access"
-                }
-              </Text>
-            </Stack>
-          </Paper>
-        )}
+        <Slider
+          value={timePeriod}
+          onChange={handleTimePeriodChange}
+          min={1}
+          max={90}
+          step={1}
+          label={(value) => `${value} days`}
+          marks={[
+            { value: 1, label: '1d' },
+            { value: 7, label: '1w' },
+            { value: 30, label: '1m' },
+            { value: 90, label: '3m' },
+          ]}
+          styles={{
+            track: {
+              backgroundColor: "rgba(255, 255, 255, 0.1)",
+            },
+            bar: {
+              backgroundColor: theme.colors.blue[5],
+            },
+            thumb: {
+              borderColor: theme.colors.blue[5],
+              backgroundColor: theme.colors.dark[9],
+            },
+            mark: {
+              backgroundColor: "rgba(255, 255, 255, 0.3)",
+            },
+            markLabel: {
+              color: theme.colors.dark[2],
+              fontSize: theme.fontSizes.xs,
+            },
+          }}
+        />
       </Box>
 
-      {/* Premium Subscription Modal */}
-      <PremiumSubscriptionModal
-        opened={premiumModalOpened}
-        onClose={() => setPremiumModalOpened(false)}
-        trigger={modalTrigger}
+      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
+
+      {/* College Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        College
+      </Text>
+      <Select
+        placeholder="Select college"
+        value={filters.college}
+        onChange={(value) => handleFilterChange(value, setCollege, 'college')}
+        onSearchChange={setCollegeSearchQuery}
+        searchValue={collegeSearchQuery}
+        data={collegeOptions}
+        searchable
+        leftSection={<IconSchool size={16} />}
+        rightSection={isLoadingColleges ? <Text size="xs" c="dimmed">Loading...</Text> : null}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": {
+              color: theme.colors.dark[2],
+            },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": {
+              backgroundColor: theme.colors.dark[5],
+            },
+          },
+        }}
       />
-    </>
+
+      {/* Substances Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Substances
+      </Text>
+      <Select
+        placeholder="Select preference"
+        value={filters.substances}
+        onChange={(value) => handleFilterChange(value, setSubstances, 'substances')}
+        data={[
+          { value: "Fine with Drinking", label: "Fine with Drinking" },
+          { value: "Fine with Smoking", label: "Fine with Smoking" },
+          { value: "Fine with Both", label: "Fine with Both" },
+          { value: "No Substances", label: "No Substances" },
+        ]}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": {
+              color: theme.colors.dark[2],
+            },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": {
+              backgroundColor: theme.colors.dark[5],
+            },
+          },
+        }}
+      />
+
+      {/* Home State Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Home State
+      </Text>
+      <Select
+        placeholder="Select state"
+        searchable
+        value={filters.homeState}
+        onChange={(value) => handleFilterChange(value, setHomeState, 'homeState')}
+        data={[
+          "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"
+        ].map(s=>({value:s,label:s}))}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": {
+              color: theme.colors.dark[2],
+            },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": {
+              backgroundColor: theme.colors.dark[5],
+            },
+          },
+        }}
+      />
+
+      {/* Religion Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Religion
+      </Text>
+      <Select
+        placeholder="Select religion"
+        value={filters.religion}
+        onChange={(value) => handleFilterChange(value, setReligion, 'religion')}
+        data={[
+          {value:'Christianity',label:'Christianity'},
+          {value:'Islam',label:'Islam'},
+          {value:'Hinduism',label:'Hinduism'},
+          {value:'Buddhism',label:'Buddhism'},
+          {value:'Judaism',label:'Judaism'},
+          {value:'Atheism',label:'Atheism'},
+          {value:'Agnostic',label:'Agnostic'},
+          {value:'Other',label:'Other'},
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)","&::placeholder":{color:theme.colors.dark[2]}},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Gender Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Gender
+      </Text>
+      <Select
+        placeholder="Select gender"
+        value={filters.gender}
+        onChange={(value) => handleFilterChange(value, setGender, 'gender')}
+        data={[
+          {value:'Male',label:'Male'},
+          {value:'Female',label:'Female'},
+          {value:'Non-binary',label:'Non-binary'},
+          {value:'Prefer not to say',label:'Prefer not to say'},
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)","&::placeholder":{color:theme.colors.dark[2]}},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Campus Involvement */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Campus Involvement
+      </Text>
+      <Select
+        placeholder="Select status"
+        value={filters.campusInvolvement}
+        onChange={(value) => handleFilterChange(value, setCampusInvolvement, 'campusInvolvement')}
+        data={[
+          {value:'Rushing a fraternity/sorority',label:'Rushing a fraternity/sorority'},
+          {value:'Rushing a business fraternity',label:'Rushing a business fraternity'},
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Other */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Other
+      </Text>
+      <Select
+        placeholder="Select option"
+        value={filters.other}
+        onChange={(value) => handleFilterChange(value, setOther, 'other')}
+        data={[
+          {value:'Looking for a roommate',label:'Looking for a roommate'},
+          {value:'Student Athelete',label:'Student Athelete'},
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Reset Button */}
+      <Group grow>
+        <Button
+          variant="outline"
+          color="gray"
+          size="sm"
+          onClick={handleReset}
+          styles={{
+            root: {
+              borderColor: "rgba(255, 255, 255, 0.2)",
+            },
+          }}
+        >
+          Reset All
+        </Button>
+      </Group>
+
+      {/* Non-Premium Info */}
+      {!isPremium && (
+        <Paper
+          p="md"
+          radius="md"
+          mt="md"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)',
+            border: '1px solid rgba(255, 215, 0, 0.3)',
+            textAlign: 'center',
+          }}
+        >
+          <Stack align="center" gap="sm">
+            <Group gap="xs" justify="center">
+              <IconCrown size={16} color="#FFD700" />
+              <Text size="sm" fw={500} c="white">
+                One Filter at a Time
+              </Text>
+            </Group>
+            <Text size="xs" c="dimmed" ta="center">
+              You can use 1 filter free. Upgrade to Premium for unlimited filters.
+            </Text>
+          </Stack>
+        </Paper>
+      )}
+    </Box>
   );
 }; 

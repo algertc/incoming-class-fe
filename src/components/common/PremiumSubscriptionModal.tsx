@@ -94,6 +94,8 @@ export const PremiumSubscriptionModal: React.FC<PremiumSubscriptionModalProps> =
         return "Unlock advanced search and filtering options";
       case "search":
         return "Unlock advanced search functionality";
+      case "multiple-filters":
+        return "You can only use one filter at a time. Upgrade to Premium to use multiple filters simultaneously";
       case "college-filter":
         return "Unlock college-specific filtering";
       case "date-filter":

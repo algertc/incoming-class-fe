@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Box, Container, Grid, Button, Text, Group } from "@mantine/core";
 import { useAuthStore } from "../../store/auth.store";
 import { useNavigate, useSearchParams } from "react-router";
-import { FiltersSidebar } from "../../components/Feed/FiltersSidebar/FiltersSidebar";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
@@ -10,6 +9,7 @@ import { MobileSearchBar } from "./components/MobileSearchBar";
 import FiltersModal from "../../components/common/FiltersModal";
 import CollegeFeedModal from "./components/CollegeFeedModal";
 import { useFeedStore } from "../../store/feed.store";
+import { PremiumSubscriptionModal } from "../../components/common/PremiumSubscriptionModal";
 
 // Optimized CSS for responsive design and iOS Safari
 const responsiveStyles = `
@@ -22,9 +22,7 @@ const responsiveStyles = `
   }
   
   @media (min-width: 769px) {
-    .mobile-only {
-      display: none !important;
-    }
+    /* search bar should show on desktop too, so keeping mobile-only unused */
   }
   
   .ios-optimized {
@@ -41,7 +39,33 @@ const FeedPage: React.FC = () => {
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
   const [collegeFeedModalOpen, setCollegeFeedModalOpen] = useState(false);
   const [selectedCollege, setSelectedCollege] = useState<string>("");
-  const { setCollegeFromHero, refreshFeed } = useFeedStore();
+  const { filters, setCollegeFromHero, refreshFeed } = useFeedStore();
+
+  // Centralized state for the premium modal
+  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
+  const [premiumModalTrigger, setPremiumModalTrigger] = useState<string>("filters");
+
+  const handleOpenPremiumModal = (trigger: string) => {
+    setIsFiltersModalOpen(false); // Close other modals
+    setPremiumModalTrigger(trigger);
+    setPremiumModalOpened(true);
+  };
+
+  // A college must be selected for guest or non-premium users
+  const isGuestOrNonPremium = !user || !user.isSubscribed;
+  const hasNoCollegeFilter = !filters.college || filters.college === 'all';
+  const needsCollegeSelection = isGuestOrNonPremium && hasNoCollegeFilter;
+
+  // This effect enforces the college selection rule
+  useEffect(() => {
+    if (needsCollegeSelection) {
+      // Close any other modals before showing the college selection one
+      if (isFiltersModalOpen) {
+        setIsFiltersModalOpen(false);
+      }
+      setCollegeFeedModalOpen(true);
+    }
+  }, [needsCollegeSelection, isFiltersModalOpen]);
 
   // Refresh feed when user authentication state changes
   useEffect(() => {
@@ -92,94 +116,28 @@ const FeedPage: React.FC = () => {
       <AnimatedBackground />
 
       <Container size="xl" px={{ base: 16, sm: 32, md: 32 }} py={{ base: 20, sm: 30, md: 40 }}>
-        {!user ? (
-          <Box>
-            <Box
-              className="ios-optimized"
-              style={{
-                backgroundColor: "rgba(0, 0, 0, 0.4)",
-                backdropFilter: "blur(5px)", // Reduced blur for better performance
-                WebkitBackdropFilter: "blur(5px)", // iOS support
-                borderRadius: "8px",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                padding: "24px",
-                marginBottom: 32,
-                textAlign: "center"
-              }}
-            >
-              <Text size="xl" fw={600} c="white" mb="md">
-                Join the Conversation
-              </Text>
-              <Text c="dimmed" mb="xl">
-                Sign up or log in to connect with other students, share your experiences, and get personalized content.
-              </Text>
-              <Group justify="center" gap="md">
-                <Button
-                  variant="filled"
-                  color="blue"
-                  size="md"
-                  onClick={() => navigate("/signup")}
-                  className="ios-optimized"
-                >
-                  Sign Up
-                </Button>
-                <Button
-                  variant="outline"
-                  color="gray"
-                  size="md"
-                  onClick={() => navigate("/login")}
-                  className="ios-optimized"
-                >
-                  Log In
-                </Button>
-              </Group>
-            </Box>
-            
-            <Box className="mobile-only mobile-optimized">
-              <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
-            </Box>
-            
-            <Grid gutter="xl">
-              <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-                <FiltersSidebar />
-              </Grid.Col>
-              
-              <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 6 : 9 }}>
-                <FeedContent />
-              </Grid.Col>
-              
-              {shouldShowPremiumFeatures && (
-                <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-                  <PremiumFeatures />
-                </Grid.Col>
-              )}
-            </Grid>
-          </Box>
-        ) : (
-          <Grid gutter="xl">
+        {/* Search bar & toggle always visible */}
+        <Box mb="md">
+          <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
+        </Box>
+
+        <Grid gutter="xl">
+          <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 9 : 12 }}>
+            <FeedContent />
+          </Grid.Col>
+
+          {shouldShowPremiumFeatures && (
             <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-              <FiltersSidebar />
+              <PremiumFeatures />
             </Grid.Col>
-            
-            <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 6 : 9 }}>
-              <Box className="mobile-only mobile-optimized">
-                <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
-              </Box>
-              <FeedContent />
-            </Grid.Col>
-            
-            {shouldShowPremiumFeatures && (
-              <Grid.Col span={{ base: 12, md: 3 }} className="desktop-only">
-                <PremiumFeatures />
-              </Grid.Col>
-            )}
-          </Grid>
-        )}
+          )}
+        </Grid>
       </Container>
 
       <FiltersModal
-            open={isFiltersModalOpen}
+        open={isFiltersModalOpen}
         onClose={() => setIsFiltersModalOpen(false)}
+        onPremiumRequest={handleOpenPremiumModal}
       />
       
       {/* College Feed Modal */}
@@ -190,6 +148,14 @@ const FeedPage: React.FC = () => {
          
         }}
         collegeName={selectedCollege}
+        mode={needsCollegeSelection ? 'selection' : 'welcome'}
+      />
+
+      {/* Centralized Premium Modal */}
+      <PremiumSubscriptionModal
+        opened={premiumModalOpened}
+        onClose={() => setPremiumModalOpened(false)}
+        trigger={premiumModalTrigger}
       />
     </Box>
   );

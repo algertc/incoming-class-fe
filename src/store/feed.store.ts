@@ -9,8 +9,11 @@ export interface FeedFilters {
   lastDays: number; // Number of days to look back from today
   college: string | null;
   substances: string | null;
-  personality: string[] | null;
-  hometown: string | null;
+  homeState: string | null;
+  religion: string | null;
+  gender: string | null;
+  campusInvolvement: string | null; // e.g., Rushing fraternity/sorority, business fraternity
+  other: string | null; // e.g., Looking for roommate, Student Athlete
 }
 
 export interface FeedState {
@@ -53,8 +56,11 @@ export interface FeedState {
   setCollege: (college: string | null) => void;
   setCollegeFromHero: (college: string | null) => void; // Set college without permission check
   setSubstances: (substances: string | null) => void;
-  setPersonality: (personality: string[] | null) => void;
-  setHometown: (hometown: string | null) => void;
+  setHomeState: (homeState: string | null) => void;
+  setReligion: (religion: string | null) => void;
+  setGender: (gender: string | null) => void;
+  setCampusInvolvement: (status: string | null) => void;
+  setOther: (other: string | null) => void;
   refreshFeed: () => void;
   markModalDismissed: () => void; // Action to mark modal as dismissed
   checkFilterAccess: () => boolean; // Check if user can access filters
@@ -65,8 +71,11 @@ const initialFilters: FeedFilters = {
   lastDays: 30, // Default to last 30 days
   college: null,
   substances: null,
-  personality: null,
-  hometown: null,
+  homeState: null,
+  religion: null,
+  gender: null,
+  campusInvolvement: null,
+  other: null,
 };
 
 // Helper function to determine post limit for user
@@ -240,8 +249,8 @@ export const useFeedStore = create<FeedState>()(
           totalPages,
           hasMore: hasNextPage && !reachedLimit,
           hasReachedLimit: reachedLimit,
-          modalType,
-          isInitialLoad: false, // Mark as no longer initial load
+          modalType: isInitial ? null : modalType, // Don't show modal on initial load
+          isInitialLoad: false, // Set to false after the first successful load
           isLoading: false,
           error: null,
         });
@@ -410,11 +419,6 @@ export const useFeedStore = create<FeedState>()(
   
   // Update a specific filter and reload
   updateFilter: (key, value) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     set(state => ({
       filters: { ...state.filters, [key]: value }
     }));
@@ -423,42 +427,22 @@ export const useFeedStore = create<FeedState>()(
   
   // Reset filters to initial state and reload
   resetFilters: () => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     set({ filters: initialFilters });
     get().applyFilters();
   },
   
   // Search posts
   searchPosts: (query) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     get().updateFilter('searchQuery', query);
   },
   
   // Set date range filter
   setDateRange: (lastDays) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     get().updateFilter('lastDays', lastDays);
   },
   
   // Set college filter
   setCollege: (college) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     get().updateFilter('college', college);
   },
 
@@ -472,32 +456,32 @@ export const useFeedStore = create<FeedState>()(
   
   // Set substances filter
   setSubstances: (substances) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
     get().updateFilter('substances', substances);
   },
   
-  // Set personality filter
-  setPersonality: (personality) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
-    get().updateFilter('personality', personality);
+  // Set Home State
+  setHomeState: (homeState) => {
+    get().updateFilter('homeState', homeState);
   },
-  
-  // Set hometown filter
-  setHometown: (hometown) => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
-    get().updateFilter('hometown', hometown);
+
+  // Set Religion
+  setReligion: (religion) => {
+    get().updateFilter('religion', religion);
+  },
+
+  // Set Gender
+  setGender: (gender) => {
+    get().updateFilter('gender', gender);
+  },
+
+  // Set Campus Involvement
+  setCampusInvolvement: (status) => {
+    get().updateFilter('campusInvolvement', status);
+  },
+
+  // Set Other
+  setOther: (other) => {
+    get().updateFilter('other', other);
   },
   
   // Refresh feed - reload from page 1

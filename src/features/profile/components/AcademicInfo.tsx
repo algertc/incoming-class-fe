@@ -171,7 +171,7 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
             </Grid.Col>
             
             <Grid.Col span={6}>
-              <TextInput
+              {/* <TextInput
                 label="Batch"
                 value={editedData.batch}
                 onChange={(event) => setEditedData(prev => ({ ...prev, batch: event.currentTarget.value }))}
@@ -187,7 +187,7 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
                   },
                 }}
                 mb="sm"
-              />
+              /> */}
               
               <TextInput
                 label="Hometown"
@@ -242,8 +242,8 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
           </Grid.Col>
           
           <Grid.Col span={6}>
-            <Text fw={500} size="sm" c="white">Batch</Text>
-            <Text c="gray.4" mb="sm">{batch}</Text>
+            {/* <Text fw={500} size="sm" c="white">Batch</Text> */}
+            {/* <Text c="gray.4" mb="sm">{batch}</Text> */}
             
             <Text fw={500} size="sm" c="white">Hometown</Text>
             <Text c="gray.4" mb="sm">{hometown}</Text>

@@ -6,7 +6,7 @@
 }
 
 .chip {
-  background-color: var(--mantine-color-dark-6);
+  /* background-color: var(--mantine-color-dark-6); */
   color: var(--mantine-color-white);
   border: none;
   transition: all 0.2s ease;
@@ -14,7 +14,7 @@
 }
 
 .chip:hover {
-  background-color: var(--mantine-color-dark-5);
+  /* background-color: var(--mantine-color-dark-5); */
 }
 
 .chip[data-checked] {
