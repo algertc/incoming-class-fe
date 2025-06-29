@@ -32,13 +32,6 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
     filters,
     searchPosts,
     setDateRange,
-    setCollege,
-    setSubstances,
-    setHomeState,
-    setReligion,
-    setGender,
-    setCampusInvolvement,
-    setOther,
     resetFilters,
     checkFilterAccess,
     updateFilter,
@@ -148,15 +141,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
     setSearchQuery(value);
   };
 
-  // Handle time period change
-  const handleTimePeriodChange = (value: number) => {
-    const activeFilterCount = getActiveFiltersCount();
-    if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter('lastDays')) {
-      if (value !== 30) showPremiumModal();
-      return;
-    }
-    setTimePeriod(value);
-  };
+ 
 
   // Handle filter changes
   const handleFilterChange = (value: any, filterKey: keyof FeedFilters) => {
