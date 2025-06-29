@@ -5,9 +5,7 @@ import {
   Stack,
   Text,
   Paper,
-  Image,
   Box,
-  Avatar,
   LoadingOverlay,
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
@@ -16,6 +14,7 @@ import { useCurrentUser } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
 import { showSuccess, showError } from '../../../utils';
 import PostCard, { type Post } from '../../../features/feed/components/PostCard';
+import InstagramPost from './InstagramPost';
 import styles from './ProfilePreview.module.css';
 
 interface ProfilePreviewProps {
@@ -25,6 +24,8 @@ interface ProfilePreviewProps {
 // Define a type-safe interface for our profile data
 interface ProfileData {
   [key: string]: unknown;
+  firstName?: string;
+  lastName?: string;
   photos?: string[];
   profileImage?: string;
   instagram?: string;
@@ -32,6 +33,8 @@ interface ProfileData {
   major?: string;
   hometown?: string;
   bio?: string;
+  university?: string;
+  college?: { name: string; _id?: string; id?: string } | string;
   traits?: {
     sleepSchedule?: string;
     cleanliness?: string;
@@ -59,6 +62,13 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
       setUserData(currentUserData.data as unknown as ProfileData);
     }
   }, [currentUserData]);
+
+  // Helper function to get college name
+  const getCollegeName = (college: { name: string; _id?: string; id?: string } | string | undefined): string => {
+    if (!college) return 'College';
+    if (typeof college === 'string') return college;
+    return college.name || 'College';
+  };
 
   // Create a mock post for preview using user data
   const createMockPost = (): Post => {
@@ -154,41 +164,25 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
           </Text>
 
           {/* Instagram Preview */}
-          <Paper className={`${styles.previewContainer} ${isMobile ? styles.previewContainerMobile : ''}`} p={isMobile ? "md" : "xl"} radius="md">
-            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600}>
+          <Box>
+            <Text className={`${styles.sectionTitle} ${isMobile ? styles.sectionTitleMobile : ''}`} fw={600} mb={isMobile ? "sm" : "md"}>
               Instagram Preview
             </Text>
-            <Box className={`${styles.instagramPreview} ${isMobile ? styles.instagramPreviewMobile : ''}`}>
-              <Stack gap={isMobile ? "sm" : "md"}>
-                <Group>
-                  <Avatar
-                    src={userData.profileImage || userData.photos?.[0]}
-                    size={isMobile ? "md" : "lg"}
-                    radius="xl"
-                    style={{ border: '2px solid white' }}
-                  />
-                  <div>
-                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} fw={600}>
-                      {userData.instagram}
-                    </Text>
-                    <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>
-                      {userData.major} • {userData.hometown}
-                    </Text>
-                  </div>
-                </Group>
-                <Text className={`${styles.userInfo} ${isMobile ? styles.userInfoMobile : ''}`} size={isMobile ? "xs" : "sm"}>{userData.bio}</Text>
-                <div className={`${styles.photoGrid} ${isMobile ? styles.photoGridMobile : ''}`}>
-                  {(userData.photos || []).map((photo, index) => (
-                    <Image
-                      key={index}
-                      src={photo}
-                      className={`${styles.photo} ${isMobile ? styles.photoMobile : ''}`}
-                    />
-                  ))}
-                </div>
-              </Stack>
-            </Box>
-          </Paper>
+            <Text size={isMobile ? "xs" : "sm"} c="dimmed" mb={isMobile ? "sm" : "md"}>
+              This is how your profile will appear on Instagram
+            </Text>
+            <InstagramPost
+              user={{
+                username: userData.instagram?.replace('@', '') || userData.firstName || 'username',
+                avatar: userData.profileImage || userData.photos?.[0] || 'https://i.pravatar.cc/150?img=1',
+                verified: false
+              }}
+              image={userData.photos?.[1] || userData.photos?.[0]}
+              caption={userData.bio || `${userData.firstName || 'Student'} at ${getCollegeName(userData.college) || userData.university || 'College'} 🎓 ${userData.major ? `Studying ${userData.major}` : ''} ${userData.hometown ? `From ${userData.hometown}` : ''}`}
+              likesCount={Math.floor(Math.random() * 50) + 20}
+              timeAgo="2 hours ago"
+            />
+          </Box>
 
         {/* College Feed Preview - Using consistent PostCard component from feed */}
         <Box>
@@ -198,7 +192,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
           <Text size={isMobile ? "xs" : "sm"} c="dimmed" mb={isMobile ? "sm" : "md"}>
             This is how your posts will appear to other students in the college feed
                   </Text>
-          <PostCard post={createMockPost()} />
+          <PostCard post={createMockPost()} isStatic={true} />
         </Box>
 
           <Group justify="center" mt={isMobile ? "sm" : "xl"}>

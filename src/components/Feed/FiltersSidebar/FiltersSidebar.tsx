@@ -41,6 +41,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
     setOther,
     resetFilters,
     checkFilterAccess,
+    updateFilter,
   } = useFeedStore();
 
   // Local state for debounced inputs
@@ -62,7 +63,6 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
     let count = 0;
     if (showSearch && filters.searchQuery && filters.searchQuery.trim() !== '') count++;
     if (filters.lastDays !== 30) count++;
-    if (filters.college !== null && filters.college !== 'all') count++;
     if (filters.substances !== null) count++;
     if (filters.homeState !== null) count++;
     if (filters.religion !== null) count++;
@@ -159,13 +159,13 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
   };
 
   // Handle filter changes
-  const handleFilterChange = (value: any, setterFunction: (value: any) => void, filterKey: keyof FeedFilters) => {
+  const handleFilterChange = (value: any, filterKey: keyof FeedFilters) => {
     const activeFilterCount = getActiveFiltersCount();
     if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter(filterKey)) {
       if (value !== null && value !== 'all') showPremiumModal();
       return;
     }
-    setterFunction(value);
+    updateFilter(filterKey, value);
   };
 
   // Handle reset
@@ -245,7 +245,14 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         </Group>
         <Slider
           value={timePeriod}
-          onChange={handleTimePeriodChange}
+          onChange={(value) => {
+            if (!isPremium && getActiveFiltersCount() > 0 && !isOnlyActiveFilter('lastDays')) {
+              if (value !== 30) showPremiumModal();
+              return;
+            }
+            setTimePeriod(value);
+          }}
+          onChangeEnd={setDateRange}
           min={1}
           max={90}
           step={1}
@@ -287,7 +294,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select college"
         value={filters.college}
-        onChange={(value) => handleFilterChange(value, setCollege, 'college')}
+        onChange={(value) => handleFilterChange(value, 'college')}
         onSearchChange={setCollegeSearchQuery}
         searchValue={collegeSearchQuery}
         data={collegeOptions}
@@ -329,12 +336,11 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select preference"
         value={filters.substances}
-        onChange={(value) => handleFilterChange(value, setSubstances, 'substances')}
+        onChange={(value) => handleFilterChange(value, 'substances')}
         data={[
           { value: "Fine with Drinking", label: "Fine with Drinking" },
-          { value: "Fine with Smoking", label: "Fine with Smoking" },
-          { value: "Fine with Both", label: "Fine with Both" },
-          { value: "No Substances", label: "No Substances" },
+          { value: "Sober", label: "Sober" },
+          { value: "420 Friendly", label: "420 Friendly" },
         ]}
         mb="md"
         styles={{
@@ -372,7 +378,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         placeholder="Select state"
         searchable
         value={filters.homeState}
-        onChange={(value) => handleFilterChange(value, setHomeState, 'homeState')}
+        onChange={(value) => handleFilterChange(value, 'homeState')}
         data={[
           "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"
         ].map(s=>({value:s,label:s}))}
@@ -411,7 +417,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select religion"
         value={filters.religion}
-        onChange={(value) => handleFilterChange(value, setReligion, 'religion')}
+        onChange={(value) => handleFilterChange(value, 'religion')}
         data={[
           {value:'Christianity',label:'Christianity'},
           {value:'Islam',label:'Islam'},
@@ -437,7 +443,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select gender"
         value={filters.gender}
-        onChange={(value) => handleFilterChange(value, setGender, 'gender')}
+        onChange={(value) => handleFilterChange(value, 'gender')}
         data={[
           {value:'Male',label:'Male'},
           {value:'Female',label:'Female'},
@@ -459,10 +465,10 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select status"
         value={filters.campusInvolvement}
-        onChange={(value) => handleFilterChange(value, setCampusInvolvement, 'campusInvolvement')}
+        onChange={(value) => handleFilterChange(value, 'campusInvolvement')}
         data={[
           {value:'Rushing a fraternity/sorority',label:'Rushing a fraternity/sorority'},
-          {value:'Rushing a business fraternity',label:'Rushing a business fraternity'},
+          {value:'Business fraternity',label:'Business fraternity'},
         ]}
         mb="md"
         styles={{
@@ -479,10 +485,10 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select option"
         value={filters.other}
-        onChange={(value) => handleFilterChange(value, setOther, 'other')}
+        onChange={(value) => handleFilterChange(value, 'other')}
         data={[
           {value:'Looking for a roommate',label:'Looking for a roommate'},
-          {value:'Student Athelete',label:'Student Athelete'},
+          {value:'Student Athlete',label:'Student Athlete'},
         ]}
         mb="md"
         styles={{

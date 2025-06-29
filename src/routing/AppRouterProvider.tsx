@@ -1,3 +1,4 @@
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router";
 import { ROUTES } from './routes';
 
@@ -15,10 +16,6 @@ import FeedPage from "../features/feed/FeedPage";
 import SubscriptionPage from "../features/subscription/SubscriptionPage";
 import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile";
 import { PaymentSuccessPage, PaymentErrorPage, PremiumSuccessPage } from "../features/payment";
-
-// Placeholder components for authenticated routes
-const Applications = () => <div>Applications</div>;
-const Settings = () => <div>Settings</div>;
 
 const router = createBrowserRouter([
     // Public routes
@@ -114,20 +111,12 @@ const router = createBrowserRouter([
                 element: <CollegesPage />
             },
             {
-                path: "applications",
-                element: <Applications />
-            },
-            {
                 path: "profile",
                 element: <CurrentUserProfilePage />
             },
             {
                 path: "subscription",
                 element: <SubscriptionPage />
-            },
-            {
-                path: "settings",
-                element: <Settings />
             },
         ]
     }

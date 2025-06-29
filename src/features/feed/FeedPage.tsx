@@ -5,7 +5,7 @@ import { useSearchParams } from "react-router";
 import { PremiumFeatures } from "../../components/Feed/PremiumFeatures/PremiumFeatures";
 import AnimatedBackground from "./components/AnimatedBackground";
 import FeedContent from "./components/FeedContent";
-import { MobileSearchBar } from "./components/MobileSearchBar";
+
 import FiltersModal from "../../components/common/FiltersModal";
 import CollegeFeedModal from "./components/CollegeFeedModal";
 import { useFeedStore } from "../../store/feed.store";
@@ -37,7 +37,6 @@ const FeedPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
   const [collegeFeedModalOpen, setCollegeFeedModalOpen] = useState(false);
-  const [selectedCollege, setSelectedCollege] = useState<string>("");
   const { filters, setCollegeFromHero, refreshFeed } = useFeedStore();
 
   // Centralized state for the premium modal
@@ -81,11 +80,10 @@ const FeedPage: React.FC = () => {
     const from = searchParams.get('from');
     
     if (collegeId && collegeName && from === 'hero') {
-      setSelectedCollege(collegeName);
       setCollegeFeedModalOpen(true);
       
-      // Apply the college filter using the college ID directly
-      setCollegeFromHero(collegeId);
+      // Apply the college filter using both ID and name
+      setCollegeFromHero(collegeId, collegeName);
       console.log('Applied college filter for:', collegeName, 'with ID:', collegeId);
       
       // Clean up URL parameters after showing modal
@@ -115,14 +113,9 @@ const FeedPage: React.FC = () => {
       <AnimatedBackground />
 
       <Container size="xl" px={{ base: 16, sm: 32, md: 32 }} py={{ base: 20, sm: 30, md: 40 }}>
-        {/* Search bar & toggle always visible */}
-        <Box mb="md">
-          <MobileSearchBar onFiltersClick={() => setIsFiltersModalOpen(true)} />
-        </Box>
-
         <Grid gutter="xl">
           <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 9 : 12 }}>
-            <FeedContent />
+            <FeedContent onFiltersClick={() => setIsFiltersModalOpen(true)} />
           </Grid.Col>
 
           {shouldShowPremiumFeatures && (
@@ -146,7 +139,6 @@ const FeedPage: React.FC = () => {
           setCollegeFeedModalOpen(false)
          
         }}
-        collegeName={selectedCollege}
         mode={needsCollegeSelection ? 'selection' : 'welcome'}
       />
 

@@ -173,7 +173,28 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
               ) : (
                 <>
                   <Text size="xs" c="dimmed">{contact.label}</Text>
-                  <Text size="sm" c="white" fw={500}>{contact.value}</Text>
+                  {contact.label === 'Instagram' && contact.value ? (
+                    <Text
+                      size="sm"
+                      c="white"
+                      fw={500}
+                      component="a"
+                      href={`https://www.instagram.com/${contact.value.replace('@', '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ 
+                        textDecoration: 'none',
+                        cursor: 'pointer',
+                        '&:hover': {
+                          textDecoration: 'underline'
+                        }
+                      }}
+                    >
+                      {contact.value}
+                    </Text>
+                  ) : (
+                    <Text size="sm" c="white" fw={500}>{contact.value}</Text>
+                  )}
                 </>
               )}
             </Box>

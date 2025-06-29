@@ -115,7 +115,7 @@ export const HeroSection: React.FC = () => {
 
   const handleCollegeSelect = (college: { id: string; name: string }) => {
     setSelectedCollege(college.id);
-    setCollegeFromHero(college.id);
+    setCollegeFromHero(college.id, college.name);
     navigate(`/feed?collegeId=${encodeURIComponent(college.id)}&collegeName=${encodeURIComponent(college.name)}&from=hero`);
   };
 

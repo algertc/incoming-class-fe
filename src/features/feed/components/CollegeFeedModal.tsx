@@ -25,24 +25,22 @@ import { useFeedStore } from '../../../store/feed.store';
 interface CollegeFeedModalProps {
   opened: boolean;
   onClose: () => void;
-  collegeName: string;
   mode: 'selection' | 'welcome';
 }
 
 const CollegeFeedModal: React.FC<CollegeFeedModalProps> = ({
   opened,
   onClose,
-  collegeName,
   mode,
 }) => {
   const theme = useMantineTheme();
-  const { setCollege, searchPosts } = useFeedStore();
+  const { setCollegeWithName, searchPosts, selectedCollegeName } = useFeedStore();
   const [selectedCollege, setSelectedCollege] = useState<{ id: string; name: string } | null>(null);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
 
   const handleCollegeSelect = (college: { id: string; name: string }) => {
     setSelectedCollege(college);
-    setCollege(college.id);
+    setCollegeWithName(college.id, college.name);
     searchPosts('');
   };
   
@@ -55,6 +53,7 @@ const CollegeFeedModal: React.FC<CollegeFeedModalProps> = ({
   };
 
   const isSelectionMode = mode === 'selection';
+  const collegeName = selectedCollegeName || 'Your College';
 
   return (
     <Modal
@@ -99,7 +98,10 @@ const CollegeFeedModal: React.FC<CollegeFeedModalProps> = ({
               To give you the best experience and connect you with the right people,
               please select your college from the list below.
             </Text>
-            <CollegeSearchSelect onSelect={handleCollegeSelect} />
+            <CollegeSearchSelect
+              key={selectedCollege ? selectedCollege.id : 'initial'}
+              onSelect={handleCollegeSelect}
+            />
             {showCloseWarning && (
               <Alert
                 icon={<IconInfoCircle size={16} />}

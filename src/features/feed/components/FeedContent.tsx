@@ -22,8 +22,13 @@ import { useFeedInitializer } from '../../../hooks/api';
 import { useNavigate } from 'react-router';
 import PostCard from './PostCard';
 import type { Post } from './PostCard';
+import { MobileSearchBar } from './MobileSearchBar';
 
-const FeedContent: React.FC = () => {
+interface FeedContentProps {
+  onFiltersClick: () => void;
+}
+
+const FeedContent: React.FC<FeedContentProps> = ({ onFiltersClick }) => {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [loginModalOpened, setLoginModalOpened] = useState(false);
@@ -325,9 +330,14 @@ const FeedContent: React.FC = () => {
 
   return (
     <>
-    <Container size="md" py="md">
+      <Container size="md" py="md">
+        {/* Mobile Search Bar - inside container to match PostCard width */}
+        <Box mb="md">
+          <MobileSearchBar onFiltersClick={onFiltersClick} />
+        </Box>
+        
         {renderPosts()}
-    </Container>
+      </Container>
 
       {/* Login/Signup Modal */}
       <Modal

@@ -42,6 +42,10 @@ export interface FeedState {
   modalType: 'signup' | 'premium' | null; // Type of modal to show
   isInitialLoad: boolean; // Track if this is the first load to prevent initial modal
   
+  // Selected college info
+  selectedCollegeId: string | null;
+  selectedCollegeName: string | null;
+  
   // Filters
   filters: FeedFilters;
   
@@ -54,7 +58,8 @@ export interface FeedState {
   searchPosts: (query: string) => void;
   setDateRange: (lastDays: number) => void;
   setCollege: (college: string | null) => void;
-  setCollegeFromHero: (college: string | null) => void; // Set college without permission check
+  setCollegeWithName: (collegeId: string | null, collegeName: string | null) => void;
+  setCollegeFromHero: (collegeId: string | null, collegeName?: string | null) => void;
   setSubstances: (substances: string | null) => void;
   setHomeState: (homeState: string | null) => void;
   setReligion: (religion: string | null) => void;
@@ -76,6 +81,60 @@ const initialFilters: FeedFilters = {
   gender: null,
   campusInvolvement: null,
   other: null,
+};
+
+// This function will be called whenever the filters change
+const handleFilterChange = async (get: () => FeedState, set: (state: Partial<FeedState>) => void) => {
+  console.log('Feed: Filters changed, applying new filters...');
+  set({ 
+    isLoading: true, 
+    error: null, 
+    posts: [], 
+    currentPage: 0, 
+    hasMore: true,
+    hasReachedLimit: false,
+    modalShownAndDismissed: false,
+  });
+  
+  try {
+    const response = await feedService.fetchPosts({
+      ...get().filters,
+      page: 1,
+      limit: get().postsPerPage,
+    });
+    
+    if (response.status) {
+      const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
+      
+      const postLimit = getPostLimit();
+      let finalPosts = posts;
+      let reachedLimit = false;
+      
+      if (postLimit !== null && posts.length >= postLimit) {
+        finalPosts = posts.slice(0, postLimit);
+        reachedLimit = true;
+      }
+      
+      set({
+        posts: finalPosts,
+        totalCount: totalDocs,
+        currentPage: page,
+        totalPages,
+        hasMore: hasNextPage && !reachedLimit,
+        hasReachedLimit: reachedLimit,
+        modalType: reachedLimit ? getModalType() : null,
+        isLoading: false,
+      });
+    } else {
+      throw new Error(response.message || 'Failed to fetch posts with new filters');
+    }
+  } catch (error) {
+    console.error("Feed: Error applying filters:", error);
+    set({ 
+      isLoading: false, 
+      error: (error as Error).message 
+    });
+  }
 };
 
 // Helper function to determine post limit for user
@@ -158,12 +217,14 @@ export const useFeedStore = create<FeedState>()(
   totalCount: 0,
   hasMore: true,
   postsPerPage: 5, // Backend returns 5 posts per page
-  maxPostsForUnauthenticated: 6, // Allow only 6 posts for unauthenticated users
-  maxPostsForNonPremium: 10, // Allow 10 posts for non-premium users with completed profile
+  maxPostsForUnauthenticated: 10, // Allow only 10 posts for unauthenticated users
+  maxPostsForNonPremium: 20, // Allow 10 posts for non-premium users with completed profile
   hasReachedLimit: false,
   modalShownAndDismissed: false,
   modalType: null,
   isInitialLoad: true, // Start as initial load
+  selectedCollegeId: null,
+  selectedCollegeName: null,
   filters: initialFilters,
   
   // Check if user can access filters (only premium users)
@@ -342,93 +403,18 @@ export const useFeedStore = create<FeedState>()(
   },
   
   // Apply filters - reset and reload from page 1
-  applyFilters: async () => {
-    // Check if user has access to filters
-    if (!get().checkFilterAccess()) {
-      return;
-    }
-    
-    set({ 
-      isLoading: true, 
-      error: null, 
-      posts: [], 
-      currentPage: 0, 
-      hasMore: true, 
-      hasReachedLimit: false,
-      modalShownAndDismissed: false, // Reset modal state when applying filters
-      modalType: null,
-      isInitialLoad: true // Reset to initial load when applying filters
-    });
-    
-    try {
-      const response = await feedService.fetchPosts({
-        ...get().filters,
-        page: 1,
-        limit: get().postsPerPage,
-      });
-      
-      if (response.status) {
-        const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
-        
-        // Apply post limits based on user context
-        const postLimit = getPostLimit();
-        let finalPosts = posts;
-        let reachedLimit = false;
-        
-        // On filter application (which is like initial load), don't trigger the limit modal 
-        // even if we have exactly the limit - only trigger it if we have MORE than the limit
-        const isInitial = get().isInitialLoad;
-        
-        if (postLimit !== null && posts.length > postLimit) {
-          finalPosts = posts.slice(0, postLimit);
-          reachedLimit = true;
-        } else if (postLimit !== null && posts.length >= postLimit && !isInitial) {
-          // Only set reachedLimit if not initial load and we have exactly the limit
-          reachedLimit = true;
-        }
-        
-        const modalType = reachedLimit ? getModalType() : null;
-        
-        set({
-          posts: finalPosts,
-          totalCount: totalDocs,
-          currentPage: page,
-          totalPages,
-          hasMore: hasNextPage && !reachedLimit,
-          hasReachedLimit: reachedLimit,
-          modalType,
-          isInitialLoad: false, // Mark as no longer initial load
-          isLoading: false,
-          error: null,
-        });
-      } else {
-        set({
-          error: response.error || 'Failed to apply filters',
-          isLoading: false,
-          posts: [],
-        });
-      }
-    } catch (error) {
-      set({
-        error: error instanceof Error ? error.message : 'Unknown error occurred',
-        isLoading: false,
-        posts: [],
-      });
-    }
-  },
+  applyFilters: () => handleFilterChange(get, set),
   
   // Update a specific filter and reload
   updateFilter: (key, value) => {
-    set(state => ({
-      filters: { ...state.filters, [key]: value }
+    set((state) => ({
+      filters: { ...state.filters, [key]: value },
     }));
-    get().applyFilters();
   },
   
   // Reset filters to initial state and reload
   resetFilters: () => {
     set({ filters: initialFilters });
-    get().applyFilters();
   },
   
   // Search posts
@@ -446,12 +432,22 @@ export const useFeedStore = create<FeedState>()(
     get().updateFilter('college', college);
   },
 
-  // Set college filter without permission check (for auto-filtering from hero)
-  setCollegeFromHero: (college: string | null) => {
-    set(state => ({
-      filters: { ...state.filters, college }
+  // Set college with both ID and name
+  setCollegeWithName: (collegeId, collegeName) => {
+    set((state) => ({
+      filters: { ...state.filters, college: collegeId },
+      selectedCollegeId: collegeId,
+      selectedCollegeName: collegeName,
     }));
-    get().applyFilters();
+  },
+
+  // Set college filter without permission check (for auto-filtering from hero)
+  setCollegeFromHero: (collegeId, collegeName) => {
+    set((state) => ({
+      filters: { ...state.filters, college: collegeId },
+      selectedCollegeId: collegeId,
+      selectedCollegeName: collegeName || null,
+    }));
   },
   
   // Set substances filter
@@ -560,4 +556,16 @@ export const useFeedStore = create<FeedState>()(
     set({ modalShownAndDismissed: true });
   },
   }))
+); 
+
+// Create a subscription to the filters state
+useFeedStore.subscribe(
+  (state) => state.filters,
+  (newFilters, oldFilters) => {
+    // We only want to refetch if the filters have actually changed.
+    // This deep comparison is simple but effective for this object structure.
+    if (JSON.stringify(newFilters) !== JSON.stringify(oldFilters)) {
+      useFeedStore.getState().applyFilters();
+    }
+  }
 ); 

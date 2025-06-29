@@ -34,6 +34,19 @@ const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServe
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<IServerResponse>;
       
+      // Handle authentication errors globally
+      if (axiosError.response?.status === 401) {
+        console.log('HTTP Client: 401 Unauthorized - redirecting to login');
+        
+        // Clear invalid token
+        localStorage.removeItem('token');
+        
+        // Redirect to login using window.location
+        window.location.href = '/login';
+        
+        throw new Error('Session expired. Please login again.');
+      }
+      
       throw new Error(
         axiosError.response?.data?.message ||
         axiosError.message ||
