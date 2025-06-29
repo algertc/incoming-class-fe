@@ -170,7 +170,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
             </Text>
             <Text size={isMobile ? "xs" : "sm"} c="dimmed" mb={isMobile ? "sm" : "md"}>
               This is how your profile will appear on Instagram
-            </Text>
+                    </Text>
             <InstagramPost
               user={{
                 username: userData.instagram?.replace('@', '') || userData.firstName || 'username',
@@ -182,7 +182,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
               likesCount={Math.floor(Math.random() * 50) + 20}
               timeAgo="2 hours ago"
             />
-          </Box>
+            </Box>
 
         {/* College Feed Preview - Using consistent PostCard component from feed */}
         <Box>

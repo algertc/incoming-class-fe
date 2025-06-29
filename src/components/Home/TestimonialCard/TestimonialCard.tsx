@@ -6,7 +6,7 @@ import gsap from 'gsap';
 export interface TestimonialProps {
   content: string;
   author: string;
-  title: string;
+  title?: string;
   avatar: string;
 }
 
@@ -86,9 +86,11 @@ export const TestimonialCard: React.FC<TestimonialProps> = ({ content, author, t
             <Text fw={700} size="md" c={theme.white}>
               {author}
             </Text>
-            <Text size="sm" c={theme.colors.dark[3]}>
-              {title}
-            </Text>
+            {title && (
+              <Text size="sm" c={theme.colors.dark[3]}>
+                {title}
+              </Text>
+            )}
           </div>
         </Group>
       </Stack>

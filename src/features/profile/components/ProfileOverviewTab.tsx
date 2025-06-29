@@ -168,6 +168,7 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
                   physicalActivity={profileData.physicalActivity || []}
                   pastimes={profileData.pastimes || []}
                   food={profileData.food || []}
+                  campusInvolvement={profileData.campusInvolvement || ''}
                   isEditable={true}
                   isEditing={editStates.interests}
                   onEdit={() => toggleEditState('interests')}

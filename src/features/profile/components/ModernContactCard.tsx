@@ -193,7 +193,7 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
                       {contact.value}
                     </Text>
                   ) : (
-                    <Text size="sm" c="white" fw={500}>{contact.value}</Text>
+                  <Text size="sm" c="white" fw={500}>{contact.value}</Text>
                   )}
                 </>
               )}

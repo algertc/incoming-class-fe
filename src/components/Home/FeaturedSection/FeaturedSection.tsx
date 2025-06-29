@@ -121,9 +121,8 @@ export const FeaturedSection: React.FC = () => {
                 <Grid.Col key={testimonial.id} span={{ base: 12, sm: 6, md: 4 }}>
                   <TestimonialCard
                     content={testimonial.message}
-                    author={testimonial.user.firstName + " " + testimonial.user.lastName}
-                    title={`${testimonial.user.major} at ${"testimonial.user.college.name"}`}
-                    avatar={testimonial.user.profilePicture || `https://i.pravatar.cc/150?u=${testimonial.id}`}
+                    author={testimonial.name}
+                    avatar={testimonial.profileImage}
                   />
                 </Grid.Col>
               ))}

@@ -276,14 +276,14 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
     if (imageCount === 1) {
       return (
         <Box style={{
-          transform: 'translate3d(0,0,0)',
-          WebkitTransform: 'translate3d(0,0,0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden',
-          perspective: '1000px',
-          WebkitPerspective: '1000px',
-          willChange: 'transform',
-        }}>
+        transform: 'translate3d(0,0,0)',
+        WebkitTransform: 'translate3d(0,0,0)',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        perspective: '1000px',
+        WebkitPerspective: '1000px',
+        willChange: 'transform',
+      }}>
           <Image
             src={limitedImages[0]}
             alt="Post image"
@@ -361,7 +361,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
                     fontWeight: 600,
                     backdropFilter: 'blur(4px)',
                   }}
-                >
+                  >
                   +{post.images.length - 3} more
                 </Box>
               )}
@@ -553,26 +553,26 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
             c="white" 
             mb="sm"
             onClick={isStatic ? undefined : handlePostClick}
-            style={{
+        style={{ 
               wordWrap: 'break-word',
               wordBreak: 'break-word',
               overflowWrap: 'break-word',
               maxWidth: '100%',
               cursor: isStatic ? 'default' : 'pointer',
               transition: isStatic ? 'none' : 'background-color 0.2s ease, transform 0.2s ease',
-              borderRadius: '8px',
-              padding: '8px',
-              margin: '-8px',
-            }}
+          borderRadius: '8px',
+          padding: '8px',
+          margin: '-8px',
+        }}
             onMouseEnter={isStatic ? undefined : (e) => {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-            }}
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+          e.currentTarget.style.transform = 'translateY(-1px)';
+        }}
             onMouseLeave={isStatic ? undefined : (e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.transform = 'translateY(0)';
+        }}
+      >
             {post.title}
           </Text>
         )}
@@ -619,233 +619,233 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
       {/* Modals - only render when not static */}
       {!isStatic && (
         <>
-          <Modal
-            opened={editModalOpened}
-            onClose={() => {
-              setEditModalOpened(false);
-              setPreviewImages([]);
-              setSelectedFiles([]);
-              editForm.reset();
-            }}
-            title="Edit Post"
-            size="xl"
-            centered
-            styles={{
-              content: {
-                background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              },
-              header: {
-                backgroundColor: 'transparent',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              },
-              title: {
-                color: 'white',
-                fontSize: rem(18),
-                fontWeight: 600,
-              },
-              close: {
-                color: 'white',
-                '&:hover': {
+      <Modal
+        opened={editModalOpened}
+        onClose={() => {
+          setEditModalOpened(false);
+          setPreviewImages([]);
+          setSelectedFiles([]);
+          editForm.reset();
+        }}
+        title="Edit Post"
+        size="xl"
+        centered
+        styles={{
+          content: {
+            background: 'linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+          header: {
+            backgroundColor: 'transparent',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+          title: {
+            color: 'white',
+            fontSize: rem(18),
+            fontWeight: 600,
+          },
+          close: {
+            color: 'white',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            },
+          },
+        }}
+      >
+        <LoadingOverlay visible={updatePostMutation.isPending || uploadImagesMutation.isPending} />
+        
+        {/* Hidden file input */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileInput}
+          accept="image/*"
+          multiple
+          style={{ display: 'none' }}
+        />
+        
+        <form onSubmit={editForm.onSubmit(handleSaveEdit)}>
+          <Stack gap="md">
+            <TextInput
+              label="Post Title"
+              placeholder="Enter a title for your post"
+              {...editForm.getInputProps('title')}
+              styles={{
+                label: { color: 'white', marginBottom: '8px' },
+                input: {
                   backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  '&:focus': {
+                    borderColor: '#3b82f6',
+                  },
+                  '&::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  },
                 },
-              },
-            }}
-          >
-            <LoadingOverlay visible={updatePostMutation.isPending || uploadImagesMutation.isPending} />
-            
-            {/* Hidden file input */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileInput}
-              accept="image/*"
-              multiple
-              style={{ display: 'none' }}
+              }}
             />
             
-            <form onSubmit={editForm.onSubmit(handleSaveEdit)}>
-              <Stack gap="md">
-                <TextInput
-                  label="Post Title"
-                  placeholder="Enter a title for your post"
-                  {...editForm.getInputProps('title')}
-                  styles={{
-                    label: { color: 'white', marginBottom: '8px' },
-                    input: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      '&:focus': {
-                        borderColor: '#3b82f6',
-                      },
-                      '&::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)',
-                      },
-                    },
-                  }}
-                />
-                
-                <Textarea
-                  label="Post Content"
-                  placeholder="What's on your mind?"
-                  minRows={4}
-                  maxRows={8}
-                  {...editForm.getInputProps('content')}
-                  styles={{
-                    label: { color: 'white', marginBottom: '8px' },
-                    input: {
-                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                      border: '1px solid rgba(255, 255, 255, 0.2)',
-                      color: 'white',
-                      '&:focus': {
-                        borderColor: '#3b82f6',
-                      },
-                      '&::placeholder': {
-                        color: 'rgba(255, 255, 255, 0.5)',
-                      },
-                    },
-                  }}
-                />
+            <Textarea
+              label="Post Content"
+              placeholder="What's on your mind?"
+              minRows={4}
+              maxRows={8}
+              {...editForm.getInputProps('content')}
+              styles={{
+                label: { color: 'white', marginBottom: '8px' },
+                input: {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  '&:focus': {
+                    borderColor: '#3b82f6',
+                  },
+                  '&::placeholder': {
+                    color: 'rgba(255, 255, 255, 0.5)',
+                  },
+                },
+              }}
+            />
 
-                {/* Image Management Section */}
-                <Box>
-                  <Text size="sm" fw={500} c="white" mb="xs">
-                    Images
+            {/* Image Management Section */}
+            <Box>
+              <Text size="sm" fw={500} c="white" mb="xs">
+                Images
+              </Text>
+              
+              {/* Image Upload Area */}
+              <Paper
+                p="md"
+                radius="md"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                  border: '2px dashed rgba(255, 255, 255, 0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                }}
+                onClick={() => fileInputRef.current?.click()}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                  e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                }}
+              >
+                <Group justify="center" gap="sm">
+                  <IconUpload size={24} color="rgba(255, 255, 255, 0.7)" />
+                  <Text size="sm" c="dimmed">
+                    Click to add images or drag and drop
                   </Text>
-                  
-                  {/* Image Upload Area */}
-                  <Paper
-                    p="md"
-                    radius="md"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                      border: '2px dashed rgba(255, 255, 255, 0.2)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onClick={() => fileInputRef.current?.click()}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                      e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                      e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                    }}
-                  >
-                    <Group justify="center" gap="sm">
-                      <IconUpload size={24} color="rgba(255, 255, 255, 0.7)" />
-                      <Text size="sm" c="dimmed">
-                        Click to add images or drag and drop
-                      </Text>
-                    </Group>
-                  </Paper>
-
-                  {/* Image Grid */}
-                  {previewImages.length > 0 && (
-                    <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="sm" mt="md">
-                      {previewImages.map((image, index) => (
-                        <Box key={index} style={{ position: 'relative' }}>
-                          <Image
-                            src={image}
-                            radius="md"
-                            fit="cover"
-                            style={{ height: '100px' }}
-                          />
-                          <ActionIcon
-                            variant="filled"
-                            color="red"
-                            size="sm"
-                            radius="xl"
-                            style={{
-                              position: 'absolute',
-                              top: -8,
-                              right: -8,
-                              zIndex: 10,
-                            }}
-                            onClick={() => removeImage(index)}
-                          >
-                            <IconX size={14} />
-                          </ActionIcon>
-                        </Box>
-                      ))}
-                      
-                      {/* Add more images button */}
-                      {previewImages.length < 10 && (
-                        <Paper
-                          p="md"
-                          radius="md"
-                          style={{
-                            height: '100px',
-                            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                            border: '1px dashed rgba(255, 255, 255, 0.2)',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            transition: 'all 0.2s ease',
-                          }}
-                          onClick={() => fileInputRef.current?.click()}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
-                            e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
-                            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                          }}
-                        >
-                          <IconPlus size={24} color="rgba(255, 255, 255, 0.7)" />
-                        </Paper>
-                      )}
-                    </SimpleGrid>
-                  )}
-                </Box>
-                
-                <Group justify="flex-end" gap="md">
-                  <Button
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => {
-                      setEditModalOpened(false);
-                      setPreviewImages([]);
-                      setSelectedFiles([]);
-                      editForm.reset();
-                    }}
-                    leftSection={<IconX size={16} />}
-                  >
-                    Cancel
-                  </Button>
-                  
-                  <Button
-                    type="submit"
-                    variant="gradient"
-                    gradient={{ from: 'blue', to: 'cyan' }}
-                    leftSection={<IconCheck size={16} />}
-                    loading={updatePostMutation.isPending || uploadImagesMutation.isPending}
-                  >
-                    Save Changes
-                  </Button>
                 </Group>
-              </Stack>
-            </form>
-          </Modal>
+              </Paper>
 
-          {/* Image Crop Modal */}
-          <ImageCropModal
-            opened={cropModalOpened}
-            onClose={() => setCropModalOpened(false)}
-            imageUrl={currentImageUrl}
-            onCropComplete={handleCropComplete}
-          />
-          
-          {/* Premium Subscription Modal for unauthenticated users */}
-          <PremiumSubscriptionModal
-            opened={premiumModalOpened}
-            onClose={() => setPremiumModalOpened(false)}
-            trigger="profile-access"
-          />
+              {/* Image Grid */}
+              {previewImages.length > 0 && (
+                <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="sm" mt="md">
+                  {previewImages.map((image, index) => (
+                    <Box key={index} style={{ position: 'relative' }}>
+                      <Image
+                        src={image}
+                        radius="md"
+                        fit="cover"
+                        style={{ height: '100px' }}
+                      />
+                      <ActionIcon
+                        variant="filled"
+                        color="red"
+                        size="sm"
+                        radius="xl"
+                        style={{
+                          position: 'absolute',
+                          top: -8,
+                          right: -8,
+                          zIndex: 10,
+                        }}
+                        onClick={() => removeImage(index)}
+                      >
+                        <IconX size={14} />
+                      </ActionIcon>
+                    </Box>
+                  ))}
+                  
+                  {/* Add more images button */}
+                  {previewImages.length < 10 && (
+                    <Paper
+                      p="md"
+                      radius="md"
+                      style={{
+                        height: '100px',
+                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px dashed rgba(255, 255, 255, 0.2)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        transition: 'all 0.2s ease',
+                      }}
+                      onClick={() => fileInputRef.current?.click()}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)';
+                        e.currentTarget.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                      }}
+                    >
+                      <IconPlus size={24} color="rgba(255, 255, 255, 0.7)" />
+                    </Paper>
+                  )}
+                </SimpleGrid>
+              )}
+            </Box>
+            
+            <Group justify="flex-end" gap="md">
+              <Button
+                variant="subtle"
+                color="gray"
+                onClick={() => {
+                  setEditModalOpened(false);
+                  setPreviewImages([]);
+                  setSelectedFiles([]);
+                  editForm.reset();
+                }}
+                leftSection={<IconX size={16} />}
+              >
+                Cancel
+              </Button>
+              
+              <Button
+                type="submit"
+                variant="gradient"
+                gradient={{ from: 'blue', to: 'cyan' }}
+                leftSection={<IconCheck size={16} />}
+                loading={updatePostMutation.isPending || uploadImagesMutation.isPending}
+              >
+                Save Changes
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+
+      {/* Image Crop Modal */}
+      <ImageCropModal
+        opened={cropModalOpened}
+        onClose={() => setCropModalOpened(false)}
+        imageUrl={currentImageUrl}
+        onCropComplete={handleCropComplete}
+      />
+      
+      {/* Premium Subscription Modal for unauthenticated users */}
+      <PremiumSubscriptionModal
+        opened={premiumModalOpened}
+        onClose={() => setPremiumModalOpened(false)}
+        trigger="profile-access"
+      />
         </>
       )}
     </>

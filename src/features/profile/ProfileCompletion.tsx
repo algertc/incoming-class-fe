@@ -34,6 +34,7 @@ import { withProfileStageGuard } from "./withProfileStageGuard";
 import { useUpdateCurrentUserProfile } from "../../hooks/api";
 
 const stageToIndex = {
+  [ProfileStage.COLLEGE_SELECTION]: 0,
   [ProfileStage.UPLOAD_PHOTOS]: 1,
   [ProfileStage.ABOUT_YOU]: 2,
   [ProfileStage.PREFERENCES]: 3,
@@ -41,8 +42,8 @@ const stageToIndex = {
   [ProfileStage.PAYMENT]: 5,
 };
 
-const indexToStage: Record<number, ProfileStage> = {
-  0: ProfileStage.UPLOAD_PHOTOS,
+const indexToStage: Record<number, ProfileStage | null> = {
+  0: ProfileStage.COLLEGE_SELECTION,
   1: ProfileStage.UPLOAD_PHOTOS,
   2: ProfileStage.ABOUT_YOU,
   3: ProfileStage.PREFERENCES,
@@ -64,12 +65,7 @@ const ProfileCompletion: React.FC = () => {
   useEffect(() => {
     if (user?.profileStage) {
       const stageIndex = stageToIndex[user.profileStage];
-      // If user hasn't selected a college yet, start at step 0 (college selection)
-      if (!user.college && !user.university) {
-        setActive(0);
-      } else {
-        setActive(stageIndex);
-      }
+      setActive(stageIndex);
     } else {
       // If no profile stage, start at college selection
       setActive(0);
@@ -86,20 +82,22 @@ const ProfileCompletion: React.FC = () => {
       const newStepIndex = active - 1;
       const newStage = indexToStage[newStepIndex];
       
-      // Update the profile stage in the backend
-      const response = await updateProfile({
-        profileStage: newStage
-      });
+      // Update backend stage
+      if (newStage !== null) {
+        const response = await updateProfile({
+          profileStage: newStage
+        });
 
-      if (!response.status) {
-        throw new Error(response.errorMessage?.message || 'Failed to update profile stage');
+        if (!response.status) {
+          throw new Error(response.errorMessage?.message || 'Failed to update profile stage');
+        }
+        
+        // Refresh user data
+        await fetchUser();
       }
 
       // Update local state
       setActive(newStepIndex);
-      
-      // Refresh user data
-      await fetchUser();
     } catch (error) {
       console.error('Error navigating back:', error);
     } finally {
@@ -113,7 +111,7 @@ const ProfileCompletion: React.FC = () => {
       mobileTitle: "College",
       description: "Select your college",
       icon: <IconBuildingBank style={{ width: rem(18), height: rem(18) }} />,
-      stage: ProfileStage.UPLOAD_PHOTOS,
+      stage: ProfileStage.COLLEGE_SELECTION,
     },
     {
       title: "Photos",

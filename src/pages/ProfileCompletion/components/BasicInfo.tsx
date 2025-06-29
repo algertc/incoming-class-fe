@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   TextInput,
   Button,
@@ -15,16 +15,11 @@ import { useForm, yupResolver } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
-import type { User, College } from "../../../models/user.model";
 import { ProfileStage } from "../../../models/user.model";
 import { profileBasicInfoSchema, getProfileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
 import { useAuthStore } from "../../../store/auth.store";
 import styles from "./BasicInfo.module.css";
-
-interface ExtendedUser extends User {
-  college?: College | string;
-}
 
 interface BasicInfoProps {
   onComplete: () => void;
@@ -40,40 +35,14 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
     validate: yupResolver(profileBasicInfoSchema)
   });
 
-  // State to store the selected college ID
-  const [selectedCollegeId, setSelectedCollegeId] = useState<string>('');
-
-  // Initialize selectedCollegeId from user data
-  useEffect(() => {
-    if (user) {
-      const userData = user as ExtendedUser;
-      const college = userData?.college;
-      let collegeId = '';
-      
-      if (typeof college === 'string') {
-        collegeId = college;
-      } else if (college && typeof college === 'object') {
-        collegeId = college.id || '';
-      }
-      
-      if (collegeId) {
-        setSelectedCollegeId(collegeId);
-      }
-    }
-  }, [user]);
-
   const handleSubmit = async (values: typeof form.values) => {
     try {
-      const { university, ...restValues } = values;
       const profileData = {
-        ...restValues,
-        collegeGraduationYear: values.batch,
-        college: selectedCollegeId || university, // Use college ID if available, fallback to university name
+        ...values,
         profileStage: ProfileStage.PREFERENCES
       };
       
       console.log('Submitting profile data:', profileData);
-      console.log('Selected college ID:', selectedCollegeId);
       
       const response = await updateProfile(profileData);
 

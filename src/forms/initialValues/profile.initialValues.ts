@@ -8,8 +8,6 @@ export const profileBasicInfoInitialValues = {
   snapchat: '',
   major: '',
   hometown: '',
-  university: '',
-  batch: '',
   bio: '',
   lookingForRoommate: false
 };
@@ -20,17 +18,11 @@ export const profileBasicInfoInitialValues = {
 export const getProfileBasicInfoInitialValues = (user?: User | null) => {
   if (!user) return profileBasicInfoInitialValues;
   
-  const collegeName = typeof user.college === 'object' && user.college 
-    ? user.college.name 
-    : '';
-  
   return {
     instagram: user.instagram || '',
     snapchat: user.snapchat || '',
     major: user.major || '',
     hometown: user.hometown || '',
-    university: user.university || collegeName || '',
-    batch: user.collegeGraduationYear || '',
     bio: user.bio || '',
     lookingForRoommate: false // This field doesn't exist in User model
   };
@@ -49,7 +41,8 @@ export const traitsPreferencesInitialValues = {
   physicalActivity: [] as string[],
   pastimes: [] as string[],
   food: [] as string[],
-  other: [] as string[]
+  other: [] as string[],
+  campusInvolvement: ''
 };
 
 /**
@@ -68,7 +61,8 @@ export const getTraitsPreferencesInitialValues = (user?: User | null) => {
     physicalActivity: user.physicalActivity || [],
     pastimes: user.pastimes || [],
     food: user.food || [],
-    other: user.other || []
+    other: user.other || [],
+    campusInvolvement: user.campusInvolvement || ''
   };
 };
 

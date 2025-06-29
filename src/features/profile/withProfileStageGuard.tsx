@@ -7,7 +7,7 @@ import LoadingScreen from '../common/components/LoadingScreen';
 /**
  * HOC that guards the profile completion page
  * - Redirects to login if not authenticated
- * - Redirects to dashboard if profile is already complete
+ * - Redirects to /app if user should not be in profile completion
  */
 export const withProfileStageGuard = <P extends object>(
   WrappedComponent: React.ComponentType<P>
@@ -23,8 +23,13 @@ export const withProfileStageGuard = <P extends object>(
           navigate(ROUTES.LOGIN);
         });
       } else if (user && !isLoading) {
-        // If user has completed profile, redirect to dashboard
-        if (user.isProfileCompleted ) {
+        // Check if user should be redirected to /app
+        const shouldRedirectToApp = 
+          user.isSubscribed || 
+          user.isProfileCompleted || 
+          user.postPaymentDone;
+
+        if (shouldRedirectToApp) {
           navigate(ROUTES.DASHBOARD);
         }
       }
@@ -42,11 +47,17 @@ export const withProfileStageGuard = <P extends object>(
       return null; // Don't render anything while redirecting
     }
 
-    // Only render if user has an incomplete profile
-    if (!user.isProfileCompleted) {
+    // Check if user should be redirected (same logic as useEffect)
+    const shouldRedirectToApp = 
+      user.isSubscribed || 
+      user.isProfileCompleted || 
+      user.postPaymentDone;
+
+    // Only render profile completion if user should NOT be redirected
+    if (!shouldRedirectToApp) {
       return <WrappedComponent {...props} />;
     }
 
-    return null;
+    return null; // Don't render anything while redirecting
   };
 }; 

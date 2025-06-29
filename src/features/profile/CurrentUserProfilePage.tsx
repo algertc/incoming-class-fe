@@ -8,6 +8,7 @@ import {
   rem,
 } from '@mantine/core';
 import { useProfileData, useProfileEditing } from './hooks';
+import { calculateProfileCompletion } from './utils/profileCompletion';
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
@@ -90,7 +91,7 @@ const CurrentUserProfilePage: React.FC = () => {
   const designation = profileData.major 
     ? `${profileData.major} Student` 
     : 'University Student';
-  const profileCompletion = profileData.isProfileCompleted ? 100 : 75;
+  const profileCompletion = calculateProfileCompletion(profileData);
 
   return (
     <Box 

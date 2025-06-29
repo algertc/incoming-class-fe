@@ -1,16 +1,11 @@
 import { request } from '../hooks/api/http.client';
 import type { IServerResponse } from '../models/serverResponse.model';
-import type { College, User } from '../models/user.model';
 
 export interface Testimonial {
   id: string;
   name: string;
-  role: string;
-  college: College;
+  profileImage: string;
   message: string;
-  rating: number;
-  user: User & {college: College};
-  avatarUrl?: string;
 }
 
 export interface TestimonialSearchParams {

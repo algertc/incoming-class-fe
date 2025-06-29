@@ -4,6 +4,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import CollegeSearchSelect from "./CollegeSearchSelect";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { useAuthStore } from "../../../store/auth.store";
+import { ProfileStage } from "../../../models/user.model";
 import { showError, showSuccess } from "../../../utils";
 import styles from "./BasicInfo.module.css"; // reuse basic info styles for consistency
 
@@ -43,9 +44,7 @@ const CollegeSelectStep: React.FC<CollegeSelectStepProps> = ({ onComplete }) => 
       const response = await updateProfile({
         college: collegeId ?? collegeName,
         university: collegeName,
-        // We intentionally do NOT update profileStage here because
-        // this step is front-end only and maps to the existing
-        // UPLOAD_PHOTOS stage.
+        profileStage: ProfileStage.UPLOAD_PHOTOS, // Move to next stage after college selection
       });
       if (!response.status) {
         throw new Error(response.errorMessage?.message || "Failed to save college");

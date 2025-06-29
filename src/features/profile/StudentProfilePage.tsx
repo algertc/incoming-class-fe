@@ -12,6 +12,7 @@ import {
 } from '@mantine/core';
 import { useStudentProfileData } from './hooks';
 import { glassCardStyles } from './utils/glassStyles';
+import { calculateProfileCompletion } from './utils/profileCompletion';
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
@@ -97,7 +98,7 @@ const StudentProfilePage: React.FC = () => {
             hometown={profileData.hometown || ""}
             bio={profileData.bio || ""}
             isPremium={profileData.isPremium}
-            profileCompletion={profileData.isProfileCompleted ? 100 : 0}
+            profileCompletion={calculateProfileCompletion(profileData)}
             userId={profileData._id}
           />
         </Suspense>

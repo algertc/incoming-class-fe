@@ -20,12 +20,15 @@ import {
   IconUser,
 } from "@tabler/icons-react";
 import { showSuccess } from "../../utils";
+import { useAuthStore } from "../../store/auth.store";
+import ROUTES from "../../constants/routes";
 
 const PaymentSuccessPage: React.FC = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { fetchUser } = useAuthStore();
 
   useEffect(() => {
     // Log page entry
@@ -55,6 +58,19 @@ const PaymentSuccessPage: React.FC = () => {
       });
     }
 
+    // Refresh user data to get updated payment status
+    const refreshUserData = async () => {
+      try {
+        console.log("🔄 PaymentSuccessPage: Refreshing user data to get updated payment status");
+        await fetchUser();
+        console.log("✅ PaymentSuccessPage: User data refreshed successfully");
+      } catch (error) {
+        console.error("❌ PaymentSuccessPage: Failed to refresh user data:", error);
+      }
+    };
+
+    refreshUserData();
+
     // Show success notification when page loads
     showSuccess(
       "Payment successful! Your post will be featured on your university's Instagram page within 24 hours!"
@@ -62,24 +78,24 @@ const PaymentSuccessPage: React.FC = () => {
 
     // Log success notification
     console.log("🔔 Success notification displayed");
-  }, [searchParams, isMobile]);
+  }, [searchParams, isMobile, fetchUser]);
 
   const handleGoToFeed = () => {
     console.log("🏠 PaymentSuccessPage: User clicked 'Go to Feed'");
-    console.log("📍 Navigation: /app/feed");
-    navigate("/app/feed");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoToProfile = () => {
     console.log("👤 PaymentSuccessPage: User clicked 'View Profile'");
-    console.log("📍 Navigation: /app/profile");
-    navigate("/app/profile");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoHome = () => {
     console.log("🏡 PaymentSuccessPage: User clicked 'Go Home'");
-    console.log("📍 Navigation: /");
-    navigate("/");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   return (

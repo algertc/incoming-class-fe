@@ -67,12 +67,17 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
         width: isDesktop ? 'auto' : '100%',
         minWidth: isDesktop ? 400 : undefined,
         maxWidth: isDesktop ? '90vw' : '100%',
-        height: isDesktop ? 'auto' : '100%',
-        maxHeight: isDesktop ? '90vh' : '100%',
+        height: isDesktop ? 'auto' : '100dvh',
+        maxHeight: isDesktop ? '90vh' : '100dvh',
         background: '#101720',
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
+        position: isDesktop ? 'relative' : 'fixed',
+        top: isDesktop ? 'auto' : 0,
+        left: isDesktop ? 'auto' : 0,
+        right: isDesktop ? 'auto' : 0,
+        bottom: isDesktop ? 'auto' : 0,
       }}
     >
       {/* Header */}
@@ -83,6 +88,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          flexShrink: 0,
         }}
       >
         <Group>
@@ -107,44 +113,61 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
       </Box>
 
       {/* Content */}
-      <ScrollArea style={{ flex: isDesktop ? '1 1 auto' : 1 }} type="scroll" scrollbarSize={6} offsetScrollbars>
-        {hasFilterAccess ? (
-          <Box p="md">
-            {/* Render FiltersSidebar without search input */}
-            <FiltersSidebar showSearch={false} onPremiumModalOpen={() => onPremiumRequest('filters')} />
-          </Box>
-        ) : (
-          <Box p="xl">
-            <Paper
-              p="xl"
-              radius="md"
-              style={{
-                background:
-                  'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)',
-                border: '1px solid rgba(255, 215, 0, 0.3)',
-                textAlign: 'center',
-              }}
-            >
-              <Group gap="xl" align="center" justify="center" style={{ flexDirection: 'column' }}>
-                <IconCrown size={40} color="#FFD700" />
-                <Title order={3} c="white">
-                  Premium Filters
-                </Title>
-                <Button
-                  size="lg"
-                  variant="gradient"
-                  gradient={{ from: 'yellow', to: 'orange' }}
-                  leftSection={<IconCrown size={20} />}
-                  onClick={handleUpgrade}
-                  style={{ fontWeight: 600 }}
-                >
-                  {!user ? 'Sign Up Now' : 'Upgrade to Premium'}
-                </Button>
-              </Group>
-            </Paper>
-          </Box>
-        )}
-      </ScrollArea>
+      <Box style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <ScrollArea 
+          style={{ flex: 1, height: '100%' }} 
+          type="scroll" 
+          scrollbarSize={8}
+          offsetScrollbars={false}
+          styles={{
+            scrollbar: {
+              '&[data-orientation="vertical"]': {
+                width: '8px',
+              },
+              '&[data-orientation="vertical"] .mantine-ScrollArea-thumb': {
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+              },
+            },
+          }}
+        >
+          {hasFilterAccess ? (
+            <Box p={isDesktop ? "md" : "sm"} style={{ minHeight: '100%' }}>
+              {/* Render FiltersSidebar without search input */}
+              <FiltersSidebar showSearch={false} onPremiumModalOpen={() => onPremiumRequest('filters')} />
+            </Box>
+          ) : (
+            <Box p="xl">
+              <Paper
+                p="xl"
+                radius="md"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)',
+                  border: '1px solid rgba(255, 215, 0, 0.3)',
+                  textAlign: 'center',
+                }}
+              >
+                <Group gap="xl" align="center" justify="center" style={{ flexDirection: 'column' }}>
+                  <IconCrown size={40} color="#FFD700" />
+                  <Title order={3} c="white">
+                    Premium Filters
+                  </Title>
+                  <Button
+                    size="lg"
+                    variant="gradient"
+                    gradient={{ from: 'yellow', to: 'orange' }}
+                    leftSection={<IconCrown size={20} />}
+                    onClick={handleUpgrade}
+                    style={{ fontWeight: 600 }}
+                  >
+                    {!user ? 'Sign Up Now' : 'Upgrade to Premium'}
+                  </Button>
+                </Group>
+              </Paper>
+            </Box>
+          )}
+        </ScrollArea>
+      </Box>
 
       {/* Action Buttons */}
       {hasFilterAccess && (
@@ -153,6 +176,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
             backgroundColor: '#101720',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
             padding: theme.spacing.md,
+            flexShrink: 0,
           }}
         >
           <Group grow gap="md">
@@ -186,14 +210,22 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
         inset: 0,
         zIndex: 1200,
         display: 'flex',
-        alignItems: isDesktop ? 'center' : 'flex-start',
-        justifyContent: 'center',
+        alignItems: isDesktop ? 'center' : 'stretch',
+        justifyContent: isDesktop ? 'center' : 'stretch',
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
         backdropFilter: 'blur(3px)',
       }}
-      onClick={onClose}
+      onClick={isDesktop ? onClose : undefined}
     >
-      <Box onClick={(e) => e.stopPropagation()}>
+      <Box 
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          width: isDesktop ? 'auto' : '100%',
+          height: isDesktop ? 'auto' : '100%',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         {modalContent}
       </Box>
     </Box>

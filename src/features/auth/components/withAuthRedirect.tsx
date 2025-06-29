@@ -1,14 +1,12 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
-import { useAuthStore } from '../../../store/auth.store';
-import { ProfileStage } from '../../../models/user.model';
-import ROUTES from '../../../constants/routes';
-import LoadingScreen from '../../common/components/LoadingScreen';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { useAuthStore } from "../../../store/auth.store";
+import ROUTES from "../../../constants/routes";
+import LoadingScreen from "../../common/components/LoadingScreen";
 
 /**
  * HOC that redirects authenticated users away from auth pages
- * If user is logged in, redirect to dashboard
- * If user needs to complete profile, redirect to profile completion
+ * If user is logged in, redirect to dashboard or profile completion based on status
  */
 export const withAuthRedirect = <P extends object>(
   WrappedComponent: React.ComponentType<P>
@@ -19,12 +17,15 @@ export const withAuthRedirect = <P extends object>(
 
     useEffect(() => {
       if (user && !isLoading) {
-        // If user has a profileStage that's not completed, redirect to profile completion
-        if (user.profileStage !== undefined && user.profileStage !== ProfileStage.PAYMENT) {
-          navigate(ROUTES.PROFILE_COMPLETION);
-        } else {
-          // Otherwise, redirect to dashboard
+        // Check if user should go to /app
+        const shouldRedirectToApp =
+          user.isSubscribed || user.isProfileCompleted || user.postPaymentDone;
+
+        if (shouldRedirectToApp) {
           navigate(ROUTES.DASHBOARD);
+        } else {
+          // User needs to complete profile - redirect to profile completion
+          navigate(ROUTES.PROFILE_COMPLETION);
         }
       }
     }, [user, isLoading, navigate]);
@@ -40,4 +41,4 @@ export const withAuthRedirect = <P extends object>(
 
     return null; // Don't render anything while redirecting
   };
-}; 
+};

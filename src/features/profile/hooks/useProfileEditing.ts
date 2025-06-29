@@ -44,6 +44,7 @@ export interface InterestsData {
   physicalActivity: string[];
   pastimes: string[];
   food: string[];
+  campusInvolvement?: string;
 }
 
 export interface ContactData {
@@ -241,7 +242,8 @@ export const useProfileEditing = (
       const updateData: UpdateProfileData = {
         physicalActivity: interestsData.physicalActivity,
         pastimes: interestsData.pastimes,
-        food: interestsData.food
+        food: interestsData.food,
+        campusInvolvement: interestsData.campusInvolvement
       };
 
       const response = await updateProfile(updateData);
@@ -257,7 +259,8 @@ export const useProfileEditing = (
           ...prev,
           physicalActivity: interestsData.physicalActivity,
           pastimes: interestsData.pastimes,
-          food: interestsData.food
+          food: interestsData.food,
+          campusInvolvement: interestsData.campusInvolvement
         };
       });
 

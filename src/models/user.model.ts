@@ -8,6 +8,7 @@ export enum Role {
 }
 
 export enum ProfileStage {
+  COLLEGE_SELECTION = "COLLEGE_SELECTION",
   UPLOAD_PHOTOS = "UPLOAD_PHOTOS",
   ABOUT_YOU = "ABOUT_YOU",
   PREFERENCES = "PREFERENCES",
@@ -135,6 +136,7 @@ export interface User {
   physicalActivity?: string[];
   food?: string[];
   other?: string[];
+  campusInvolvement?: string;
   postPaymentDone: boolean;
   isPostedToInstagram: boolean;
   isSubscribed: boolean;
@@ -193,6 +195,8 @@ export interface UpdateProfileData {
   physicalActivity?: string[];
   pastimes?: string[];
   food?: string[];
+  other?: string[];
+  campusInvolvement?: string;
   
   // Nested traits object (alternative structure for certain components)
   traits?: {

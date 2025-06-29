@@ -330,14 +330,14 @@ const FeedContent: React.FC<FeedContentProps> = ({ onFiltersClick }) => {
 
   return (
     <>
-      <Container size="md" py="md">
+    <Container size="md" py="md">
         {/* Mobile Search Bar - inside container to match PostCard width */}
         <Box mb="md">
           <MobileSearchBar onFiltersClick={onFiltersClick} />
         </Box>
         
         {renderPosts()}
-      </Container>
+    </Container>
 
       {/* Login/Signup Modal */}
       <Modal

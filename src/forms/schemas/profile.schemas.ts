@@ -57,6 +57,8 @@ export const traitsPreferencesSchema = Yup.object().shape({
   other: Yup.array()
     .of(Yup.string())
     .notRequired(),
+  campusInvolvement: Yup.string()
+    .notRequired(),
 });
 
 /**

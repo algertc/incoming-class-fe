@@ -454,6 +454,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         data={[
           {value:'Rushing a fraternity/sorority',label:'Rushing a fraternity/sorority'},
           {value:'Business fraternity',label:'Business fraternity'},
+         
         ]}
         mb="md"
         styles={{

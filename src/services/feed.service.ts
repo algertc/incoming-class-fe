@@ -7,7 +7,6 @@ export interface FetchPostsParams {
   page?: number;
   limit?: number;
   searchQuery?: string;
-  categories?: string[];
   lastDays?: number; // Number of days to look back from today
   college?: string | null;
   substances?: string | null;

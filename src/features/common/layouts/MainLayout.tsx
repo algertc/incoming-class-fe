@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
-import { AppShell } from '@mantine/core';
-import { Outlet, useNavigate } from 'react-router';
-import Header from '../../../components/Header/Header';
-import Footer from '../../../components/Footer/Footer';
-import { useAuthStore } from '../../../store/auth.store';
-import { ProfileStage } from '../../../models/user.model';
-import ROUTES from '../../../constants/routes';
+import React, { useEffect } from "react";
+import { AppShell } from "@mantine/core";
+import { Outlet, useNavigate } from "react-router";
+import Header from "../../../components/Header/Header";
+import Footer from "../../../components/Footer/Footer";
+import { useAuthStore } from "../../../store/auth.store";
+import ROUTES from "../../../constants/routes";
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -13,10 +12,15 @@ const MainLayout: React.FC = () => {
 
   useEffect(() => {
     if (user && !isLoading) {
-      if (user.profileStage !== undefined && user.profileStage !== ProfileStage.PAYMENT) {
-        navigate(ROUTES.PROFILE_COMPLETION);
-      } else {
+      // Check if user should go to /app
+      const shouldRedirectToApp =
+        user.isSubscribed || user.isProfileCompleted || user.postPaymentDone;
+
+      if (shouldRedirectToApp) {
         navigate(ROUTES.DASHBOARD);
+      } else {
+        // User needs to complete profile
+        navigate(ROUTES.PROFILE_COMPLETION);
       }
     }
   }, [user, isLoading, navigate]);
@@ -27,10 +31,10 @@ const MainLayout: React.FC = () => {
       bg="black"
       styles={{
         header: {
-          background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-        }
+          background: "linear-gradient(135deg, #000000 0%, #1a0030 100%)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(10px)",
+        },
       }}
     >
       <AppShell.Header>
@@ -45,4 +49,4 @@ const MainLayout: React.FC = () => {
   );
 };
 
-export default MainLayout; 
+export default MainLayout;

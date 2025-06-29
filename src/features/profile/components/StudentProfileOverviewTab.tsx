@@ -59,50 +59,51 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
       <Grid.Col span={{ base: 12, md: 8 }}>
         <Stack gap="md">
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <BioCard 
-              bio={profileData.bio || 'This student has not added a bio yet.'}
-              isEditable={false}
-            />
+              <BioCard 
+                bio={profileData.bio || 'This student has not added a bio yet.'}
+                isEditable={false}
+              />
           </Box>
           
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <AcademicInfo 
-              major={profileData.major || 'Not specified'}
-              university={profileData.university || 'University'}
-              batch={profileData.collegeGraduationYear || 'Not specified'}
-              hometown={profileData.hometown || 'Not specified'}
-              lookingForRoommate={false} // This field doesn't exist in User interface
-              isEditable={false}
-            />
+              <AcademicInfo 
+                major={profileData.major || 'Not specified'}
+                university={profileData.university || 'University'}
+                batch={profileData.collegeGraduationYear || 'Not specified'}
+                hometown={profileData.hometown || 'Not specified'}
+                lookingForRoommate={false} // This field doesn't exist in User interface
+                isEditable={false}
+              />
           </Box>
           
           <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <TraitsPreferences 
-              sleepSchedule={profileData.sleepSchedule || 'Not specified'}
-              cleanliness={profileData.cleanliness || 'Not specified'}
-              guests={profileData.guests || 'Not specified'}
-              studying="Library" // This field doesn't exist in User interface
-              substances={profileData.substances || 'Not specified'}
-              personality={profileData.personality || []}
-              isEditable={false}
-            />
+              <TraitsPreferences 
+                sleepSchedule={profileData.sleepSchedule || 'Not specified'}
+                cleanliness={profileData.cleanliness || 'Not specified'}
+                guests={profileData.guests || 'Not specified'}
+                studying="Library" // This field doesn't exist in User interface
+                substances={profileData.substances || 'Not specified'}
+                personality={profileData.personality || []}
+                isEditable={false}
+              />
           </Box>
         </Stack>
       </Grid.Col>
       
       <Grid.Col span={{ base: 12, md: 4 }}>
         <Stack gap="md">
-          <ModernContactCard 
-            contactData={contactData} 
-            isEditable={false}
-          />
-          <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
-            <InterestsCard 
-              physicalActivity={profileData.physicalActivity || []}
-              pastimes={profileData.pastimes || []}
-              food={profileData.food || []}
+            <ModernContactCard 
+              contactData={contactData} 
               isEditable={false}
             />
+          <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(20) }}>
+              <InterestsCard 
+                physicalActivity={profileData.physicalActivity || []}
+                pastimes={profileData.pastimes || []}
+                food={profileData.food || []}
+              campusInvolvement={profileData.campusInvolvement || ''}
+                isEditable={false}
+              />
           </Box>
         </Stack>
       </Grid.Col>

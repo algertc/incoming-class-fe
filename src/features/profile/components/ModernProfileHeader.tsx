@@ -12,15 +12,18 @@ import {
   rem,
   LoadingOverlay,
   Flex,
+  Button,
 } from '@mantine/core';
 import {
-  IconCopy,
   IconMapPin,
   IconCamera,
   IconSparkles,
+  IconEdit,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
+import { useNavigate } from 'react-router';
 import { useUploadProfilePicture, createProfileImageFormData, validateSingleImageFile } from '../../../hooks/api';
+import ROUTES from '../../../constants/routes';
 
 interface ModernProfileHeaderProps {
   name: string;
@@ -38,34 +41,16 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
   designation,
   profilePicture,
   hometown,
-  bio,
+
   isPremium,
   profileCompletion,
-  userId,
+
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const { mutateAsync: uploadProfilePicture, isPending: isUploading } = useUploadProfilePicture();
   
-  const handleCopyProfile = async () => {
-    try {
-      const profileUrl = `https://incomingclass.com/profile/student/${userId || '68344dbaac71a85065c347af'}`;
-      await navigator.clipboard.writeText(profileUrl);
-      
-      notifications.show({
-        title: 'Copied!',
-        message: 'Profile link copied to clipboard',
-        color: 'green',
-        autoClose: 3000,
-      });
-    } catch {
-      notifications.show({
-        title: 'Error',
-        message: 'Failed to copy profile link',
-        color: 'red',
-        autoClose: 3000,
-      });
-    }
-  };
+
 
   const handleProfileImageUpload = async (file: File) => {
     try {
@@ -268,7 +253,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               )}
 
               {/* Copy Profile Button - Better positioned next to name */}
-              <ActionIcon
+              {/* <ActionIcon
                 variant="subtle"
                 color="white"
                 onClick={handleCopyProfile}
@@ -287,7 +272,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
                 }}
               >
                 <IconCopy style={{ width: rem(16), height: rem(16) }} />
-              </ActionIcon>
+              </ActionIcon> */}
             </Group>
 
             {/* Designation and Location */}
@@ -310,7 +295,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
             </Group>
 
             {/* Bio */}
-            {bio && (
+            {/* {bio && (
               <Text
                 c="white"
                 size="sm"
@@ -326,7 +311,7 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               >
                 {bio}
               </Text>
-            )}
+            )} */}
 
           {/* Profile Completion Progress */}
             <Box style={{ width: '100%', maxWidth: rem(400) }}>
@@ -352,6 +337,32 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
                 }
               }}
             />
+            
+            {/* Complete Profile Button - Only show if profile is not 100% complete */}
+            {profileCompletion < 100 && (
+              <Button
+                leftSection={<IconEdit style={{ width: rem(16), height: rem(16) }} />}
+                variant="gradient"
+                gradient={{ from: 'blue', to: 'teal' }}
+                size="sm"
+                radius="xl"
+                mt="sm"
+                onClick={() => navigate(ROUTES.PROFILE_COMPLETION)}
+                styles={{
+                  root: {
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }
+                }}
+              >
+                Complete Profile
+              </Button>
+            )}
           </Box>
         </Stack>
         </Flex>

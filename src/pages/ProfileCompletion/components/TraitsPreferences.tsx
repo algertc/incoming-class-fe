@@ -50,6 +50,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
           pastimes: values.pastimes,
           food: values.food,
           other: values.other,
+          campusInvolvement: values.campusInvolvement,
           profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
       };
       
@@ -118,7 +119,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     ]}
                     multiple={false}
                     value={form.values.sleepSchedule}
-                    onChange={(v) => form.setFieldValue('sleepSchedule', v)}
+                    onChange={(v) => form.setFieldValue('sleepSchedule', v as string)}
                     error={form.errors.sleepSchedule as string}
                   />
 
@@ -130,7 +131,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     data={['Neat Freak', 'Organized', 'Casual', 'Messy']}
                     multiple={false}
                     value={form.values.cleanliness}
-                    onChange={(v) => form.setFieldValue('cleanliness', v)}
+                    onChange={(v) => form.setFieldValue('cleanliness', v as string)}
                     error={form.errors.cleanliness as string}
                   />
 
@@ -142,7 +143,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     data={['Over Whenever', 'With Notice', 'Rarely']}
                     multiple={false}
                     value={form.values.guests}
-                    onChange={(v) => form.setFieldValue('guests', v)}
+                    onChange={(v) => form.setFieldValue('guests', v as string)}
                     error={form.errors.guests as string}
                   />
 
@@ -154,7 +155,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     data={['Around Campus', 'In Room', 'Library', 'Flexible']}
                     multiple={false}
                     value={form.values.studying}
-                    onChange={(v) => form.setFieldValue('studying', v)}
+                    onChange={(v) => form.setFieldValue('studying', v as string)}
                     error={form.errors.studying as string}
                   />
 
@@ -171,7 +172,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                     ]}
                     multiple={false}
                     value={form.values.substances}
-                    onChange={(v) => form.setFieldValue('substances', v)}
+                    onChange={(v) => form.setFieldValue('substances', v as string)}
                     error={form.errors.substances as string}
                   />
                 </Stack>
@@ -196,7 +197,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                       'Cautious',
                     ]}
                     value={form.values.personality}
-                    onChange={(value) => form.setFieldValue('personality', value)}
+                    onChange={(value) => form.setFieldValue('personality', value as string[])}
                     error={form.errors.personality as string}
                   />
                 </Stack>
@@ -221,7 +222,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                       'Other Sports',
                     ]}
                     value={form.values.physicalActivity}
-                    onChange={(value) => form.setFieldValue('physicalActivity', value)}
+                    onChange={(value) => form.setFieldValue('physicalActivity', value as string[])}
                   />
                 </Stack>
               </Box>
@@ -247,7 +248,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                       'Travel',
                     ]}
                     value={form.values.pastimes}
-                    onChange={(value) => form.setFieldValue('pastimes', value)}
+                    onChange={(value) => form.setFieldValue('pastimes', value as string[])}
                     error={form.errors.pastimes as string}
                   />
                 </Stack>
@@ -274,7 +275,27 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                       'Vegetarian',
                     ]}
                     value={form.values.food}
-                    onChange={(value) => form.setFieldValue('food', value)}
+                    onChange={(value) => form.setFieldValue('food', value as string[])}
+                  />
+                </Stack>
+              </Box>
+
+              {/* Campus Involvement Section */}
+              <Box>
+                <Text className={styles.sectionTitle} fw={600} c="white">
+                  Campus Involvement
+                </Text>
+                <Stack gap="xs">
+                  <Text size="sm" fw={500} className={styles.label} c="white">Select your campus involvement</Text>
+                  <ChipGroup
+                    data={[
+                      'Rushing a fraternity/sorority',
+                      'Business fraternity',
+                    ]}
+                    multiple={false}
+                    value={form.values.campusInvolvement}
+                    onChange={(value) => form.setFieldValue('campusInvolvement', value as string)}
+                    error={form.errors.campusInvolvement as string}
                   />
                 </Stack>
               </Box>
@@ -295,7 +316,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                       'Internship',
                     ]}
                     value={form.values.other}
-                    onChange={(value) => form.setFieldValue('other', value)}
+                    onChange={(value) => form.setFieldValue('other', value as string[])}
                   />
                 </Stack>
               </Box>

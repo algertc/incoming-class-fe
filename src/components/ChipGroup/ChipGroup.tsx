@@ -7,19 +7,35 @@ interface ChipGroupProps {
   // Value can be either a string (single select) or string[] (multi-select)
   value: string | string[];
   // onChange will receive the updated value (string for single, string[] for multi)
-  onChange: (_value: any) => void;
+  onChange: (value: string | string[]) => void;
   error?: string;
   multiple?: boolean; // Enable multiple selection (default true)
 }
 
-export const ChipGroup: React.FC<ChipGroupProps> = ({ data, value, onChange, error, multiple = true }) => (
+export const ChipGroup: React.FC<ChipGroupProps> = ({ 
+  data, 
+  value, 
+  onChange, 
+  error, 
+  multiple = true 
+}) => {
+  const handleChange = (newValue: string | string[]) => {
+    if (multiple) {
+      // For multiple selection, return array as-is
+      onChange(newValue);
+    } else {
+      // For single selection, extract the single value from array
+      const singleValue = Array.isArray(newValue) ? newValue[0] || '' : newValue;
+      onChange(singleValue);
+    }
+  };
+
+  return (
   <Box className={styles.chipGroupWrapper}>
-    {/* Pass 'multiple' prop conditionally */}
-    {/* eslint-disable-next-line react/jsx-props-no-spreading */}
     <Chip.Group
-      value={value as any}
-      onChange={onChange as any}
-      {...(multiple ? { multiple: true } : {})}
+        value={value}
+        onChange={handleChange}
+        multiple={multiple}
     >
       {data.map((item) => (
         <Chip
@@ -35,5 +51,6 @@ export const ChipGroup: React.FC<ChipGroupProps> = ({ data, value, onChange, err
     {error && <div className={styles.error}>{error}</div>}
   </Box>
 );
+};
 
 export default ChipGroup; 

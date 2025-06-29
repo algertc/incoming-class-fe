@@ -178,6 +178,7 @@ const SignupForm: React.FC = () => {
       try {
         await fetchUser();
       } catch (err) {
+        console.log(err);
         // Fallback to response user data
         if (user) {
           setUser(user);

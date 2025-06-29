@@ -25,12 +25,15 @@ import {
   IconLock,
 } from "@tabler/icons-react";
 import { showSuccess } from "../../utils";
+import { useAuthStore } from "../../store/auth.store";
+import ROUTES from "../../constants/routes";
 
 const PremiumSuccessPage: React.FC = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { fetchUser } = useAuthStore();
 
   useEffect(() => {
     // Log page entry
@@ -60,6 +63,19 @@ const PremiumSuccessPage: React.FC = () => {
       });
     }
 
+    // Refresh user data to get updated subscription status
+    const refreshUserData = async () => {
+      try {
+        console.log("🔄 PremiumSuccessPage: Refreshing user data to get updated subscription status");
+        await fetchUser();
+        console.log("✅ PremiumSuccessPage: User data refreshed successfully");
+      } catch (error) {
+        console.error("❌ PremiumSuccessPage: Failed to refresh user data:", error);
+      }
+    };
+
+    refreshUserData();
+
     // Show success notification when page loads
     showSuccess(
       "Welcome to Premium! Your account has been upgraded with exclusive features."
@@ -67,24 +83,24 @@ const PremiumSuccessPage: React.FC = () => {
 
     // Log success notification
     console.log("🔔 Premium success notification displayed");
-  }, [searchParams, isMobile]);
+  }, [searchParams, isMobile, fetchUser]);
 
   const handleGoToFeed = () => {
     console.log("🏠 PremiumSuccessPage: User clicked 'Go to Feed'");
-    console.log("📍 Navigation: /app/feed");
-    navigate("/app/feed");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoToProfile = () => {
     console.log("👤 PremiumSuccessPage: User clicked 'View Profile'");
-    console.log("📍 Navigation: /app/profile");
-    navigate("/app/profile");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoHome = () => {
     console.log("🏡 PremiumSuccessPage: User clicked 'Go Home'");
-    console.log("📍 Navigation: /");
-    navigate("/");
+    console.log("📍 Navigation: /app");
+    navigate(ROUTES.DASHBOARD);
   };
 
   return (

@@ -12,6 +12,7 @@ import {
   Box,
   useMantineTheme,
   MultiSelect,
+  Select,
   Button
 } from '@mantine/core';
 import { IconDeviceLaptop, IconEdit, IconCheck, IconX } from '@tabler/icons-react';
@@ -20,6 +21,7 @@ interface InterestsCardProps {
   physicalActivity: string[];
   pastimes: string[];
   food: string[];
+  campusInvolvement?: string;
   isEditable?: boolean;
   isEditing?: boolean;
   onEdit?: () => void;
@@ -27,6 +29,7 @@ interface InterestsCardProps {
     physicalActivity: string[];
     pastimes: string[];
     food: string[];
+    campusInvolvement?: string;
   }) => void;
   onCancel?: () => void;
 }
@@ -35,6 +38,7 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
   physicalActivity,
   pastimes,
   food,
+  campusInvolvement = '',
   isEditable = false,
   isEditing = false,
   onEdit = () => console.log('Edit interests'),
@@ -45,22 +49,25 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
   const [editedData, setEditedData] = useState({
     physicalActivity,
     pastimes,
-    food
+    food,
+    campusInvolvement
   });
 
   useEffect(() => {
     setEditedData({
       physicalActivity,
       pastimes,
-      food
+      food,
+      campusInvolvement
     });
-  }, [physicalActivity, pastimes, food]);
+  }, [physicalActivity, pastimes, food, campusInvolvement]);
 
   const handleSave = () => {
     onSave({
       physicalActivity: editedData.physicalActivity,
       pastimes: editedData.pastimes,
-      food: editedData.food
+      food: editedData.food,
+      campusInvolvement: editedData.campusInvolvement
     });
   };
 
@@ -68,7 +75,8 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
     setEditedData({
       physicalActivity,
       pastimes,
-      food
+      food,
+      campusInvolvement
     });
     onCancel();
   };
@@ -117,6 +125,11 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
     { value: 'Vegan', label: 'Vegan' },
     { value: 'BBQ', label: 'BBQ' },
     { value: 'Seafood', label: 'Seafood' }
+  ];
+
+  const campusInvolvementOptions = [
+    { value: 'Rushing a fraternity/sorority', label: 'Rushing a fraternity/sorority' },
+    { value: 'Business fraternity', label: 'Business fraternity' },
   ];
 
   const selectStyles = {
@@ -214,6 +227,16 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
               styles={selectStyles}
               maxValues={8}
             />
+            
+            <Select
+              label="Campus Involvement"
+              value={editedData.campusInvolvement}
+              onChange={(value: string | null) => setEditedData(prev => ({ ...prev, campusInvolvement: value || '' }))}
+              data={campusInvolvementOptions}
+              placeholder="Select campus involvement"
+              styles={selectStyles}
+              clearable
+            />
           </Stack>
           
           <Group justify="flex-end" mt="md">
@@ -277,6 +300,20 @@ const InterestsCard: React.FC<InterestsCardProps> = ({
               ))}
             </Group>
           </Box>
+          
+          {campusInvolvement && (
+            <Box>
+              <Text fw={500} size="sm" c="white" mb="sm">Campus Involvement</Text>
+              <Badge 
+                size="md" 
+                radius="sm" 
+                color="violet" 
+                variant="outline"
+              >
+                {campusInvolvement}
+              </Badge>
+            </Box>
+          )}
         </Stack>
       )}
     </Card>

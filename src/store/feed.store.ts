@@ -217,7 +217,7 @@ export const useFeedStore = create<FeedState>()(
   totalCount: 0,
   hasMore: true,
   postsPerPage: 5, // Backend returns 5 posts per page
-  maxPostsForUnauthenticated: 10, // Allow only 10 posts for unauthenticated users
+  maxPostsForUnauthenticated: 7, // Allow only 10 posts for unauthenticated users
   maxPostsForNonPremium: 20, // Allow 10 posts for non-premium users with completed profile
   hasReachedLimit: false,
   modalShownAndDismissed: false,

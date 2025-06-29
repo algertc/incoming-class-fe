@@ -127,7 +127,7 @@ const FeedPage: React.FC = () => {
       </Container>
 
       <FiltersModal
-        open={isFiltersModalOpen}
+            open={isFiltersModalOpen}
         onClose={() => setIsFiltersModalOpen(false)}
         onPremiumRequest={handleOpenPremiumModal}
       />
