@@ -9,7 +9,7 @@ import type { User } from '../../../models/user.model';
 
 export const useStudentProfileData = () => {
   const { id } = useParams<{ id: string }>();
-  console.log("is id", id);
+ 
   
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);

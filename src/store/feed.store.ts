@@ -85,7 +85,7 @@ const initialFilters: FeedFilters = {
 
 // This function will be called whenever the filters change
 const handleFilterChange = async (get: () => FeedState, set: (state: Partial<FeedState>) => void) => {
-  console.log('Feed: Filters changed, applying new filters...');
+ 
   set({ 
     isLoading: true, 
     error: null, 
@@ -150,24 +150,24 @@ const getPostLimit = (): number | null => {
   
   // Premium users get unlimited posts
   if (user?.isSubscribed) {
-    console.log('Feed: User is subscribed - unlimited posts');
+ 
     return null; // Unlimited
   }
   
   // Authenticated users with completed profile get 10 posts
   if (user && user.isProfileCompleted) {
-    console.log('Feed: User authenticated with completed profile - 10 posts');
+ 
     return 10; // Non-premium users with completed profile get 10 posts
   }
   
   // Authenticated users without completed profile get 6 posts (same as unauthenticated)
   if (user && !user.isProfileCompleted) {
-    console.log('Feed: User authenticated but profile not completed - 6 posts');
+ 
     return 6;
   }
   
   // Unauthenticated users get 6 posts
-  console.log('Feed: Unauthenticated user - 6 posts');
+ 
   return 6;
 };
 
@@ -184,24 +184,24 @@ const getModalType = (): 'signup' | 'premium' | null => {
   
   // No user - show signup modal
   if (!user) {
-    console.log('Feed: No user - showing signup modal');
+ 
     return 'signup';
   }
   
   // User exists but profile not completed - show signup modal (to complete profile)
   if (user && !user.isProfileCompleted) {
-    console.log('Feed: User exists but profile not completed - showing signup modal');
+ 
     return 'signup';
   }
   
   // User exists, profile completed, but not subscribed - show premium modal
   if (user && user.isProfileCompleted && !user.isSubscribed) {
-    console.log('Feed: User authenticated, profile completed, not subscribed - showing premium modal');
+ 
     return 'premium';
   }
   
   // Premium users don't need any modal
-  console.log('Feed: Premium user - no modal needed');
+ 
   return null;
 };
 
@@ -245,17 +245,17 @@ export const useFeedStore = create<FeedState>()(
       
       // Prevent multiple simultaneous initializations
       if (currentState.isLoading) {
-        console.log('Feed: Already loading, skipping initialization');
+ 
         return;
       }
       
       // If we already have posts, don't reinitialize
       if (currentState.posts.length > 0) {
-        console.log('Feed: Already have posts, skipping initialization');
+ 
         return;
       }
       
-    console.log('Feed: Starting initialization');
+ 
     set({ 
       isLoading: true, 
       error: null, 
@@ -269,7 +269,7 @@ export const useFeedStore = create<FeedState>()(
     });
     
     try {
-      console.log('Feed: Making API call');
+ 
       
       const response = await feedService.fetchPosts({
         ...get().filters,
@@ -277,7 +277,7 @@ export const useFeedStore = create<FeedState>()(
         limit: get().postsPerPage,
       });
       
-      console.log('Feed: API response received:', response);
+ 
       
       if (response.status) {
         const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
@@ -301,7 +301,7 @@ export const useFeedStore = create<FeedState>()(
         
         const modalType = reachedLimit ? getModalType() : null;
         
-        console.log('Feed: Setting posts:', finalPosts.length, 'reachedLimit:', reachedLimit, 'isInitial:', isInitial);
+ 
         
         set({
           posts: finalPosts,

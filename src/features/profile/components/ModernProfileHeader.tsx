@@ -7,23 +7,18 @@ import {
   Group,
   ActionIcon,
   Badge,
-  Progress,
   Stack,
   rem,
   LoadingOverlay,
   Flex,
-  Button,
 } from '@mantine/core';
 import {
   IconMapPin,
   IconCamera,
   IconSparkles,
-  IconEdit,
 } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
-import { useNavigate } from 'react-router';
 import { useUploadProfilePicture, createProfileImageFormData, validateSingleImageFile } from '../../../hooks/api';
-import ROUTES from '../../../constants/routes';
 
 interface ModernProfileHeaderProps {
   name: string;
@@ -32,8 +27,7 @@ interface ModernProfileHeaderProps {
   hometown: string;
   bio: string;
   isPremium: boolean;
-  profileCompletion: number;
-  userId?: string;
+  isEditable?: boolean;
 }
 
 const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
@@ -41,13 +35,11 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
   designation,
   profilePicture,
   hometown,
-
+  bio,
   isPremium,
-  profileCompletion,
-
+  isEditable = false, // Default to false for safety
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
   const { mutateAsync: uploadProfilePicture, isPending: isUploading } = useUploadProfilePicture();
   
 
@@ -110,16 +102,18 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
         overflow: 'hidden',
       }}
     >
-      <LoadingOverlay visible={isUploading} overlayProps={{ blur: 2 }} />
+      {isEditable && <LoadingOverlay visible={isUploading} overlayProps={{ blur: 2 }} />}
       
-      {/* Hidden file input */}
-      <input
-        type="file"
-        ref={fileInputRef}
-        onChange={handleFileChange}
-        accept="image/jpeg,image/jpg,image/png,image/webp"
-        style={{ display: 'none' }}
-      />
+      {/* Hidden file input - only render when editable */}
+      {isEditable && (
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileChange}
+          accept="image/jpeg,image/jpg,image/png,image/webp"
+          style={{ display: 'none' }}
+        />
+      )}
 
       {/* Animated background elements */}
       <Box
@@ -165,36 +159,38 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
                   }
                 }}
               />
-              <ActionIcon
-                variant="filled"
-                radius="xl"
-              size="lg"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isUploading}
-                styles={{
-                  root: {
-                    position: 'absolute',
-                  bottom: rem(8),
-                  right: rem(8),
-                    background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
-                  border: '3px solid rgba(255, 255, 255, 0.3)',
-                  boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3)',
-                    cursor: isUploading ? 'not-allowed' : 'pointer',
-                    opacity: isUploading ? 0.7 : 1,
-                  width: rem(36),
-                  height: rem(36),
-                  '@media (max-width: 768px)': {
-                    width: rem(32),
-                    height: rem(32),
-                    bottom: rem(4),
-                    right: rem(4),
-                    },
-                  }
-                }}
-                title="Change profile picture"
-              >
-              <IconCamera style={{ width: rem(18), height: rem(18) }} />
-              </ActionIcon>
+              {isEditable && (
+                <ActionIcon
+                  variant="filled"
+                  radius="xl"
+                size="lg"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  styles={{
+                    root: {
+                      position: 'absolute',
+                    bottom: rem(8),
+                    right: rem(8),
+                      background: 'linear-gradient(135deg, #4361ee 0%, #4cc9f0 100%)',
+                    border: '3px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 6px 20px rgba(0, 0, 0, 0.3)',
+                      cursor: isUploading ? 'not-allowed' : 'pointer',
+                      opacity: isUploading ? 0.7 : 1,
+                    width: rem(36),
+                    height: rem(36),
+                    '@media (max-width: 768px)': {
+                      width: rem(32),
+                      height: rem(32),
+                      bottom: rem(4),
+                      right: rem(4),
+                      },
+                    }
+                  }}
+                  title="Change profile picture"
+                >
+                <IconCamera style={{ width: rem(18), height: rem(18) }} />
+                </ActionIcon>
+              )}
             </Box>
 
           {/* Profile Info Section */}
@@ -295,14 +291,14 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
             </Group>
 
             {/* Bio */}
-            {/* {bio && (
-              <Text
-                c="white"
-                size="sm"
-                opacity={0.9}
+            {bio && (
+              <Text 
+                size="sm" 
+                c="white" 
+                opacity={0.9} 
+                lineClamp={3}
                 ta="center"
                 style={{
-                    lineHeight: 1.6,
                   maxWidth: rem(500),
                   '@media (min-width: 768px)': {
                     textAlign: 'left'
@@ -311,60 +307,8 @@ const ModernProfileHeader: React.FC<ModernProfileHeaderProps> = ({
               >
                 {bio}
               </Text>
-            )} */}
-
-          {/* Profile Completion Progress */}
-            <Box style={{ width: '100%', maxWidth: rem(400) }}>
-              <Group justify="space-between" mb={6}>
-                <Text size="sm" c="white" fw={500}>
-                Profile Completion
-              </Text>
-                <Text size="sm" c="white" fw={600}>
-                {profileCompletion}%
-              </Text>
-            </Group>
-            <Progress
-              value={profileCompletion}
-              color="white"
-              radius="xl"
-                size="md"
-              styles={{
-                root: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                  },
-                  section: {
-                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                }
-              }}
-            />
-            
-            {/* Complete Profile Button - Only show if profile is not 100% complete */}
-            {profileCompletion < 100 && (
-              <Button
-                leftSection={<IconEdit style={{ width: rem(16), height: rem(16) }} />}
-                variant="gradient"
-                gradient={{ from: 'blue', to: 'teal' }}
-                size="sm"
-                radius="xl"
-                mt="sm"
-                onClick={() => navigate(ROUTES.PROFILE_COMPLETION)}
-                styles={{
-                  root: {
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.3)',
-                    },
-                    transition: 'all 0.2s ease',
-                  }
-                }}
-              >
-                Complete Profile
-              </Button>
             )}
-          </Box>
-        </Stack>
+          </Stack>
         </Flex>
       </Box>
     </Box>

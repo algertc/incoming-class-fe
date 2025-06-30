@@ -45,6 +45,7 @@ const API_ENDPOINTS = {
     comments: (postId: string) => `/posts/${postId}/comments`,
     getAllPosts: '/post/getAllPosts',
     getUserPosts: '/post/my-post',
+    createPost: '/post/create',
     updatePost: (postId: string) => `/post/updatePostById/${postId}`,
     boostPost: (postId: string) => `/post/bump/${postId}`,
     deletePost: (postId: string) => `/posts/${postId}`,

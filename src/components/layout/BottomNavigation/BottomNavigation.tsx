@@ -21,26 +21,26 @@ export const BottomNavigation: React.FC = () => {
     {
       icon: IconHome,
       label: "Feed",
-      path: "/app",
+      path: "/",
       color: "#4C6EF5",
     },
     {
       icon: IconUser,
       label: "Profile",
-      path: "/app/profile",
+      path: "/profile",
       color: "#51CF66",
     },
     {
       icon: IconCreditCard,
       label: "Subscription",
-      path: "/app/subscription",
+      path: "/subscription",
       color: "#9775FA",
     },
   ];
 
   const isActive = (path: string) => {
-    if (path === "/app") {
-      return location.pathname === "/app" || location.pathname === "/app/feed";
+    if (path === "/") {
+      return location.pathname === "/" || location.pathname === "/feed";
     }
     return location.pathname === path;
   };

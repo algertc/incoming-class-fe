@@ -13,11 +13,11 @@ const ROUTES = {
   PROFILE_COMPLETION: "/profile-completion",
   
   // Protected routes
-  DASHBOARD: "/app",
-  COLLEGES: "/app/colleges",
-  APPLICATIONS: "/app/applications",
-  PROFILE: "/app/profile",
-  SETTINGS: "/app/settings",
+  DASHBOARD: "/",
+  COLLEGES: "/colleges",
+  APPLICATIONS: "/applications",
+  PROFILE: "/profile",
+  SETTINGS: "/settings",
 };
 
 export default ROUTES; 

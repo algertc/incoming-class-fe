@@ -260,6 +260,9 @@ export const CTASection: React.FC = () => {
             ref={buttonRef}
             size="xl"
             radius="md"
+            onClick={() => {
+              window.location.href = '/signup';
+            }}
             style={{
               background: 'linear-gradient(45deg, #4361ee, #6f79fc)',
               boxShadow: '0 10px 20px -10px rgba(67, 97, 238, 0.5)',

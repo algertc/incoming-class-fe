@@ -14,8 +14,7 @@ import AnimatedBackground from "../feed/components/AnimatedBackground";
 import { 
   applyIOSOptimizations, 
   optimizeScrolling, 
-  getDeviceCapabilities, 
-  measurePerformance 
+  getDeviceCapabilities,  
 } from "../../utils";
 
 // Register ScrollTrigger plugin
@@ -25,7 +24,7 @@ const HomePage: React.FC = () => {
   const theme = useMantineTheme();
 
   useEffect(() => {
-    measurePerformance('HomePage initialization', () => {
+   
       // Apply iOS Safari optimizations
       applyIOSOptimizations();
       
@@ -43,7 +42,7 @@ const HomePage: React.FC = () => {
           ignoreMobileResize: true,
         });
       }
-    });
+   
 
     return () => {
       // Clean up animations when component unmounts

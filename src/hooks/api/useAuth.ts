@@ -25,7 +25,7 @@ export const useLogin = () => {
       if (data.status && data.data?.token) {
         // Store token in localStorage
         localStorage.setItem('token', data.data.token);
-        console.log("data", data);
+ 
     
         // queryClient.setQueryData(authKeys.currentUser(), {
         //   status: true,
@@ -128,8 +128,8 @@ export const useLogout = () => {
       // Clear the query cache for auth-related queries
       queryClient.removeQueries({ queryKey: authKeys.all });
 
-      // Navigate to login
-      navigate(ROUTES.LOGIN);
+      // Navigate to public home page
+      navigate('/public');
     }
   });
 }; 

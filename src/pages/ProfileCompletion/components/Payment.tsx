@@ -172,7 +172,7 @@ const Payment: React.FC = () => {
 
 
   const initiatePayment = async () => {
-    console.log("🔄 Starter payment initiation started");
+ 
     setPaymentError(null);
 
     try {
@@ -207,7 +207,7 @@ const Payment: React.FC = () => {
   };
 
   const initiatePremiumPayment = async () => {
-    console.log("🔄 Premium payment initiation started");
+ 
     setPremiumPaymentError(null);
 
     try {

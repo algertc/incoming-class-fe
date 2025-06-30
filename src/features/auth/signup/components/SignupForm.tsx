@@ -178,7 +178,7 @@ const SignupForm: React.FC = () => {
       try {
         await fetchUser();
       } catch (err) {
-        console.log(err);
+ 
         // Fallback to response user data
         if (user) {
           setUser(user);
@@ -189,7 +189,7 @@ const SignupForm: React.FC = () => {
       clearSignupData();
 
       // Redirect based on profile completion status
-      const redirectRoute = isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION;
+      const redirectRoute = isProfileCompleted ? ROUTES.HOME : ROUTES.PROFILE_COMPLETION;
       navigate(redirectRoute);
     } catch (error) {
       setApiError((error as Error).message);

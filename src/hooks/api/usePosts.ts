@@ -20,6 +20,38 @@ export function useUserPosts(params: { page?: number; limit?: number } = {}) {
   });
 }
 
+// Hook to create a new post
+export function useCreatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (postData: { title: string; content: string; images?: string[] }) => 
+      feedService.createPost(postData),
+    
+    onSuccess: (response) => {
+      // Invalidate user posts queries to refetch updated data
+      queryClient.invalidateQueries({ queryKey: postKeys.userPosts() });
+      
+      // Also invalidate the main feed if it exists
+      queryClient.invalidateQueries({ queryKey: ['feed'] });
+      
+      notifications.show({
+        title: 'Success',
+        message: response.message || 'Post created successfully',
+        color: 'green',
+      });
+    },
+    
+    onError: (error: Error) => {
+      notifications.show({
+        title: 'Error',
+        message: error.message || 'Failed to create post',
+        color: 'red',
+      });
+    },
+  });
+}
+
 // Hook to update a post
 export function useUpdatePost() {
   const queryClient = useQueryClient();

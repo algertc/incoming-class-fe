@@ -103,7 +103,7 @@ export const LeftSidebar: React.FC<LeftSidebarProps> = ({ user }) => {
             color="blue" 
             size="xs" 
             radius="xl"
-            onClick={() => navigate("/app/profile")}
+            onClick={() => navigate("/profile")}
             ml="auto"
           >
             View Profile

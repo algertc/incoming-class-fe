@@ -8,7 +8,7 @@ import {
   rem,
 } from '@mantine/core';
 import { useProfileData, useProfileEditing } from './hooks';
-import { calculateProfileCompletion } from './utils/profileCompletion';
+
 
 // Lazy load components for code splitting
 const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
@@ -82,7 +82,7 @@ const CurrentUserProfilePage: React.FC = () => {
     );
   }
 
-  console.log("ptroflifleDapt",profileData);
+ 
 
   // Compute derived values from User data
   const fullName = profileData.firstName && profileData.lastName 
@@ -91,7 +91,6 @@ const CurrentUserProfilePage: React.FC = () => {
   const designation = profileData.major 
     ? `${profileData.major} Student` 
     : 'University Student';
-  const profileCompletion = calculateProfileCompletion(profileData);
 
   return (
     <Box 
@@ -112,8 +111,7 @@ const CurrentUserProfilePage: React.FC = () => {
             hometown={profileData.hometown || ''}
             bio={profileData.bio || ''}
             isPremium={profileData.isPremium || false}
-            profileCompletion={profileCompletion}
-            userId={user?.id || user?._id || ''}
+            isEditable={true}
           />
         </Suspense>
         

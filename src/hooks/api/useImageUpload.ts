@@ -5,54 +5,11 @@ import type { IServerResponse } from '../../models/serverResponse.model';
 import type { User } from '../../models/user.model';
 import { authKeys } from './useAuth';
 
-/**
- * Response interface for image upload
- */
+
 type ImageUploadResponse =string[];
 
 
-/**
- * Hook for uploading multiple user images
- * 
- * This hook handles the file upload for profile completion first step and other image upload needs.
- * It automatically updates the user's cache data after successful upload.
- * 
- * @example
- * ```tsx
- * import { useUploadMultipleImages, createImageFormData, validateImageFiles } from '../hooks/api';
- * 
- * const MyComponent = () => {
- *   const { mutateAsync: uploadImages, isPending, error } = useUploadMultipleImages();
- *   
- *   const handleUpload = async (files: File[]) => {
- *     // Validate files first
- *     const validation = validateImageFiles(files);
- *     if (!validation.isValid) {
- *       alert(validation.error);
- *       return;
- *     }
- *     
- *     // Create FormData and upload
- *     const formData = createImageFormData(files);
- *     try {
- *       const response = await uploadImages(formData);
- *       console.log('Uploaded images:', response.data.images);
- *     } catch (error) {
- *       console.error('Upload failed:', error);
- *     }
- *   };
- *   
- *   return (
- *     <input 
- *       type="file" 
- *       multiple 
- *       accept="image/*"
- *       onChange={(e) => handleUpload(Array.from(e.target.files || []))}
- *     />
- *   );
- * };
- * ```
- */
+
 export const useUploadMultipleImages = () => {
   const queryClient = useQueryClient();
 
@@ -178,47 +135,6 @@ export const validateImageFiles = (files: File[]): { isValid: boolean; error?: s
   return { isValid: true };
 };
 
-/**
- * Hook for uploading single profile picture
- * 
- * This hook handles the file upload for profile picture updates.
- * It automatically updates the user's cache data after successful upload.
- * 
- * @example
- * ```tsx
- * import { useUploadProfilePicture, createProfileImageFormData, validateSingleImageFile } from '../hooks/api';
- * 
- * const MyComponent = () => {
- *   const { mutateAsync: uploadProfilePicture, isPending, error } = useUploadProfilePicture();
- *   
- *   const handleUpload = async (file: File) => {
- *     // Validate file first
- *     const validation = validateSingleImageFile(file);
- *     if (!validation.isValid) {
- *       alert(validation.error);
- *       return;
- *     }
- *     
- *     // Create FormData and upload
- *     const formData = createProfileImageFormData(file);
- *     try {
- *       const response = await uploadProfilePicture(formData);
- *       console.log('Profile picture uploaded:', response.data.profileImage);
- *     } catch (error) {
- *       console.error('Upload failed:', error);
- *     }
- *   };
- *   
- *   return (
- *     <input 
- *       type="file" 
- *       accept="image/*"
- *       onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
- *     />
- *   );
- * };
- * ```
- */
 export const useUploadProfilePicture = () => {
   const queryClient = useQueryClient();
 

@@ -9,22 +9,26 @@ import {
   Menu,
   UnstyledButton,
   Text,
+  Burger,
+  Stack,
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router";
 import {
-  IconChevronDown,
   IconUser,
   IconCreditCard,
   IconLogout,
 } from "@tabler/icons-react";
+import { useDisclosure } from "@mantine/hooks";
 import { useAuthStore } from "../../../store/auth.store";
 import Logo from "../../Header/Logo";
+import HeaderNavLink from "../../Header/HeaderNavLink";
 import gsap from "gsap";
 
 export const Header: React.FC = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
   const { user, logout } = useAuthStore();
+  const [mobileMenuOpened, { toggle: toggleMobileMenu, close: closeMobileMenu }] = useDisclosure(false);
 
   // Refs for animations
   const headerRef = useRef<HTMLDivElement>(null);
@@ -58,181 +62,234 @@ export const Header: React.FC = () => {
       "-=0.2"
     );
   }, []);
+
   const fullName = user ? `${user.firstName} ${user.lastName}` : "";
 
   return (
-    <Box
-      ref={headerRef}
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 1000,
-        background: "linear-gradient(135deg, #000000 0%, #1a0030 100%)",
-        borderBottom: "1px solid rgba(255,255,255,0.1)",
-        backdropFilter: "blur(10px)",
-      }}
-    >
-      <Container px={{ base: 16, sm: 32, md: 72 }} size="100%" h={90}>
-        <Group justify="space-between" align="center" style={{ height: "100%" }} wrap="nowrap">
-          {/* Logo */}
-          <Box ref={logoRef} style={{ flexShrink: 0 }}>
-            <Link to="/app">
-              <Logo darkMode />
-            </Link>
-          </Box>
+    <>
+      <Box
+        ref={headerRef}
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          background: "linear-gradient(135deg, #000000 0%, #1a0030 100%)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+          backdropFilter: "blur(10px)",
+        }}
+      >
+        <Container px={{ base: 16, sm: 32, md: 72 }} size="100%" h={90}>
+          <Group justify="space-between" align="center" style={{ height: "100%" }} wrap="nowrap">
+            {/* Logo */}
+            <Box ref={logoRef} style={{ flexShrink: 0 }}>
+              <Link to="/">
+                <Logo darkMode />
+              </Link>
+            </Box>
 
-          {/* User Menu - Responsive */}
-          <Box ref={buttonsRef} style={{ flexShrink: 0, minWidth: 0 }}>
-            <Menu
-              width="target"
-              position="bottom-end"
-              transitionProps={{ transition: "pop-top-right" }}
-            >
-              <Menu.Target>
-                <UnstyledButton
-                  style={{
-                    padding: `${rem(8)} ${rem(12)}`,
-                    borderRadius: theme.radius.md,
-                    color: theme.white,
-                    backgroundColor: "rgba(255, 255, 255, 0.05)",
-                    border: "1px solid rgba(255, 255, 255, 0.1)",
-                    transition: "all 0.2s ease",
-                    minWidth: 0,
-                    maxWidth: "200px", // Prevent button from getting too wide
-                    "&:hover": {
-                      backgroundColor: "rgba(255, 255, 255, 0.1)",
-                      transform: "translateY(-1px)",
-                    },
-                  }}
+            {/* Desktop Navigation */}
+            <Group gap={rem(8)} visibleFrom="md">
+              <HeaderNavLink to="/home" label="Home" darkMode displayMode="horizontal" />
+              <HeaderNavLink to="/" label="Feed" darkMode displayMode="horizontal" />
+              <HeaderNavLink to="/about" label="About" darkMode displayMode="horizontal" />
+              <HeaderNavLink to="/contact" label="Contact" darkMode displayMode="horizontal" />
+            </Group>
+
+            {/* Desktop User Menu & Mobile Controls */}
+            <Box ref={buttonsRef} style={{ flexShrink: 0, minWidth: 0 }}>
+              <Group gap="md">
+                {/* User Menu - Always visible */}
+                <Menu
+                  width={200}
+                  position="bottom-end"
+                  transitionProps={{ transition: "pop-top-right" }}
                 >
-                  <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
-                    <Avatar
-                      src={user?.profilePicture}
-                      alt={fullName}
-                      radius="xl"
-                      size="sm"
-                      style={{ flexShrink: 0 }}
-                      styles={{
-                        root: {
-                          border: "2px solid rgba(255, 255, 255, 0.2)",
+                  <Menu.Target>
+                    <UnstyledButton
+                      style={{
+                        padding: rem(8),
+                        borderRadius: "50%",
+                        color: theme.white,
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                        border: "2px solid rgba(255, 255, 255, 0.1)",
+                        transition: "all 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        "&:hover": {
+                          backgroundColor: "rgba(255, 255, 255, 0.1)",
+                          transform: "translateY(-1px) scale(1.05)",
+                          borderColor: "rgba(255, 255, 255, 0.2)",
                         },
                       }}
-                    />
-                    {/* Show full info on desktop, minimal on mobile */}
-                    <Box 
-                      style={{ 
-                        flex: 1, 
-                        minWidth: 0,
-                        overflow: "hidden"
-                      }}
-                      visibleFrom="sm"
                     >
-                      <Text 
-                        fw={600} 
-                        size="sm" 
-                        lh={1.2} 
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap"
+                      <Avatar
+                        src={user?.profilePicture}
+                        alt={fullName}
+                        radius="xl"
+                        size="sm"
+                        styles={{
+                          root: {
+                            border: "none",
+                          },
                         }}
-                      >
-                        {fullName}
-                      </Text>
-                      <Text 
-                        size="xs" 
-                        c="dimmed" 
-                        lh={1}
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        {user?.email}
-                      </Text>
-                    </Box>
-                    {/* Show only name on mobile, truncated */}
-                    <Box 
-                      style={{ 
-                        flex: 1, 
-                        minWidth: 0,
-                        overflow: "hidden",
-                        maxWidth: "80px" // Limit width on mobile
-                      }}
-                      hiddenFrom="sm"
+                      />
+                    </UnstyledButton>
+                  </Menu.Target>
+                  <Menu.Dropdown>
+                    <Menu.Label>Account</Menu.Label>
+                    <Menu.Item
+                      leftSection={
+                        <IconUser
+                          style={{ width: rem(14), height: rem(14) }}
+                          stroke={1.5}
+                        />
+                      }
+                      onClick={() => navigate("/profile")}
                     >
-                      <Text 
-                        fw={600} 
-                        size="sm" 
-                        lh={1.2}
-                        style={{
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap"
-                        }}
-                      >
-                        {user?.firstName || fullName}
-                      </Text>
-                    </Box>
-                    <IconChevronDown
-                      style={{ 
-                        width: rem(14), 
-                        height: rem(14),
-                        flexShrink: 0
+                      Profile
+                    </Menu.Item>
+                    <Menu.Item
+                      leftSection={
+                        <IconCreditCard
+                          style={{ width: rem(14), height: rem(14) }}
+                          stroke={1.5}
+                        />
+                      }
+                      onClick={() => navigate("/subscription")}
+                    >
+                      Subscription
+                    </Menu.Item>
+                    <Menu.Divider />
+                    <Menu.Item
+                      color="red"
+                      leftSection={
+                        <IconLogout
+                          style={{ width: rem(14), height: rem(14) }}
+                          stroke={1.5}
+                        />
+                      }
+                      onClick={async () => {
+                        await logout();
+                        navigate("/public");
                       }}
-                      stroke={1.5}
-                    />
-                  </Group>
-                </UnstyledButton>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Label>Account</Menu.Label>
-                <Menu.Item
-                  leftSection={
-                    <IconUser
-                      style={{ width: rem(14), height: rem(14) }}
-                      stroke={1.5}
-                    />
-                  }
-                  onClick={() => navigate("/app/profile")}
-                >
-                  Profile
-                </Menu.Item>
-                <Menu.Item
-                  leftSection={
-                    <IconCreditCard
-                      style={{ width: rem(14), height: rem(14) }}
-                      stroke={1.5}
-                    />
-                  }
-                  onClick={() => navigate("/app/subscription")}
-                >
-                  Subscription
-                </Menu.Item>
-                <Menu.Divider />
-                <Menu.Item
-                  color="red"
-                  leftSection={
-                    <IconLogout
-                      style={{ width: rem(14), height: rem(14) }}
-                      stroke={1.5}
-                    />
-                  }
-                  onClick={async () => {
-                    await logout();
-                    navigate("/login");
-                  }}
-                >
-                  Logout
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
+                    >
+                      Logout
+                    </Menu.Item>
+                  </Menu.Dropdown>
+                </Menu>
+
+                {/* Mobile Hamburger */}
+                <Box hiddenFrom="md">
+                  <Burger
+                    opened={mobileMenuOpened}
+                    onClick={toggleMobileMenu}
+                    color={theme.white}
+                    size="sm"
+                    aria-label="Toggle navigation menu"
+                  />
+                </Box>
+              </Group>
+            </Box>
+          </Group>
+        </Container>
+      </Box>
+
+      {/* Mobile Navigation Overlay - Full Screen */}
+      {mobileMenuOpened && (
+        <Box
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: '100vw',
+            height: '100vh',
+            zIndex: 1000000,
+            background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+          hiddenFrom="md"
+        >
+          {/* Mobile Header with Logo */}
+          <Box
+            style={{
+              width: '100%',
+              height: rem(60),
+              background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
+              borderBottom: '1px solid rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: `0 ${rem(20)}`,
+              flexShrink: 0,
+              zIndex: 1000001,
+            }}
+          >
+            {/* Logo in Mobile Menu */}
+            <Box>
+              <Logo darkMode />
+            </Box>
+
+            {/* Close Button */}
+            <Box
+              style={{
+                cursor: 'pointer',
+                padding: rem(8),
+                borderRadius: '50%',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: rem(40),
+                height: rem(40),
+                transition: 'background-color 0.2s ease',
+              }}
+              onClick={closeMobileMenu}
+            >
+              <Text c="white" size="lg" fw={700}>
+                ✕
+              </Text>
+            </Box>
           </Box>
-        </Group>
-      </Container>
-    </Box>
+
+          {/* Mobile Navigation Content - Full Screen */}
+          <Box
+            style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              padding: `${rem(24)} ${rem(16)}`,
+              background: 'linear-gradient(135deg, #000000 0%, #1a0030 100%)',
+            }}
+          >
+            <Stack gap="xl" align="center" w="100%" maw={400}>
+              {/* Navigation Links */}
+              <Stack gap="lg" align="center" w="100%">
+                <Box w="100%" onClick={closeMobileMenu}>
+                  <HeaderNavLink to="/home" label="Home" darkMode displayMode="vertical" />
+                </Box>
+                <Box w="100%" onClick={closeMobileMenu}>
+                  <HeaderNavLink to="/" label="Feed" darkMode displayMode="vertical" />
+                </Box>
+                <Box w="100%" onClick={closeMobileMenu}>
+                  <HeaderNavLink to="/about" label="About" darkMode displayMode="vertical" />
+                </Box>
+                <Box w="100%" onClick={closeMobileMenu}>
+                  <HeaderNavLink to="/contact" label="Contact" darkMode displayMode="vertical" />
+                </Box>
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
+      )}
+    </>
   );
 };

@@ -18,9 +18,9 @@ import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile"
 import { PaymentSuccessPage, PaymentErrorPage, PremiumSuccessPage } from "../features/payment";
 
 const router = createBrowserRouter([
-    // Public routes
+    // Public routes now served under /public
     {
-        path: "/",
+        path: "/public",
         element: <MainLayout />,
         children: [
             {
@@ -44,7 +44,7 @@ const router = createBrowserRouter([
                 element: <FeedPage />
             },
             {
-                path: "public/colleges",
+                path: "colleges",
                 element: <CollegesPage />
             },
         ]
@@ -93,9 +93,9 @@ const router = createBrowserRouter([
         path: ROUTES.PREMIUM_SUCCESS,
         element: <PremiumSuccessPage />,
     },
-    // Protected routes with authenticated layout
+    // Authenticated layout now on base path '/'
     {
-        path: "/app",
+        path: "/",
         element: <AuthenticatedLayout />,
         children: [
             {
@@ -117,6 +117,18 @@ const router = createBrowserRouter([
             {
                 path: "subscription",
                 element: <SubscriptionPage />
+            },
+            {
+                path: "home",
+                element: <HomePage />
+            },
+            {
+                path: "about",
+                element: <AboutPage />
+            },
+            {
+                path: "contact",
+                element: <ContactPage />
             },
         ]
     }

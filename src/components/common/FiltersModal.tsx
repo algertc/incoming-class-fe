@@ -55,7 +55,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
     if (!user) {
       navigate('/signup');
     } else {
-      navigate('/app/subscription');
+      navigate('/subscription');
     }
   };
 

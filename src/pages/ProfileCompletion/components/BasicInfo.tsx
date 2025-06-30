@@ -42,14 +42,14 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
         profileStage: ProfileStage.PREFERENCES
       };
       
-      console.log('Submitting profile data:', profileData);
+ 
       
       const response = await updateProfile(profileData);
 
       if (!response.status) {
         throw new Error(response.errorMessage?.message || 'Failed to update profile');
       }
-      console.log("form stage 1 , ", profileData);
+ 
 
       showSuccess("Profile information saved successfully!");
       onComplete(); // Move to next step in the UI

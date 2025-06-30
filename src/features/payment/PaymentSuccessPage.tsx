@@ -32,7 +32,7 @@ const PaymentSuccessPage: React.FC = () => {
 
   useEffect(() => {
     // Log page entry
-    console.log("🎉 PaymentSuccessPage: User landed on success page");
+ 
     console.log("📊 Success page analytics:", {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -61,9 +61,9 @@ const PaymentSuccessPage: React.FC = () => {
     // Refresh user data to get updated payment status
     const refreshUserData = async () => {
       try {
-        console.log("🔄 PaymentSuccessPage: Refreshing user data to get updated payment status");
+ 
         await fetchUser();
-        console.log("✅ PaymentSuccessPage: User data refreshed successfully");
+ 
       } catch (error) {
         console.error("❌ PaymentSuccessPage: Failed to refresh user data:", error);
       }
@@ -77,24 +77,40 @@ const PaymentSuccessPage: React.FC = () => {
     );
 
     // Log success notification
-    console.log("🔔 Success notification displayed");
+ 
+
+    // Redirect based on whether the user has completed their profile
+    const user = useAuthStore.getState().user;
+    if (user) {
+      if (user.isProfileCompleted) {
+ 
+        navigate('/');
+      } else {
+ 
+        navigate('/profile-completion');
+      }
+    } else {
+      // Fallback if user data isn't available for some reason
+ 
+      navigate('/');
+    }
   }, [searchParams, isMobile, fetchUser]);
 
   const handleGoToFeed = () => {
-    console.log("🏠 PaymentSuccessPage: User clicked 'Go to Feed'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoToProfile = () => {
-    console.log("👤 PaymentSuccessPage: User clicked 'View Profile'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoHome = () => {
-    console.log("🏡 PaymentSuccessPage: User clicked 'Go Home'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 

@@ -62,17 +62,17 @@ export const usePaymentPolling = (options: UsePaymentPollingOptions = {}) => {
     }
 
     setIsPolling(true);
-    console.log("🔄 Starting payment status polling...");
+ 
 
     pollingIntervalRef.current = window.setInterval(async () => {
       try {
-        console.log("📡 Polling payment status...");
+ 
         await fetchUser();
         
         // Check if payment is complete
         const updatedUser = useAuthStore.getState().user;
         if (updatedUser && isPaymentComplete(updatedUser)) {
-          console.log("✅ Payment completed! Redirecting...");
+ 
           stopPolling();
           navigate(redirectUrl);
         }
@@ -83,7 +83,7 @@ export const usePaymentPolling = (options: UsePaymentPollingOptions = {}) => {
 
     // Set timeout to stop polling after specified time
     timeoutRef.current = window.setTimeout(() => {
-      console.log("⏰ Payment polling timeout - stopping after timeout period");
+ 
       stopPolling();
     }, timeout);
   };

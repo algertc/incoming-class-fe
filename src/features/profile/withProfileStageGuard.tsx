@@ -7,7 +7,7 @@ import LoadingScreen from '../common/components/LoadingScreen';
 /**
  * HOC that guards the profile completion page
  * - Redirects to login if not authenticated
- * - Redirects to /app if user should not be in profile completion
+ * - Redirects to '/' if user should not be in profile completion
  */
 export const withProfileStageGuard = <P extends object>(
   WrappedComponent: React.ComponentType<P>
@@ -23,7 +23,7 @@ export const withProfileStageGuard = <P extends object>(
           navigate(ROUTES.LOGIN);
         });
       } else if (user && !isLoading) {
-        // Check if user should be redirected to /app
+        // Check if user should be redirected to the main app
         const shouldRedirectToApp = 
           user.isSubscribed || 
           user.isProfileCompleted || 

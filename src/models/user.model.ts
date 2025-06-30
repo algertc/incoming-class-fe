@@ -144,6 +144,12 @@ export interface User {
   subscriptionEndDate?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  post?: {
+    id: string;
+    title?: string;
+    content: string;
+    images?: string[];
+  };
 }
 
 /**

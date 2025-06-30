@@ -54,7 +54,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
           profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
       };
       
-      console.log("profile data ", profileData);
+ 
       
       const response = await updateProfile(profileData);
 

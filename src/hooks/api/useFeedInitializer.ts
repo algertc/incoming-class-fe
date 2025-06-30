@@ -20,13 +20,13 @@ export const useFeedInitializer = () => {
     // 1. Not already initialized
     // 2. User ID changed (login/logout)
     if (!hasInitialized.current || lastUserId.current !== user?.id) {
-      console.log('useFeedInitializer: Initializing feed');
+ 
       hasInitialized.current = true;
       lastUserId.current = user?.id;
       // Call initializeFeed directly from store to avoid dependency issues
       useFeedStore.getState().initializeFeed();
     } else {
-      console.log('useFeedInitializer: Skipping initialization - already done and user unchanged');
+ 
     }
   }, [user?.id]); // Only depend on user?.id, avoid unstable initializeFeed
 

@@ -27,17 +27,17 @@ const Header: React.FC = () => {
           <Group justify="space-between" align="center" h="100%">
             {/* Logo */}
             <Box>
-              <Link to="/">
+              <Link to="/public">
                 <Logo darkMode />
               </Link>
             </Box>
 
             {/* Desktop Navigation */}
             <Group gap={rem(8)} visibleFrom="sm">
-              <NavLink to="/" label="Home" darkMode displayMode="horizontal" />
-              <NavLink to="/feed" label="Feed" darkMode displayMode="horizontal" />
-              <NavLink to="/about" label="About" darkMode displayMode="horizontal" />
-              <NavLink to="/contact" label="Contact" darkMode displayMode="horizontal" />
+              <NavLink to="/public" label="Home" darkMode displayMode="horizontal" />
+              <NavLink to="/public/feed" label="Feed" darkMode displayMode="horizontal" />
+              <NavLink to="/public/about" label="About" darkMode displayMode="horizontal" />
+              <NavLink to="/public/contact" label="Contact" darkMode displayMode="horizontal" />
             </Group>
 
             {/* Desktop Auth Buttons */}
@@ -200,16 +200,16 @@ const Header: React.FC = () => {
               {/* Navigation Links */}
               <Stack gap="lg" align="center" w="100%">
                 <Box w="100%" onClick={closeMobileMenu}>
-                  <NavLink to="/" label="Home" darkMode displayMode="vertical" />
+                  <NavLink to="/public" label="Home" darkMode displayMode="vertical" />
                 </Box>
                 <Box w="100%" onClick={closeMobileMenu}>
-                  <NavLink to="/feed" label="Feed" darkMode displayMode="vertical" />
+                  <NavLink to="/public/feed" label="Feed" darkMode displayMode="vertical" />
                 </Box>
                 <Box w="100%" onClick={closeMobileMenu}>
-                  <NavLink to="/about" label="About" darkMode displayMode="vertical" />
+                  <NavLink to="/public/about" label="About" darkMode displayMode="vertical" />
                 </Box>
                 <Box w="100%" onClick={closeMobileMenu}>
-                  <NavLink to="/contact" label="Contact" darkMode displayMode="vertical" />
+                  <NavLink to="/public/contact" label="Contact" darkMode displayMode="vertical" />
                 </Box>
               </Stack>
 

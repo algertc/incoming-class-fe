@@ -63,6 +63,7 @@ export * from './useStats';
 // Post hooks
 export {
   useUserPosts,
+  useCreatePost,
   useUpdatePost,
   useBoostPost,
   useDeletePost,

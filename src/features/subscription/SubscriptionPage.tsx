@@ -52,12 +52,12 @@ const SubscriptionPage: React.FC = () => {
   const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser, error: userError } = useCurrentUser();
   const { data: transactionsData, isLoading: isLoadingTransactions, refetch: refetchTransactions } = useCurrentUserTransactions();
 
-  console.log("currentUserData", currentUserData);
-  console.log("userError", userError);
+ 
+ 
   
   // Check if user is authenticated
   const token = localStorage.getItem('token');
-  console.log("token exists:", !!token);
+ 
   
   const user = currentUserData?.data?.user;
   const transactions = transactionsData?.data?.transactions || [];
@@ -441,7 +441,7 @@ const SubscriptionPage: React.FC = () => {
                 ) : transactions.length === 0 ? (
                   <Alert
                     icon={<IconAlertCircle size={16} />}
-                    color="gray"
+                    color="white"
                     variant="light"
                   >
                     <Text size="sm">No payment history found.</Text>

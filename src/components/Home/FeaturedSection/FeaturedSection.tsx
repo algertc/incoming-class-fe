@@ -40,7 +40,7 @@ export const FeaturedSection: React.FC = () => {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { data: testimonialResponse, isLoading: testimonialsLoading } = useFeaturedTestimonials();
 
-  console.log("log testimonialResponse", testimonialResponse);
+ 
   
 
   useEffect(() => {

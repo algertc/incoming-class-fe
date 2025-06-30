@@ -43,17 +43,17 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    console.log('App: Checking for existing token:', !!token);
+ 
     
     if (token) {
-      console.log('App: Token found, fetching user data');
+ 
       fetchUser().catch((error) => {
         console.error('App: Failed to fetch user on initialization:', error);
         // If token is invalid, remove it
         localStorage.removeItem('token');
       });
     } else {
-      console.log('App: No token found, skipping user fetch');
+ 
     }
   }, [fetchUser]);
 

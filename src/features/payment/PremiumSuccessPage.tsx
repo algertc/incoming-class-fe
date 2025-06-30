@@ -37,7 +37,7 @@ const PremiumSuccessPage: React.FC = () => {
 
   useEffect(() => {
     // Log page entry
-    console.log("🎉 PremiumSuccessPage: User landed on success page");
+ 
     console.log("📊 Success page analytics:", {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -66,9 +66,9 @@ const PremiumSuccessPage: React.FC = () => {
     // Refresh user data to get updated subscription status
     const refreshUserData = async () => {
       try {
-        console.log("🔄 PremiumSuccessPage: Refreshing user data to get updated subscription status");
+ 
         await fetchUser();
-        console.log("✅ PremiumSuccessPage: User data refreshed successfully");
+ 
       } catch (error) {
         console.error("❌ PremiumSuccessPage: Failed to refresh user data:", error);
       }
@@ -82,24 +82,40 @@ const PremiumSuccessPage: React.FC = () => {
     );
 
     // Log success notification
-    console.log("🔔 Premium success notification displayed");
+ 
+
+    // Redirect based on whether the user has completed their profile
+    const user = useAuthStore.getState().user;
+    if (user) {
+      if (user.isProfileCompleted) {
+ 
+        navigate('/');
+      } else {
+ 
+        navigate('/profile-completion');
+      }
+    } else {
+      // Fallback if user data isn't available for some reason
+ 
+      navigate('/');
+    }
   }, [searchParams, isMobile, fetchUser]);
 
   const handleGoToFeed = () => {
-    console.log("🏠 PremiumSuccessPage: User clicked 'Go to Feed'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoToProfile = () => {
-    console.log("👤 PremiumSuccessPage: User clicked 'View Profile'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 
   const handleGoHome = () => {
-    console.log("🏡 PremiumSuccessPage: User clicked 'Go Home'");
-    console.log("📍 Navigation: /app");
+ 
+ 
     navigate(ROUTES.DASHBOARD);
   };
 

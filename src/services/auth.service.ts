@@ -89,16 +89,16 @@ class AuthService {
    * Mock implementation for development
    */
   async getCurrentUser(): Promise<IServerResponse<UserResponse>> {
-    console.log("🔍 AuthService: Getting current user");
-    console.log("📍 Endpoint:", API_ENDPOINTS.auth.me);
+ 
+ 
     
     try {
       const result = await request<UserResponse>({
         url: API_ENDPOINTS.auth.me
       });
       
-      console.log("✅ AuthService: Current user retrieved successfully");
-      console.log("📦 Raw response:", result);
+ 
+ 
       
       return result;
     } catch (error) {

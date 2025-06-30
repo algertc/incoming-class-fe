@@ -152,9 +152,7 @@ const ProfileCompletion: React.FC = () => {
 
   // Handle completion of a step
   const handleStepComplete = async (stepIndex: number) => {
-    // Update profileStage in the backend based on current step
-    // This implementation assumes that the components handle the API calls to update the profile stage
-    console.log("step index  : ", stepIndex);
+console.log("stepIndex", stepIndex);
 
     nextStep();
 

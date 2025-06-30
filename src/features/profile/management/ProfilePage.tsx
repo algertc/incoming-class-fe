@@ -44,7 +44,8 @@ const ProfilePage: React.FC = () => {
   });
 
   const handleSaveProfile = (values: typeof form.values) => {
-    console.log('Saving profile:', values);
+console.log("values", values);
+
     // In a real app, this would call an API to update the profile
   };
 

@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/auth.store';
-import { showError } from '../../utils';
 import LoadingScreen from '../../features/common/components/LoadingScreen';
 
 export const withAuth = <P extends object>(
@@ -14,8 +13,7 @@ export const withAuth = <P extends object>(
     useEffect(() => {
       if (!user && !isLoading) {
         fetchUser().catch(() => {
-          showError('Please login to access this page');
-          navigate('/login');
+          navigate('/public');
         });
       }
     }, [user, isLoading, fetchUser, navigate]);

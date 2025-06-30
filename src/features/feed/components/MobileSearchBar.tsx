@@ -8,12 +8,15 @@ import {
   useMantineTheme,
   Collapse,
   Paper,
+  Tooltip,
 } from "@mantine/core";
 import {
   IconSearch,
   IconFilter,
   IconX,
 } from "@tabler/icons-react";
+import PostButton from './PostButton';
+import BoostPost from './BoostPost';
 import { useFeedStore } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
 import { PremiumSubscriptionModal } from "../../../components/common/PremiumSubscriptionModal";
@@ -42,8 +45,6 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-
-
   // Handle debounced search (only if user has access)
   useEffect(() => {
     searchPosts(debouncedSearchQuery);
@@ -53,8 +54,6 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
   useEffect(() => {
     setSearchQuery(filters.searchQuery);
   }, [filters.searchQuery]);
-
- 
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -133,43 +132,76 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
             />
           </Box>
 
-          {/* Filter Button */}
-          <ActionIcon
-            size="lg"
-            variant="light"
-            color={hasActiveFilters ? "blue" : "gray"}
-            onClick={handleFiltersClick}
-            style={{
-              position: "relative",
-              backgroundColor: hasActiveFilters 
-                ? "rgba(67, 97, 238, 0.2)" 
-                : "rgba(255, 255, 255, 0.05)"
-            }}
-          >
-            <IconFilter size={20} />
-            {activeFiltersCount > 0 && (
-              <Badge
-                size="xs"
-                color="red"
-                variant="filled"
+          {/* Action Buttons Group */}
+          <Group gap="xs">
+            {/* Edit Post Button */}
+            <Tooltip 
+              label={"Edit your post"} 
+              position="bottom"
+              withArrow
+            >
+              <Box>
+                <PostButton 
+                  variant="icon" 
+                />
+              </Box>
+            </Tooltip>
+
+            {/* Boost Post Button */}
+            <Tooltip 
+              label={"Boost your post"} 
+              position="bottom"
+              withArrow
+            >
+              <Box>
+                <BoostPost 
+                  variant="icon" 
+                />
+              </Box>
+            </Tooltip>
+
+            {/* Filter Button */}
+            <Tooltip 
+              label="Filter posts" 
+              position="bottom"
+              withArrow
+            >
+              <ActionIcon
+                size="lg"
+                variant="light"
+                color={hasActiveFilters ? "blue" : "gray"}
+                onClick={handleFiltersClick}
                 style={{
-                  position: "absolute",
-                  top: -2,
-                  right: -2,
-                  minWidth: 16,
-                  height: 16,
-                  padding: 0,
-                  fontSize: "10px",
-                  lineHeight: "16px",
+                  position: "relative",
+                  backgroundColor: hasActiveFilters 
+                    ? "rgba(67, 97, 238, 0.2)" 
+                    : "rgba(255, 255, 255, 0.05)"
                 }}
               >
-                {activeFiltersCount}
-              </Badge>
-            )}
-          </ActionIcon>
+                <IconFilter size={20} />
+                {activeFiltersCount > 0 && (
+                  <Badge
+                    size="xs"
+                    color="red"
+                    variant="filled"
+                    style={{
+                      position: "absolute",
+                      top: -2,
+                      right: -2,
+                      minWidth: 16,
+                      height: 16,
+                      padding: 0,
+                      fontSize: "10px",
+                      lineHeight: "16px",
+                    }}
+                  >
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         </Group>
-
-           
 
         {/* Active Filters Preview */}
         <Collapse in={hasActiveFilters}>

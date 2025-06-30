@@ -65,13 +65,13 @@ export const useCreateCheckoutSession = () => {
     CreateCheckoutSessionRequest
   >({
     mutationFn: async (data: CreateCheckoutSessionRequest) => {
-      console.log("🎯 useCreateCheckoutSession: Mutation started");
-      console.log("📊 Hook request data:", data);
+ 
+ 
       
       try {
         const result = await paymentService.createCheckoutSession(data);
         
-        console.log("✅ useCreateCheckoutSession: Mutation successful");
+ 
         console.log("🎉 Hook result:", {
           status: result.status,
           hasData: !!result.data,
@@ -92,7 +92,7 @@ export const useCreateCheckoutSession = () => {
       }
     },
     onSuccess: (data, variables) => {
-      console.log("🎊 useCreateCheckoutSession: onSuccess callback");
+ 
       console.log("📈 Success data:", {
         status: data.status,
         checkoutUrl: data.data?.checkoutUrl,
@@ -110,7 +110,7 @@ export const useCreateCheckoutSession = () => {
       });
     },
     onSettled: (data, error, variables) => {
-      console.log("🏁 useCreateCheckoutSession: onSettled callback");
+ 
       console.log("📋 Settlement details:", {
         success: !!data && !error,
         hasData: !!data,
@@ -122,35 +122,6 @@ export const useCreateCheckoutSession = () => {
   });
 };
 
-/**
- * Hook for confirming a payment
- * 
- * This hook can be used to handle post-payment confirmation if needed.
- * With session-based checkout, this is typically handled by Stripe webhooks.
- * 
- * @example
- * ```tsx
- * import { useConfirmPayment } from '../hooks/api';
- * 
- * const MyComponent = () => {
- *   const { mutateAsync: confirmPayment, isPending } = useConfirmPayment();
- *   
- *   const handleConfirmPayment = async (sessionId: string) => {
- *     try {
- *       const response = await confirmPayment(sessionId);
- *       console.log('Payment confirmed:', response.data.message);
- *     } catch (error) {
- *       console.error('Payment confirmation failed:', error);
- *     }
- *   };
- *   
- *   return (
- *     <button onClick={() => handleConfirmPayment('session_id')} disabled={isPending}>
- *       {isPending ? 'Confirming...' : 'Confirm Payment'}
- *     </button>
- *   );
- * };
- */
 export const useConfirmPayment = () => {
   return useMutation<
     IServerResponse<PaymentConfirmationResponse>,
@@ -158,13 +129,13 @@ export const useConfirmPayment = () => {
     string
   >({
     mutationFn: async (sessionId: string) => {
-      console.log("🔐 useConfirmPayment: Mutation started");
-      console.log("🆔 Hook session ID:", sessionId);
+ 
+ 
       
       try {
         const result = await paymentService.confirmPayment(sessionId);
         
-        console.log("✅ useConfirmPayment: Mutation successful");
+ 
         console.log("🎉 Hook confirmation result:", {
           status: result.status,
           success: result.data?.success,
@@ -186,7 +157,7 @@ export const useConfirmPayment = () => {
       }
     },
     onSuccess: (data, sessionId) => {
-      console.log("🎊 useConfirmPayment: onSuccess callback");
+ 
       console.log("📈 Confirmation success:", {
         status: data.status,
         success: data.data?.success,
@@ -204,7 +175,7 @@ export const useConfirmPayment = () => {
       });
     },
     onSettled: (data, error, sessionId) => {
-      console.log("🏁 useConfirmPayment: onSettled callback");
+ 
       console.log("📋 Confirmation settlement:", {
         success: !!data && !error,
         hasData: !!data,
@@ -226,13 +197,13 @@ export const useCreateSubscriptionSession = () => {
     CreateCheckoutSessionRequest
   >({
     mutationFn: async (data: CreateCheckoutSessionRequest) => {
-      console.log("🎯 useCreateSubscriptionSession: Mutation started");
-      console.log("📊 Hook request data:", data);
+ 
+ 
 
       try {
         const result = await paymentService.createSubscriptionSession(data);
 
-        console.log("✅ useCreateSubscriptionSession: Mutation successful");
+ 
         console.log("🎉 Hook result:", {
           status: result.status,
           hasData: !!result.data,
@@ -253,7 +224,7 @@ export const useCreateSubscriptionSession = () => {
       }
     },
     onSuccess: (data, variables) => {
-      console.log("🎊 useCreateSubscriptionSession: onSuccess callback");
+ 
       console.log("📈 Success data:", {
         status: data.status,
         checkoutUrl: data.data?.checkoutUrl,
@@ -271,7 +242,7 @@ export const useCreateSubscriptionSession = () => {
       });
     },
     onSettled: (data, error, variables) => {
-      console.log("🏁 useCreateSubscriptionSession: onSettled callback");
+ 
       console.log("📋 Settlement details:", {
         success: !!data && !error,
         hasData: !!data,
@@ -328,36 +299,7 @@ export const useSubscriptionStatus = () => {
   });
 };
 
-/**
- * Hook for canceling a user's premium subscription
- * 
- * This hook handles the cancellation of premium subscriptions.
- * It will call the backend API to cancel the subscription and update the user's status.
- * 
- * @example
- * ```tsx
- * import { useCancelSubscription } from '../hooks/api';
- * 
- * const MyComponent = () => {
- *   const { mutateAsync: cancelSubscription, isPending, error } = useCancelSubscription();
- *   
- *   const handleCancelSubscription = async () => {
- *     try {
- *       const response = await cancelSubscription();
- *       console.log('Subscription canceled:', response.data.message);
- *       // Handle success (e.g., show notification, refresh user data)
- *     } catch (error) {
- *       console.error('Subscription cancellation failed:', error);
- *     }
- *   };
- *   
- *   return (
- *     <button onClick={handleCancelSubscription} disabled={isPending}>
- *       {isPending ? 'Canceling...' : 'Cancel Subscription'}
- *     </button>
- *   );
- * };
- */
+
 export const useCancelSubscription = () => {
   return useMutation<
     IServerResponse<CancelSubscriptionResponse>,
@@ -365,12 +307,12 @@ export const useCancelSubscription = () => {
     void
   >({
     mutationFn: async () => {
-      console.log("🚫 useCancelSubscription: Mutation started");
+ 
       
       try {
         const result = await paymentService.cancelSubscription();
         
-        console.log("✅ useCancelSubscription: Mutation successful");
+ 
         console.log("🎉 Hook cancellation result:", {
           status: result.status,
           success: result.data?.success,
@@ -392,7 +334,7 @@ export const useCancelSubscription = () => {
       }
     },
     onSuccess: (data) => {
-      console.log("🎊 useCancelSubscription: onSuccess callback");
+ 
       console.log("📈 Cancellation success:", {
         status: data.status,
         success: data.data?.success,
@@ -409,7 +351,7 @@ export const useCancelSubscription = () => {
       });
     },
     onSettled: (data, error) => {
-      console.log("🏁 useCancelSubscription: onSettled callback");
+ 
       console.log("📋 Cancellation settlement:", {
         success: !!data && !error,
         hasData: !!data,

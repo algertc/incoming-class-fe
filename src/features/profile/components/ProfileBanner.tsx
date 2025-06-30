@@ -89,7 +89,7 @@ const ProfileBanner: React.FC<ProfileBannerProps> = ({
             leftSection={<IconSettings size={16} />}
             variant="light"
             size="sm"
-            onClick={() => navigate('/app/settings')}
+            onClick={() => navigate('/settings')}
             color="indigo"
           >
             Settings

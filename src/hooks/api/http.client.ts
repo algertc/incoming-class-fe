@@ -2,8 +2,8 @@ import axios from 'axios';
 import type { AxiosRequestConfig, AxiosError } from 'axios';
 import type { IServerResponse } from '../../models/serverResponse.model';
 
-const baseURL = import.meta.env.VITE_APP_API ?? 'http://192.168.1.10:4000/api/v1';
-// const baseURL = 'https://api.incomingclass.com/api/v1';
+// const baseURL = import.meta.env.VITE_APP_API ?? 'http://192.168.1.10:4000/api/v1';
+const baseURL = 'https://api.incomingclass.com/api/v1';
 
 const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServerResponse<T>> => {
   const token = localStorage.getItem('token');
@@ -33,20 +33,17 @@ const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServe
   } catch (error) {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<IServerResponse>;
-      
+
       // Handle authentication errors globally
       if (axiosError.response?.status === 401) {
-        console.log('HTTP Client: 401 Unauthorized - redirecting to login');
-        
+        console.warn('HTTP Client: 401 Unauthorized');
         // Clear invalid token
         localStorage.removeItem('token');
-        
-        // Redirect to login using window.location
-        window.location.href = '/login';
-        
-        throw new Error('Session expired. Please login again.');
+
+        // Bubble the error up so caller/HOCs can handle routing
+        throw new Error('Unauthorized');
       }
-      
+
       throw new Error(
         axiosError.response?.data?.message ||
         axiosError.message ||

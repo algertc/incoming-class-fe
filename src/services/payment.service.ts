@@ -57,7 +57,7 @@ class PaymentService {
    * @returns Promise with the checkout session response containing the checkout URL
    */
   async createCheckoutSession(data: CreateCheckoutSessionRequest): Promise<IServerResponse<CheckoutSessionResponse>> {
-    console.log("🏪 PaymentService: Creating checkout session");
+ 
     console.log("📋 Service request data:", {
       ...data,
       timestamp: new Date().toISOString(),
@@ -76,8 +76,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Checkout session created successfully");
-      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Service response:", {
         status: response.status,
         message: response.message,
@@ -111,7 +111,7 @@ class PaymentService {
   async createSubscriptionSession(
     data: CreateCheckoutSessionRequest
   ): Promise<IServerResponse<CheckoutSessionResponse>> {
-    console.log("🏪 PaymentService: Creating subscription checkout session");
+ 
     console.log("📋 Service request data:", {
       ...data,
       timestamp: new Date().toISOString(),
@@ -130,8 +130,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Subscription session created successfully");
-      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Service response:", {
         status: response.status,
         message: response.message,
@@ -162,9 +162,9 @@ class PaymentService {
    * @returns Promise with the payment confirmation response
    */
   async confirmPayment(sessionId: string): Promise<IServerResponse<PaymentConfirmationResponse>> {
-    console.log("🔐 PaymentService: Confirming payment");
-    console.log("🆔 Session ID:", sessionId);
-    console.log("📍 Endpoint:", API_ENDPOINTS.payment.confirmPayment);
+ 
+ 
+ 
 
     try {
       const startTime = performance.now();
@@ -178,8 +178,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Payment confirmed successfully");
-      console.log("⏱️ Confirmation duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Confirmation response:", {
         status: response.status,
         message: response.message,
@@ -210,7 +210,7 @@ class PaymentService {
    * @returns Promise with the current pricing data
    */
   async getCurrentPricing(): Promise<IServerResponse<PricingData>> {
-    console.log("💰 PaymentService: Fetching current pricing");
+ 
 
     try {
       const startTime = performance.now();
@@ -223,8 +223,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Pricing fetched successfully");
-      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Service response:", {
         status: response.status,
         message: response.message,
@@ -252,8 +252,8 @@ class PaymentService {
    * @returns Promise with the subscription status data
    */
   async getSubscriptionStatus(): Promise<IServerResponse<SubscriptionStatusResponse>> {
-    console.log("📊 PaymentService: Fetching subscription status");
-    console.log("📍 Endpoint:", API_ENDPOINTS.payment.subscriptionStatus);
+ 
+ 
 
     try {
       const startTime = performance.now();
@@ -266,8 +266,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Subscription status fetched successfully");
-      console.log("⏱️ API call duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Service response:", {
         status: response.status,
         message: response.message,
@@ -296,8 +296,8 @@ class PaymentService {
    * @returns Promise with the cancellation response
    */
   async cancelSubscription(): Promise<IServerResponse<CancelSubscriptionResponse>> {
-    console.log("🚫 PaymentService: Canceling subscription");
-    console.log("📍 Endpoint:", API_ENDPOINTS.payment.cancelSubscription);
+ 
+ 
 
     try {
       const startTime = performance.now();
@@ -310,8 +310,8 @@ class PaymentService {
       const endTime = performance.now();
       const duration = endTime - startTime;
 
-      console.log("✅ PaymentService: Subscription canceled successfully");
-      console.log("⏱️ Cancellation duration:", `${duration.toFixed(2)}ms`);
+ 
+ 
       console.log("📦 Cancellation response:", {
         status: response.status,
         message: response.message,

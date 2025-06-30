@@ -36,7 +36,7 @@ const PaymentErrorPage: React.FC = () => {
 
   useEffect(() => {
     // Log page entry and error details
-    console.log("❌ PaymentErrorPage: User landed on error page");
+ 
     console.log("📊 Error page analytics:", {
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
@@ -77,33 +77,33 @@ const PaymentErrorPage: React.FC = () => {
     showError("Payment failed. Please try again or contact support if the issue persists.");
 
     // Log error notification
-    console.log("🔔 Error notification displayed");
+ 
   }, [searchParams, isMobile, errorMessage, errorCode]);
 
   const handleRetryPayment = () => {
-    console.log("🔄 PaymentErrorPage: User clicked 'Try Payment Again'");
-    console.log("📍 Navigation: /profile-completion");
-    console.log("🎯 User action: Retry payment after error");
+ 
+ 
+ 
     navigate("/profile-completion");
   };
 
   const handleGoHome = () => {
-    console.log("🏡 PaymentErrorPage: User clicked 'Go Home'");
-    console.log("📍 Navigation: /");
-    console.log("🎯 User action: Abandon payment flow");
+ 
+ 
+ 
     navigate("/");
   };
 
   const handleContactSupport = () => {
-    console.log("🆘 PaymentErrorPage: User clicked 'Contact Support'");
-    console.log("📍 Navigation: /contact");
-    console.log("🎯 User action: Seeking help for payment issue");
+ 
+ 
+ 
     navigate("/contact");
   };
 
   const handleGoBack = () => {
-    console.log("⬅️ PaymentErrorPage: User clicked 'Go Back'");
-    console.log("🎯 User action: Browser back navigation");
+ 
+ 
     navigate(-1);
   };
 

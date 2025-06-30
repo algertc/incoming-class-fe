@@ -1,30 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { AppShell } from "@mantine/core";
-import { Outlet, useNavigate } from "react-router";
+import { Outlet } from "react-router";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
-import { useAuthStore } from "../../../store/auth.store";
-import ROUTES from "../../../constants/routes";
 
 const MainLayout: React.FC = () => {
-  const navigate = useNavigate();
-  const { user, isLoading } = useAuthStore();
-
-  useEffect(() => {
-    if (user && !isLoading) {
-      // Check if user should go to /app
-      const shouldRedirectToApp =
-        user.isSubscribed || user.isProfileCompleted || user.postPaymentDone;
-
-      if (shouldRedirectToApp) {
-        navigate(ROUTES.DASHBOARD);
-      } else {
-        // User needs to complete profile
-        navigate(ROUTES.PROFILE_COMPLETION);
-      }
-    }
-  }, [user, isLoading, navigate]);
-
   return (
     <AppShell
       header={{ height: { base: 70, sm: 80, md: 90 } }}

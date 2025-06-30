@@ -1,70 +1,63 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Box,
-  Stack,
-  Text,
-  Button,
-  Paper,
-  Skeleton,
-  Center,
-  Group,
   ActionIcon,
-  Menu,
+  Button,
   Modal,
+  Stack,
+  TextInput,
   Textarea,
+  Group,
+  Box,
+  SimpleGrid,
+  Image,
   useMantineTheme,
   rem,
   LoadingOverlay,
-  SimpleGrid,
-  Image,
+  Paper,
+  Text,
 } from '@mantine/core';
-import { 
-  IconPhoto, 
-  IconDots, 
-  IconEdit, 
-  IconRocket, 
+import {
   IconPlus,
-  IconCheck,
   IconX,
-  IconSparkles,
+  IconCheck,
   IconUpload,
+  IconEdit,
 } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
-import { modals } from '@mantine/modals';
-import { useUserPosts, useUpdatePost, useBoostPost } from '../../../hooks/api';
-import { 
-  useUploadMultipleImages, 
-  createImageFormData, 
-  validateImageFiles 
-} from '../../../hooks/api/useImageUpload';
-import { showSuccess, showError } from '../../../utils';
-import PostCard from '../../feed/components/PostCard';
-import type { Post } from '../../feed/components/PostCard';
-import { glassCardStyles } from '../utils/glassStyles';
-import ImageCropModal from '../../../pages/ProfileCompletion/components/ImageCropModal';
 import { useAuthStore } from '../../../store/auth.store';
+import { useUpdatePost, useUserPosts } from '../../../hooks/api';
+import { useUploadMultipleImages, createImageFormData, validateImageFiles } from '../../../hooks/api/useImageUpload';
+import { showSuccess, showError } from '../../../utils';
+import ImageCropModal from '../../../pages/ProfileCompletion/components/ImageCropModal';
 import { PremiumSubscriptionModal } from '../../../components/common/PremiumSubscriptionModal';
+import { useQueryClient } from '@tanstack/react-query';
 
+interface PostButtonProps {
+  variant?: 'icon' | 'button';
+}
 
-const MyPostsTab: React.FC = () => {
+const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
   const theme = useMantineTheme();
   const { user } = useAuthStore();
   const [editModalOpened, setEditModalOpened] = useState(false);
-  const [currentEditPost, setCurrentEditPost] = useState<Post | null>(null);
+  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
   const [cropModalOpened, setCropModalOpened] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
-  const [premiumModalTrigger, setPremiumModalTrigger] = useState<string>('edit');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Fetch user's posts
+  const { data: userPostsResponse, isLoading: isLoadingPosts } = useUserPosts({ page: 1, limit: 1 });
+  const userPost = userPostsResponse?.data?.posts?.[0];
+
   // Hooks for API operations
-  const { data: userPostsResponse, isLoading, error, refetch } = useUserPosts({ page: 1, limit: 50 });
   const updatePostMutation = useUpdatePost();
   const uploadImagesMutation = useUploadMultipleImages();
-  const boostPostMutation = useBoostPost();
+
+  // Get query client for cache invalidation
+  const queryClient = useQueryClient();
 
   // Form for editing posts
   const editForm = useForm({
@@ -78,26 +71,21 @@ const MyPostsTab: React.FC = () => {
     },
   });
 
-  const posts = userPostsResponse?.data?.posts || [];
-
-  // Handle edit post with premium check
-  const handleEditPost = (post: Post) => {
-    if (!user?.isSubscribed) {
-      setPremiumModalTrigger('edit');
-      setPremiumModalOpened(true);
-      return;
+  // Initialize form with user's post data when available
+  useEffect(() => {
+    if (userPost && editModalOpened) {
+ 
+      editForm.setValues({
+        title: userPost.title || '',
+        content: userPost.content || '',
+      });
+      
+      // Initialize preview images if post has images
+      if (userPost.images && userPost.images.length > 0) {
+        setPreviewImages(userPost.images);
+      }
     }
-
-    setCurrentEditPost(post);
-    editForm.setValues({ 
-      title: post.title || '',
-      content: post.content 
-    });
-    // Initialize with empty preview images - only show new images
-    setPreviewImages([]);
-    setSelectedFiles([]);
-    setEditModalOpened(true);
-  };
+  }, [userPost, editModalOpened]);
 
   // Handle file input
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,7 +140,7 @@ const MyPostsTab: React.FC = () => {
       return newFiles;
     });
 
-    // Create preview URL - only add new images to preview
+    // Create preview URL
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result;
@@ -182,260 +170,115 @@ const MyPostsTab: React.FC = () => {
     }
   };
 
-  // Remove image - only handle new images since we only show new images in edit modal
+  // Remove image
   const removeImage = (index: number) => {
     setPreviewImages(prev => prev.filter((_, i) => i !== index));
     setSelectedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Handle save edit
-  const handleSaveEdit = async (values: { title: string; content: string }) => {
-    if (!currentEditPost) return;
+  // Handle edit post
+  const handleEditPost = async (values: { title: string; content: string }) => {
+    if (!userPost?.id) {
+      showError('No post found to edit');
+      return;
+    }
 
     try {
       let finalImages: string[] = [];
 
-      // Upload new images if any
+      // Upload images if any new files selected
       if (selectedFiles.length > 0) {
         const formData = createImageFormData(selectedFiles);
         const uploadResponse = await uploadImagesMutation.mutateAsync(formData);
         
         if (uploadResponse.status && uploadResponse.data) {
-          // Only use the newly uploaded images
-          finalImages = uploadResponse.data;
+          finalImages = [...uploadResponse.data];
         }
       }
- 
-      
+
+      // Keep existing images that weren't removed
+      if (userPost.images) {
+        finalImages = [...previewImages.filter(img => userPost.images?.includes(img)), ...finalImages];
+      }
+
+      // Update post
       await updatePostMutation.mutateAsync({
-        postId: currentEditPost.id,
-        updateData: { 
+        postId: userPost.id,
+        updateData: {
           title: values.title,
           content: values.content,
-          images: finalImages
+          images: finalImages,
         }
       });
+
+      // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['userPosts'] });
+
+      // Reset form and close modal
       setEditModalOpened(false);
-      setCurrentEditPost(null);
+      editForm.reset();
       setPreviewImages([]);
       setSelectedFiles([]);
-      editForm.reset();
-      showSuccess('Post updated successfully!');
+
+      showSuccess('Post updated successfully');
     } catch (error) {
-      console.error('Failed to update post:', error);
-      showError('Failed to update post. Please try again.');
+      console.error('Error updating post:', error);
+      showError('Failed to update post');
     }
   };
 
-  // Handle boost post with premium check
-  const handleBoostPost = async (postId: string) => {
-    if (!user?.isSubscribed) {
-      setPremiumModalTrigger('boost');
+  // Handle button click
+  const handleClick = () => {
+    if (!user) {
       setPremiumModalOpened(true);
       return;
     }
 
-    modals.openConfirmModal({
-      title: 'Boost Post',
-      children: (
-        <Text size="sm">
-          Are you sure you want to boost this post? This will increase its visibility in the feed.
-        </Text>
-      ),
-      labels: { confirm: 'Boost Post', cancel: 'Cancel' },
-      confirmProps: { color: 'blue', leftSection: <IconRocket size={16} /> },
-      onConfirm: () => boostPostMutation.mutate(postId),
-    });
+    if (!user.isSubscribed) {
+      setPremiumModalOpened(true);
+      return;
+    }
+
+    // For subscribed users, open edit modal
+    setEditModalOpened(true);
   };
-
-
-
-  // Enhanced PostCard with edit/boost/delete actions
-  const EnhancedPostCard: React.FC<{ post: Post }> = ({ post }) => (
-    <Box style={{ position: 'relative' }}>
-      <PostCard post={post} />
-      
-             {/* Action buttons overlay */}
-       <Box
-         style={{
-           position: 'absolute',
-           top: rem(16),
-           right: rem(16),
-           zIndex: 10,
-         }}
-       >
-         <Menu shadow="md" width={200} position="bottom-end" withinPortal>
-          <Menu.Target>
-            <ActionIcon
-              variant="filled"
-              color="dark"
-              size="lg"
-              radius="xl"
-              style={{
-                backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-              }}
-            >
-              <IconDots size={18} />
-            </ActionIcon>
-          </Menu.Target>
-
-          <Menu.Dropdown
-            style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.95)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-          >
-            <Menu.Item
-              leftSection={<IconEdit size={16} />}
-              onClick={() => handleEditPost(post)}
-              c={"white"}
-              rightSection={
-                !user?.isSubscribed && (
-                  <Text size="xs" c="yellow" fw={500}>
-                    Premium
-                  </Text>
-                )
-              }
-            >
-              Edit Post
-            </Menu.Item>
-            
-            <Menu.Item
-              leftSection={<IconRocket size={16} />}
-              onClick={() => handleBoostPost(post.id)}
-              style={{ color: '#3b82f6' }}
-              disabled={boostPostMutation.isPending}
-              rightSection={
-                !user?.isSubscribed && (
-                  <Text size="xs" c="yellow" fw={500}>
-                    Premium
-                  </Text>
-                )
-              }
-            >
-              Boost Post
-            </Menu.Item>
-            
-            <Menu.Divider style={{ borderColor: 'rgba(255, 255, 255, 0.1)' }} />
-          
-          </Menu.Dropdown>
-        </Menu>
-      </Box>
-    </Box>
-  );
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
-        <Stack gap="md">
-          {Array(3).fill(0).map((_, index) => (
-            <Paper key={index} p="md" radius="md" withBorder style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
-              <Group mb="md">
-                <Skeleton height={40} circle />
-                <Box style={{ flex: 1 }}>
-                  <Skeleton height={12} width="40%" mb="xs" />
-                  <Skeleton height={10} width="20%" />
-                </Box>
-              </Group>
-              <Skeleton height={12} mb="xs" />
-              <Skeleton height={12} mb="xs" />
-              <Skeleton height={12} width="80%" mb="md" />
-              <Skeleton height={200} />
-            </Paper>
-          ))}
-        </Stack>
-      </Box>
-    );
-  }
-
-  // Error state
-  if (error) {
-    return (
-      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
-        <Center py="xl">
-          <Stack align="center" gap="md">
-            <Text size="lg" c="red">Failed to load your posts</Text>
-            <Text size="sm" c="dimmed" ta="center">
-              There was an error loading your posts. Please try again.
-            </Text>
-            <Button variant="light" color="blue" onClick={() => refetch()}>
-              Try Again
-            </Button>
-          </Stack>
-        </Center>
-      </Box>
-    );
-  }
 
   return (
     <>
-      <Box style={{ ...glassCardStyles(theme, 'primary'), padding: rem(24) }}>
-        {/* Header */}
-        <Group justify="space-between" mb="xl" style={{ flexWrap: 'wrap', gap: rem(16) }}>
-          <Box style={{ flex: '1', minWidth: rem(200) }}>
-            <Group gap="md" align="center" style={{ flexWrap: 'wrap' }}>
-              <IconPhoto size={24} color={theme.colors.blue[4]} />
-              <Text size="xl" fw={600} c="white">
-                My Post
-              </Text>
-              {/* <Badge variant="light" color="blue" size="lg">
-                {posts.length}
-              </Badge> */}
-            </Group>
-            <Text size="sm" c="dimmed" mt="xs">
-              Manage your post and boost visibility, 
-            </Text>
-          </Box>
-        </Group>
-
-        {/* Posts List */}
-        {posts.length > 0 ? (
-          <Stack gap="lg">
-            {posts.map((post) => (
-              <EnhancedPostCard key={post.id} post={post} />
-            ))}
-          </Stack>
-        ) : (
-          <Center py="xl">
-            <Stack align="center" gap="md" style={{ maxWidth: rem(400) }}>
-              <Box
-                style={{
-                  padding: rem(32),
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                  border: '2px dashed rgba(59, 130, 246, 0.3)',
-                }}
-              >
-                <IconSparkles size={48} color={theme.colors.blue[4]} />
-              </Box>
-              
-              <Text size="xl" fw={600} c="white" ta="center">
-                No posts yet
-              </Text>
-              
-              <Text size="sm" c="dimmed" ta="center">
-                You haven't created any posts yet. Share your thoughts, photos, or updates with your classmates to get started.
-              </Text>
-            </Stack>
-          </Center>
-        )}
-      </Box>
+      {variant === 'icon' ? (
+        <ActionIcon
+          size="lg"
+          variant="light"
+          color="blue"
+          onClick={handleClick}
+          style={{
+            backgroundColor: "rgba(67, 97, 238, 0.2)",
+          }}
+        >
+          <IconEdit size={20} />
+        </ActionIcon>
+      ) : (
+        <Button
+          variant="gradient"
+          gradient={{ from: 'blue', to: 'cyan' }}
+          leftSection={<IconEdit size={16} />}
+          onClick={handleClick}
+        >
+          {user?.isSubscribed ? 'Edit Post' : 'Post'}
+        </Button>
+      )}
 
       {/* Edit Post Modal */}
       <Modal
         opened={editModalOpened}
         onClose={() => {
           setEditModalOpened(false);
-          setCurrentEditPost(null);
+          editForm.reset();
           setPreviewImages([]);
           setSelectedFiles([]);
-          editForm.reset();
         }}
-        title="Edit Post"
+        title="Edit Your Post"
         size="xl"
         centered
         fullScreen={false}
@@ -462,7 +305,7 @@ const MyPostsTab: React.FC = () => {
           },
         }}
       >
-        <LoadingOverlay visible={updatePostMutation.isPending || uploadImagesMutation.isPending} />
+        <LoadingOverlay visible={isLoadingPosts || updatePostMutation.isPending || uploadImagesMutation.isPending} />
         
         {/* Hidden file input */}
         <input
@@ -474,14 +317,11 @@ const MyPostsTab: React.FC = () => {
           style={{ display: 'none' }}
         />
         
-        <form onSubmit={editForm.onSubmit(handleSaveEdit)}>
+        <form onSubmit={editForm.onSubmit(handleEditPost)}>
           <Stack gap="md">
-            <Textarea
+            <TextInput
               label="Post Title"
               placeholder="Enter post title"
-              minRows={1}
-              maxRows={3}
-              autosize
               {...editForm.getInputProps('title')}
               styles={{
                 label: { color: 'white', marginBottom: rem(8) },
@@ -516,9 +356,38 @@ const MyPostsTab: React.FC = () => {
 
             {/* Image Management Section */}
             <Box>
-              <Text size="sm" fw={500} c="white" mb="xs">
-                Images
-              </Text>
+              <Group justify="space-between" align="center" mb="xs">
+                <TextInput
+                  label="Images"
+                  readOnly
+                  value={`${selectedFiles.length} image${selectedFiles.length !== 1 ? 's' : ''} selected`}
+                  styles={{
+                    label: { color: 'white' },
+                    input: {
+                      backgroundColor: 'transparent',
+                      border: 'none',
+                      color: 'white',
+                      padding: 0,
+                    },
+                    wrapper: {
+                      width: 'auto',
+                    },
+                  }}
+                />
+                {selectedFiles.length > 0 && (
+                  <Button
+                    variant="subtle"
+                    color="red"
+                    size="xs"
+                    onClick={() => {
+                      setSelectedFiles([]);
+                      setPreviewImages([]);
+                    }}
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </Group>
               
               {/* Image Upload Area */}
               <Paper
@@ -615,10 +484,9 @@ const MyPostsTab: React.FC = () => {
                 color="gray"
                 onClick={() => {
                   setEditModalOpened(false);
-                  setCurrentEditPost(null);
+                  editForm.reset();
                   setPreviewImages([]);
                   setSelectedFiles([]);
-                  editForm.reset();
                 }}
                 leftSection={<IconX size={16} />}
               >
@@ -639,6 +507,13 @@ const MyPostsTab: React.FC = () => {
         </form>
       </Modal>
 
+      {/* Premium Subscription Modal */}
+      <PremiumSubscriptionModal
+        opened={premiumModalOpened}
+        onClose={() => setPremiumModalOpened(false)}
+        trigger="post"
+      />
+
       {/* Image Crop Modal */}
       <ImageCropModal
         opened={cropModalOpened}
@@ -646,15 +521,8 @@ const MyPostsTab: React.FC = () => {
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
       />
-
-      {/* Premium Subscription Modal */}
-      <PremiumSubscriptionModal
-        opened={premiumModalOpened}
-        onClose={() => setPremiumModalOpened(false)}
-        trigger={premiumModalTrigger}
-      />
     </>
   );
 };
 
-export default MyPostsTab; 
+export default PostButton; 

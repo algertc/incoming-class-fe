@@ -39,7 +39,7 @@ const SearchWithSuggestionsExample: React.FC = () => {
 
   const handleSelect = useCallback((suggestion: Suggestion) => {
     setSelectedSuggestion(suggestion);
-    console.log('Selected:', suggestion);
+ 
   }, []);
 
   return (

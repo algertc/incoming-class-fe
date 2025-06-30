@@ -67,7 +67,7 @@ export const applyIOSOptimizations = (): void => {
   document.head.appendChild(style);
   
   // Log optimization applied
-  console.log('🚀 iOS Safari optimizations applied');
+ 
 };
 
 export const optimizeScrolling = (): void => {
@@ -93,19 +93,7 @@ export const optimizeScrolling = (): void => {
   window.addEventListener('scroll', optimizedScrollHandler, { passive: true });
 };
 
-// Performance monitoring
-export const measurePerformance = (name: string, fn: () => void): void => {
-  if (typeof performance === 'undefined') {
-    fn();
-    return;
-  }
-  
-  const start = performance.now();
-  fn();
-  const end = performance.now();
-  
-  console.log(`⚡ ${name} took ${(end - start).toFixed(2)}ms`);
-};
+
 
 // Device capabilities detection
 export const getDeviceCapabilities = () => {

@@ -17,7 +17,7 @@ export const withAuthRedirect = <P extends object>(
 
     useEffect(() => {
       if (user && !isLoading) {
-        // Check if user should go to /app
+        // Check if user should be redirected
         const shouldRedirectToApp =
           user.isSubscribed || user.isProfileCompleted || user.postPaymentDone;
 
@@ -41,4 +41,4 @@ export const withAuthRedirect = <P extends object>(
 
     return null; // Don't render anything while redirecting
   };
-};
+}; 

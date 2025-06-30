@@ -52,21 +52,20 @@ const LoginForm: React.FC = () => {
 
       // Fetch fresh user data from server instead of using login response
       try {
-        console.log('Login: Fetching fresh user data from server');
+ 
         await fetchUser();
-        console.log('Login: User data fetched successfully');
+ 
       } catch (fetchError) {
         console.error('Login: Failed to fetch user data:', fetchError);
         // Fallback to login response data if fetchUser fails
         if (authResponse.user) {
-          console.log('Login: Using login response user data as fallback');
+ 
           setUser(authResponse.user);
         }
       }
 
-      const redirectRoute = authResponse.isProfileCompleted ? ROUTES.APP : ROUTES.PROFILE_COMPLETION;
-      console.log('Login successful, redirecting to:', redirectRoute);
-      console.log('User profile completed:', authResponse.isProfileCompleted);
+      const redirectRoute = authResponse.isProfileCompleted ? ROUTES.HOME : ROUTES.PROFILE_COMPLETION;
+
 
       navigate(redirectRoute);
     } catch (error) {

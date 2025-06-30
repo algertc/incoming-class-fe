@@ -32,7 +32,7 @@ const responsiveStyles = `
 
 const FeedPage: React.FC = () => {
   const { user } = useAuthStore();
-  console.log("log auth state", user);
+ 
   
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
@@ -49,10 +49,41 @@ const FeedPage: React.FC = () => {
     setPremiumModalOpened(true);
   };
 
+  // Helper function to get user's college data
+  const getUserCollegeData = () => {
+    if (!user?.college) return null;
+    
+    if (typeof user.college === 'string') {
+      return { id: user.college, name: user.college };
+    }
+    
+    if (typeof user.college === 'object') {
+      return {
+        id: user.college._id || user.college.id || '',
+        name: user.college.name || ''
+      };
+    }
+    
+    return null;
+  };
+
+  // Auto-set college filter for authenticated users
+  useEffect(() => {
+    if (user && !filters.college) {
+      const userCollege = getUserCollegeData();
+      if (userCollege && userCollege.id) {
+ 
+        setCollegeFromHero(userCollege.id, userCollege.name);
+      }
+    }
+  }, [user, filters.college, setCollegeFromHero]);
+
   // A college must be selected for guest or non-premium users
+  // For authenticated users, we skip this check if they have college data
   const isGuestOrNonPremium = !user || !user.isSubscribed;
   const hasNoCollegeFilter = !filters.college || filters.college === 'all';
-  const needsCollegeSelection = isGuestOrNonPremium && hasNoCollegeFilter;
+  const userHasCollegeData = user && getUserCollegeData()?.id;
+  const needsCollegeSelection = isGuestOrNonPremium && hasNoCollegeFilter && !userHasCollegeData;
 
   // This effect enforces the college selection rule
   useEffect(() => {
@@ -68,8 +99,7 @@ const FeedPage: React.FC = () => {
   // Refresh feed when user authentication state changes
   useEffect(() => {
     // Only refresh if user ID actually changed (login/logout)
-    const currentUserId = user?.id;
-    console.log('FeedPage: User ID changed, refreshing feed. User ID:', currentUserId);
+ 
     refreshFeed();
   }, [user?.id, refreshFeed]); // Only depend on user ID change
 
@@ -84,7 +114,7 @@ const FeedPage: React.FC = () => {
       
       // Apply the college filter using both ID and name
       setCollegeFromHero(collegeId, collegeName);
-      console.log('Applied college filter for:', collegeName, 'with ID:', collegeId);
+ 
       
       // Clean up URL parameters after showing modal
       const newSearchParams = new URLSearchParams(searchParams);
