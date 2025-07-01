@@ -1,4 +1,4 @@
 
-import favicon from './favicon.svg'
+import favicon from './favicon.png'
 
 export default {  favicon}

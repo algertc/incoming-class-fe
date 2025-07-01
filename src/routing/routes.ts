@@ -9,4 +9,5 @@ export const ROUTES = {
   PAYMENT_ERROR: '/payment/post/error',
   PAYMENT_GENERAL_ERROR: '/payment/error',
   PREMIUM_SUCCESS: '/payment/premium/success',
+  NOT_FOUND: '/404',
 } as const; 

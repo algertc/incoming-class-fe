@@ -88,7 +88,7 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
           leftSection={<IconRocket size={16} />}
           onClick={handleClick}
         >
-          Boost Post
+          {user?.isProfileCompleted ? 'Respost' : 'Post'}
         </Button>
       )}
 

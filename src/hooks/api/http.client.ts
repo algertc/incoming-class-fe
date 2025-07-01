@@ -44,13 +44,34 @@ const request = async <T = unknown>(options: AxiosRequestConfig): Promise<IServe
         throw new Error('Unauthorized');
       }
 
+      // Handle network errors
+      if (!axiosError.response) {
+        throw new Error('Network error. Please check your internet connection and try again.');
+      }
+
+      // Handle server errors
+      if (axiosError.response.status >= 500) {
+        throw new Error('Server error. Please try again later or contact support if the problem persists.');
+      }
+
+      // Handle client errors
+      if (axiosError.response.status >= 400) {
+        throw new Error(
+          axiosError.response?.data?.message ||
+          'Bad request. Please check your input and try again.'
+        );
+      }
+
       throw new Error(
         axiosError.response?.data?.message ||
         axiosError.message ||
         'An error occurred while making the request'
       );
     }
-    throw error;
+    
+    // Handle unexpected errors
+    console.error('Unexpected error in HTTP client:', error);
+    throw new Error('An unexpected error occurred. Please try again.');
   }
 };
 

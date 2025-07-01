@@ -16,6 +16,8 @@ import FeedPage from "../features/feed/FeedPage";
 import SubscriptionPage from "../features/subscription/SubscriptionPage";
 import { StudentProfilePage, CurrentUserProfilePage } from "../features/profile";
 import { PaymentSuccessPage, PaymentErrorPage, PremiumSuccessPage } from "../features/payment";
+import NotFoundPage from "../features/common/components/NotFoundPage";
+import ErrorTestPage from "../features/common/components/ErrorTestPage";
 
 const router = createBrowserRouter([
     // Public routes now served under /public
@@ -130,7 +132,16 @@ const router = createBrowserRouter([
                 path: "contact",
                 element: <ContactPage />
             },
+            {
+                path: "error-test",
+                element: <ErrorTestPage />
+            },
         ]
+    },
+    // Catch-all route for 404 errors - must be last
+    {
+        path: "*",
+        element: <NotFoundPage />
     }
 ]);
 

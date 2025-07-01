@@ -135,7 +135,7 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
           {/* Action Buttons Group */}
           <Group gap="xs">
             {/* Edit Post Button */}
-            <Tooltip 
+            {/* <Tooltip 
               label={"Edit your post"} 
               position="bottom"
               withArrow
@@ -145,7 +145,7 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
                   variant="icon" 
                 />
               </Box>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* Boost Post Button */}
             <Tooltip 
@@ -155,7 +155,7 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
             >
               <Box>
                 <BoostPost 
-                  variant="icon" 
+                  variant="button" 
                 />
               </Box>
             </Tooltip>

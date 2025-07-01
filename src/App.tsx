@@ -11,6 +11,7 @@ import THEME from "./theme";
 import AppRouterProvider from "./routing/AppRouterProvider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useAuthStore } from "./store/auth.store";
+import ErrorBoundary from "./components/common/ErrorBoundary";
 
 // Create a client
 const queryClient = new QueryClient({
@@ -62,48 +63,50 @@ const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
 const App: React.FC = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={theme}>
-        <ModalsProvider
-          modalProps={{
-            centered: true,
-            overlayProps: {
-              blur: 3,
-            },
-            styles: {
-              header: {
-                backgroundColor: "#101720",
-                borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <MantineProvider theme={theme}>
+          <ModalsProvider
+            modalProps={{
+              centered: true,
+              overlayProps: {
+                blur: 3,
               },
-              title: {
-                color: "white",
-                fontWeight: 600,
-              },
-              close: {
-                color: "white",
-                "&:hover": {
-                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+              styles: {
+                header: {
+                  backgroundColor: "#101720",
+                  borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+                },
+                title: {
+                  color: "white",
+                  fontWeight: 600,
+                },
+                close: {
+                  color: "white",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  },
+                },
+                body: {
+                  backgroundColor: "#101720",
+                  color: "white",
+                },
+                content: {
+                  backgroundColor: "#101720",
+                  border: "1px solid rgba(255, 255, 255, 0.1)",
                 },
               },
-              body: {
-                backgroundColor: "#101720",
-                color: "white",
-              },
-              content: {
-                backgroundColor: "#101720",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-              },
-            },
-          }}
-          labels={{ confirm: "Confirm", cancel: "Cancel" }}
-        >
-          <Notifications position={"top-right"} limit={1} />
-          <AuthInitializer>
-            <AppRouterProvider />
-          </AuthInitializer>
-        </ModalsProvider>
-      </MantineProvider>
-    </QueryClientProvider>
+            }}
+            labels={{ confirm: "Confirm", cancel: "Cancel" }}
+          >
+            <Notifications position={"top-right"} limit={1} />
+            <AuthInitializer>
+              <AppRouterProvider />
+            </AuthInitializer>
+          </ModalsProvider>
+        </MantineProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 
