@@ -6,11 +6,18 @@ import { BottomNavigation } from '../../../components/layout/BottomNavigation/Bo
 import { withAuth } from '../../../components/auth/withAuth';
 
 export const AuthenticatedLayout: React.FC = () => {
-
   return (
     <AppShell
-      header={{ height: 90 }}  // Match MainLayout header height
+      header={{ height: { base: 72, sm: 84, md: 108 } }}
       bg={"black"}
+      padding={0}
+      styles={{
+        main: {
+          paddingTop: "var(--app-shell-header-height)",
+          paddingLeft: 0,
+          paddingRight: 0,
+        },
+      }}
     >
       <AppShell.Header>
         <Header />

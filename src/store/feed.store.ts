@@ -14,6 +14,15 @@ export interface FeedFilters {
   gender: string | null;
   campusInvolvement: string | null; // e.g., Rushing fraternity/sorority, business fraternity
   other: string | null; // e.g., Looking for roommate, Student Athlete
+  // Lifestyle filters
+  sleepSchedule: string | null; // Early Bird, Night Owl, Flexible
+  cleanliness: string | null; // Neat Freak, Organized, Casual, Messy
+  guests: string | null; // Over Whenever, With Notice, Rarely
+  studying: string | null; // Around Campus, In Room, Library, Flexible
+  personality: string[] | null; // Array of personality traits
+  physicalActivity: string[] | null; // Array of physical activities
+  pastimes: string[] | null; // Array of pastimes
+  food: string[] | null; // Array of food preferences
 }
 
 export interface FeedState {
@@ -66,6 +75,15 @@ export interface FeedState {
   setGender: (gender: string | null) => void;
   setCampusInvolvement: (status: string | null) => void;
   setOther: (other: string | null) => void;
+  // Lifestyle filter setters
+  setSleepSchedule: (schedule: string | null) => void;
+  setCleanliness: (level: string | null) => void;
+  setGuests: (preference: string | null) => void;
+  setStudying: (preference: string | null) => void;
+  setPersonality: (traits: string[] | null) => void;
+  setPhysicalActivity: (activities: string[] | null) => void;
+  setPastimes: (pastimes: string[] | null) => void;
+  setFood: (preferences: string[] | null) => void;
   refreshFeed: () => void;
   markModalDismissed: () => void; // Action to mark modal as dismissed
   checkFilterAccess: () => boolean; // Check if user can access filters
@@ -81,6 +99,15 @@ const initialFilters: FeedFilters = {
   gender: null,
   campusInvolvement: null,
   other: null,
+  // Initialize new lifestyle filters
+  sleepSchedule: null,
+  cleanliness: null,
+  guests: null,
+  studying: null,
+  personality: null,
+  physicalActivity: null,
+  pastimes: null,
+  food: null,
 };
 
 // This function will be called whenever the filters change
@@ -478,6 +505,39 @@ export const useFeedStore = create<FeedState>()(
   // Set Other
   setOther: (other) => {
     get().updateFilter('other', other);
+  },
+  
+  // Lifestyle filter setters
+  setSleepSchedule: (schedule) => {
+    get().updateFilter('sleepSchedule', schedule);
+  },
+
+  setCleanliness: (level) => {
+    get().updateFilter('cleanliness', level);
+  },
+
+  setGuests: (preference) => {
+    get().updateFilter('guests', preference);
+  },
+
+  setStudying: (preference) => {
+    get().updateFilter('studying', preference);
+  },
+
+  setPersonality: (traits) => {
+    get().updateFilter('personality', traits);
+  },
+
+  setPhysicalActivity: (activities) => {
+    get().updateFilter('physicalActivity', activities);
+  },
+
+  setPastimes: (pastimes) => {
+    get().updateFilter('pastimes', pastimes);
+  },
+
+  setFood: (preferences) => {
+    get().updateFilter('food', preferences);
   },
   
   // Refresh feed - reload from page 1

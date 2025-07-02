@@ -15,6 +15,15 @@ export interface FetchPostsParams {
   gender?: string | null;
   campusInvolvement?: string | null;
   other?: string | null;
+  // Lifestyle filters
+  sleepSchedule?: string | null;
+  cleanliness?: string | null;
+  guests?: string | null;
+  studying?: string | null;
+  personality?: string[] | null;
+  physicalActivity?: string[] | null;
+  pastimes?: string[] | null;
+  food?: string[] | null;
 }
 
 export interface FetchPostsResponse {
@@ -137,6 +146,32 @@ class FeedService {
     }
     if (params.other) {
       queryParams.other = params.other;
+    }
+
+    // Lifestyle filters
+    if (params.sleepSchedule) {
+      queryParams.sleepSchedule = params.sleepSchedule;
+    }
+    if (params.cleanliness) {
+      queryParams.cleanliness = params.cleanliness;
+    }
+    if (params.guests) {
+      queryParams.guests = params.guests;
+    }
+    if (params.studying) {
+      queryParams.studying = params.studying;
+    }
+    if (params.personality?.length) {
+      queryParams.personality = params.personality;
+    }
+    if (params.physicalActivity?.length) {
+      queryParams.physicalActivity = params.physicalActivity;
+    }
+    if (params.pastimes?.length) {
+      queryParams.pastimes = params.pastimes;
+    }
+    if (params.food?.length) {
+      queryParams.food = params.food;
     }
 
     return queryParams;

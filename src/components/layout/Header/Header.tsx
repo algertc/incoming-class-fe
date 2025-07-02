@@ -77,20 +77,60 @@ export const Header: React.FC = () => {
           zIndex: 1000,
           background: "linear-gradient(135deg, #000000 0%, #1a0030 100%)",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
+          WebkitBackdropFilter: "blur(10px)",
           backdropFilter: "blur(10px)",
+          transform: "translateZ(0)", // Force GPU acceleration on Safari
+          WebkitTransform: "translateZ(0)",
+          width: "100%",
+          overflow: "hidden", // Prevent any overflow
         }}
       >
-        <Container px={{ base: 16, sm: 32, md: 72 }} size="100%" h={90}>
-          <Group justify="space-between" align="center" style={{ height: "100%" }} wrap="nowrap">
+        <Container 
+          px={{ base: 12, sm: 24, md: 72 }} 
+          size="100%" 
+          h={{ base: 72, sm: 84, md: 108 }}
+          style={{
+            maxWidth: "100%",
+            overflow: "hidden",
+            padding: "0 12px", // Consistent padding for mobile
+          }}
+        >
+          <Group 
+            justify="space-between" 
+            align="center" 
+            style={{ 
+              height: "100%",
+              gap: rem(8),
+              flexWrap: "nowrap",
+              minWidth: 0, // Allow content to shrink below min-content
+            }} 
+            wrap="nowrap"
+          >
             {/* Logo */}
-            <Box ref={logoRef} style={{ flexShrink: 0 }}>
-              <Link to="/">
-                <Logo darkMode />
+            <Box 
+              ref={logoRef} 
+              style={{ 
+                flexShrink: 1,
+                display: "flex",
+                alignItems: "center",
+                minWidth: 0, // Allow logo to shrink
+              }}
+            >
+              <Link to="/" style={{ display: "flex", alignItems: "center", minWidth: 0 }}>
+                <Logo darkMode mobileSize={28} size={90} />
               </Link>
             </Box>
 
             {/* Desktop Navigation */}
-            <Group gap={rem(8)} visibleFrom="md">
+            <Group 
+              gap={rem(8)} 
+              visibleFrom="md" 
+              style={{
+                flexGrow: 1,
+                justifyContent: "center",
+                minWidth: 0, // Allow nav to shrink
+              }}
+            >
               <HeaderNavLink to="/home" label="Home" darkMode displayMode="horizontal" />
               <HeaderNavLink to="/" label="Feed" darkMode displayMode="horizontal" />
               <HeaderNavLink to="/about" label="About" darkMode displayMode="horizontal" />
@@ -98,8 +138,18 @@ export const Header: React.FC = () => {
             </Group>
 
             {/* Desktop User Menu & Mobile Controls */}
-            <Box ref={buttonsRef} style={{ flexShrink: 0, minWidth: 0 }}>
-              <Group gap="md">
+            <Box 
+              ref={buttonsRef} 
+              style={{ 
+                flexShrink: 0,
+                minWidth: "auto",
+                display: "flex",
+                alignItems: "center",
+                marginLeft: "auto", // Push to the right
+                gap: rem(8),
+              }}
+            >
+              <Group gap={rem(8)} align="center">
                 {/* User Menu - Always visible */}
                 <Menu
                   width={200}
@@ -109,7 +159,7 @@ export const Header: React.FC = () => {
                   <Menu.Target>
                     <UnstyledButton
                       style={{
-                        padding: rem(8),
+                        padding: rem(4),
                         borderRadius: "50%",
                         color: theme.white,
                         backgroundColor: "rgba(255, 255, 255, 0.05)",
@@ -118,6 +168,7 @@ export const Header: React.FC = () => {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
+                        WebkitTapHighlightColor: "transparent",
                         "&:hover": {
                           backgroundColor: "rgba(255, 255, 255, 0.1)",
                           transform: "translateY(-1px) scale(1.05)",
@@ -133,6 +184,13 @@ export const Header: React.FC = () => {
                         styles={{
                           root: {
                             border: "none",
+                            "@media (max-width: 768px)": {
+                              width: rem(24),
+                              height: rem(24),
+                            },
+                          },
+                          image: {
+                            objectFit: "cover",
                           },
                         }}
                       />
@@ -182,13 +240,18 @@ export const Header: React.FC = () => {
                 </Menu>
 
                 {/* Mobile Hamburger */}
-                <Box hiddenFrom="md">
+                <Box hiddenFrom="md" style={{ marginLeft: rem(4) }}>
                   <Burger
                     opened={mobileMenuOpened}
                     onClick={toggleMobileMenu}
                     color={theme.white}
                     size="sm"
                     aria-label="Toggle navigation menu"
+                    styles={{
+                      root: {
+                        padding: rem(2),
+                      },
+                    }}
                   />
                 </Box>
               </Group>

@@ -62,6 +62,15 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
     if (filters.gender !== null) count++;
     if (filters.campusInvolvement !== null) count++;
     if (filters.other !== null) count++;
+    // Lifestyle filters
+    if (filters.sleepSchedule !== null) count++;
+    if (filters.cleanliness !== null) count++;
+    if (filters.guests !== null) count++;
+    if (filters.studying !== null) count++;
+    if (filters.personality?.length) count++;
+    if (filters.physicalActivity?.length) count++;
+    if (filters.pastimes?.length) count++;
+    if (filters.food?.length) count++;
     return count;
   };
 
@@ -76,6 +85,12 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         return filters.searchQuery.trim() !== '';
       case 'lastDays':
         return filters.lastDays !== 30;
+      case 'personality':
+      case 'physicalActivity':
+      case 'pastimes':
+      case 'food':
+        const value = filters[filterKey];
+        return Array.isArray(value) && value.length > 0;
       default:
         return filters[filterKey] !== null && filters[filterKey] !== 'all';
     }
@@ -475,6 +490,205 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         data={[
           {value:'Looking for a roommate',label:'Looking for a roommate'},
           {value:'Student Athlete',label:'Student Athlete'},
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Lifestyle Section */}
+      <Text size="lg" fw={600} c={theme.white} mb="md">
+        Lifestyle
+      </Text>
+
+      {/* Sleep Schedule */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Sleep Schedule
+      </Text>
+      <Select
+        placeholder="Select sleep schedule"
+        value={filters.sleepSchedule}
+        onChange={(value) => handleFilterChange(value, 'sleepSchedule')}
+        data={[
+          { value: 'Early Bird', label: 'Early Bird' },
+          { value: 'Night Owl', label: 'Night Owl' },
+          { value: 'Flexible', label: 'Flexible' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Cleanliness */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Cleanliness
+      </Text>
+      <Select
+        placeholder="Select cleanliness level"
+        value={filters.cleanliness}
+        onChange={(value) => handleFilterChange(value, 'cleanliness')}
+        data={[
+          { value: 'Neat Freak', label: 'Neat Freak' },
+          { value: 'Organized', label: 'Organized' },
+          { value: 'Casual', label: 'Casual' },
+          { value: 'Messy', label: 'Messy' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Guests */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Guests
+      </Text>
+      <Select
+        placeholder="Select guest preference"
+        value={filters.guests}
+        onChange={(value) => handleFilterChange(value, 'guests')}
+        data={[
+          { value: 'Over Whenever', label: 'Over Whenever' },
+          { value: 'With Notice', label: 'With Notice' },
+          { value: 'Rarely', label: 'Rarely' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Studying */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Studying
+      </Text>
+      <Select
+        placeholder="Select studying preference"
+        value={filters.studying}
+        onChange={(value) => handleFilterChange(value, 'studying')}
+        data={[
+          { value: 'Around Campus', label: 'Around Campus' },
+          { value: 'In Room', label: 'In Room' },
+          { value: 'Library', label: 'Library' },
+          { value: 'Flexible', label: 'Flexible' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Personality */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Personality
+      </Text>
+      <Select
+        placeholder="Select personality traits"
+        value={filters.personality ? filters.personality[0] : null}
+        onChange={(value) => handleFilterChange(value ? [value] : null, 'personality')}
+        data={[
+          { value: 'Introvert', label: 'Introvert' },
+          { value: 'Extrovert', label: 'Extrovert' },
+          { value: 'Spontaneous', label: 'Spontaneous' },
+          { value: 'Organized', label: 'Organized' },
+          { value: 'Creative', label: 'Creative' },
+          { value: 'Analytical', label: 'Analytical' },
+          { value: 'Adventurous', label: 'Adventurous' },
+          { value: 'Cautious', label: 'Cautious' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Physical Activity */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Physical Activity
+      </Text>
+      <Select
+        placeholder="Select physical activities"
+        value={filters.physicalActivity ? filters.physicalActivity[0] : null}
+        onChange={(value) => handleFilterChange(value ? [value] : null, 'physicalActivity')}
+        data={[
+          { value: 'Working Out', label: 'Working Out' },
+          { value: 'Basketball', label: 'Basketball' },
+          { value: 'Running', label: 'Running' },
+          { value: 'Yoga', label: 'Yoga' },
+          { value: 'Swimming', label: 'Swimming' },
+          { value: 'Tennis', label: 'Tennis' },
+          { value: 'Soccer', label: 'Soccer' },
+          { value: 'Other Sports', label: 'Other Sports' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Pastimes */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Pastimes
+      </Text>
+      <Select
+        placeholder="Select pastimes"
+        value={filters.pastimes ? filters.pastimes[0] : null}
+        onChange={(value) => handleFilterChange(value ? [value] : null, 'pastimes')}
+        data={[
+          { value: 'Art', label: 'Art' },
+          { value: 'Fashion', label: 'Fashion' },
+          { value: 'Stocks', label: 'Stocks' },
+          { value: 'Thrifting', label: 'Thrifting' },
+          { value: 'Politics', label: 'Politics' },
+          { value: 'Video Games', label: 'Video Games' },
+          { value: 'Reading', label: 'Reading' },
+          { value: 'Music', label: 'Music' },
+          { value: 'Movies', label: 'Movies' },
+          { value: 'Travel', label: 'Travel' },
+        ]}
+        mb="md"
+        styles={{
+          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
+          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
+          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+        }}
+      />
+
+      {/* Food */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Food Preferences
+      </Text>
+      <Select
+        placeholder="Select food preferences"
+        value={filters.food ? filters.food[0] : null}
+        onChange={(value) => handleFilterChange(value ? [value] : null, 'food')}
+        data={[
+          { value: 'Coffee', label: 'Coffee' },
+          { value: 'Tea', label: 'Tea' },
+          { value: 'Sushi', label: 'Sushi' },
+          { value: 'Pizza', label: 'Pizza' },
+          { value: 'Italian', label: 'Italian' },
+          { value: 'Mexican', label: 'Mexican' },
+          { value: 'Chinese', label: 'Chinese' },
+          { value: 'Indian', label: 'Indian' },
+          { value: 'Vegan', label: 'Vegan' },
+          { value: 'Vegetarian', label: 'Vegetarian' },
         ]}
         mb="md"
         styles={{

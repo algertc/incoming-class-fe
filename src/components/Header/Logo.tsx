@@ -1,4 +1,4 @@
-import { Image } from "@mantine/core";
+import { Image, Box } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import images from "../../assets/images";
 
@@ -19,15 +19,30 @@ const Logo = ({ darkMode = false, size, mobileSize }: LogoProps) => {
   const logoSize = size || (isMobile ? (mobileSize || defaultMobileSize) : defaultDesktopSize);
   
   return (
-    <Image
-      src={images.favicon}
-      alt="Incoming Class Logo"
-      width={logoSize}
-      height={logoSize}
+    <Box
       style={{
-        filter: darkMode ? "brightness(1.2)" : "none",
+        width: logoSize,
+        height: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
-    />
+    >
+      <Image
+        src={images.favicon}
+        alt="Incoming Class Logo"
+        width="100%"
+        height="auto"
+        style={{
+          filter: darkMode ? "brightness(1.2)" : "none",
+          WebkitFilter: darkMode ? "brightness(1.2)" : "none", // Safari support
+          maxWidth: '100%',
+          objectFit: 'contain',
+          WebkitUserSelect: 'none', // Prevent image selection on Safari
+          userSelect: 'none',
+        }}
+      />
+    </Box>
   );
 };
 

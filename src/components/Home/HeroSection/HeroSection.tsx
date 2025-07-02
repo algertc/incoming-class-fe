@@ -15,6 +15,7 @@ import CollegeSearchSelect from "../../../components/common/CollegeSearchSelect"
 import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router";
 import { useFeedStore } from "../../../store/feed.store";
+import { useAuthStore } from "../../../store/auth.store";
 
 // CSS keyframes for the floating animations and stars twinkling - OPTIMIZED FOR IOS SAFARI
 const animationStyles = `
@@ -96,6 +97,7 @@ export const HeroSection: React.FC = () => {
     key: "college",
     defaultValue: "",
   });
+  const { user } = useAuthStore();
 
   // Refs for animations
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
@@ -116,7 +118,16 @@ export const HeroSection: React.FC = () => {
   const handleCollegeSelect = (college: { id: string; name: string }) => {
     setSelectedCollege(college.id);
     setCollegeFromHero(college.id, college.name);
-    navigate(`/feed?collegeId=${encodeURIComponent(college.id)}&collegeName=${encodeURIComponent(college.name)}&from=hero`);
+    
+    // Construct the query parameters
+    const queryParams = `?collegeId=${encodeURIComponent(college.id)}&collegeName=${encodeURIComponent(college.name)}&from=hero`;
+    
+    // Navigate based on authentication state
+    if (user) {
+      navigate(`/feed${queryParams}`);
+    } else {
+      navigate(`/signup`);
+    }
   };
 
   useEffect(() => {
@@ -553,9 +564,7 @@ export const HeroSection: React.FC = () => {
           </Group>
         </Stack>
 
-        {/* Dynamic Student Cards - Desktop only */}
-
-        {/* Responsive cards for mobile */}
+        
       </Container>
     </Box>
   );

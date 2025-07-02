@@ -88,7 +88,7 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
           leftSection={<IconRocket size={16} />}
           onClick={handleClick}
         >
-          {user?.isProfileCompleted ? 'Respost' : 'Post'}
+          {user?.isProfileCompleted ? 'Repost' : 'Post'}
         </Button>
       )}
 
@@ -123,11 +123,15 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
       >
         <Stack>
           <Text c="white">
-            Boost your post to increase its visibility and reach more users. Your post will:
+            Repost your post to increase its visibility and reach more users. Your post will:
           </Text>
 
           <Paper p="md" radius="md" style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}>
             <Stack>
+              <Group gap="xs">
+                <Badge variant="filled" color="yellow">Premium</Badge>
+                <Text size="sm" c="white">Repost to your photo on Instagram and Incoming Class Feed.</Text>
+              </Group>
               <Group gap="xs">
                 <Badge variant="filled" color="yellow">Premium</Badge>
                 <Text size="sm" c="white">Appear higher in search results</Text>
@@ -138,7 +142,7 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
               </Group>
               <Group gap="xs">
                 <Badge variant="filled" color="yellow">Premium</Badge>
-                <Text size="sm" c="white">Reach targeted audience based on interests</Text>
+                <Text size="sm" c="white">Find roommates and friends faster</Text>
               </Group>
             </Stack>
           </Paper>
