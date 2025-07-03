@@ -6,6 +6,7 @@ import SignupPage from "../../auth/signup/SignupPage";
 import ForgotPasswordPage from "../../auth/forgot-password/ForgotPasswordPage";
 import Logo from "../../../components/Header/Logo";
 import { withAuthRedirect } from "../../auth/components/withAuthRedirect";
+import { ScrollToTop } from "../../../components/common";
 
 interface IProps {
   formType: "login" | "signup" | "forgotPassword";
@@ -45,6 +46,7 @@ const AuthLayout: React.FC<IProps> = ({ formType }) => {
         overflow: "hidden",
       }}
     >
+      <ScrollToTop />
       {/* Animated background elements */}
       <div 
         style={{

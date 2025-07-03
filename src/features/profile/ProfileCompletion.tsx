@@ -32,6 +32,7 @@ import { useAuthStore } from "../../store/auth.store";
 import { ProfileStage } from "../../models/user.model";
 import { withProfileStageGuard } from "./withProfileStageGuard";
 import { useUpdateCurrentUserProfile } from "../../hooks/api";
+import { ScrollToTop } from "../../components/common";
 
 const stageToIndex = {
   [ProfileStage.COLLEGE_SELECTION]: 0,
@@ -162,6 +163,7 @@ console.log("stepIndex", stepIndex);
 
   return (
     <Box className={styles.container}>
+      <ScrollToTop />
       <Container
         size={isMobile ? "sm" : "xl"}
         px={isMobile ? "md" : "xl"}

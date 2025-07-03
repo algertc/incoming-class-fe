@@ -4,6 +4,7 @@ import { Outlet } from 'react-router';
 import { Header } from '../../../components/layout/Header/Header';
 import { BottomNavigation } from '../../../components/layout/BottomNavigation/BottomNavigation';
 import { withAuth } from '../../../components/auth/withAuth';
+import { ScrollToTop } from '../../../components/common';
 
 export const AuthenticatedLayout: React.FC = () => {
   return (
@@ -19,6 +20,7 @@ export const AuthenticatedLayout: React.FC = () => {
         },
       }}
     >
+      <ScrollToTop />
       <AppShell.Header>
         <Header />
       </AppShell.Header>

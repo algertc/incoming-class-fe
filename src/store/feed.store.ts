@@ -131,7 +131,7 @@ const handleFilterChange = async (get: () => FeedState, set: (state: Partial<Fee
     });
     
     if (response.status) {
-      const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
+      const { posts, totalDocs, page, totalPages, } = response.data;
       
       const postLimit = getPostLimit();
       let finalPosts = posts;
@@ -147,7 +147,7 @@ const handleFilterChange = async (get: () => FeedState, set: (state: Partial<Fee
         totalCount: totalDocs,
         currentPage: page,
         totalPages,
-        hasMore: hasNextPage && !reachedLimit,
+        hasMore: totalPages > page && !reachedLimit,
         hasReachedLimit: reachedLimit,
         modalType: reachedLimit ? getModalType() : null,
         isLoading: false,
@@ -184,7 +184,7 @@ const getPostLimit = (): number | null => {
   // Authenticated users with completed profile get 10 posts
   if (user && user.isProfileCompleted) {
  
-    return 10; // Non-premium users with completed profile get 10 posts
+    return 6; // Non-premium users with completed profile get 10 posts
   }
   
   // Authenticated users without completed profile get 6 posts (same as unauthenticated)
@@ -307,7 +307,7 @@ export const useFeedStore = create<FeedState>()(
  
       
       if (response.status) {
-        const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
+        const { posts, totalDocs, page, totalPages,  } = response.data;
         
         // Apply post limits based on user context
         const postLimit = getPostLimit();
@@ -335,7 +335,7 @@ export const useFeedStore = create<FeedState>()(
           totalCount: totalDocs,
           currentPage: page,
           totalPages,
-          hasMore: hasNextPage && !reachedLimit,
+          hasMore: totalPages > page && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType: isInitial ? null : modalType, // Don't show modal on initial load
           isInitialLoad: false, // Set to false after the first successful load
@@ -384,7 +384,7 @@ export const useFeedStore = create<FeedState>()(
       });
       
       if (response.status) {
-        const { posts: newPosts, totalDocs, page, totalPages, hasNextPage } = response.data;
+        const { posts: newPosts, totalDocs, page, totalPages,  } = response.data;
         
         // Accumulate posts for infinite scroll
         const allPosts = [...state.posts, ...newPosts];
@@ -409,7 +409,7 @@ export const useFeedStore = create<FeedState>()(
           totalCount: totalDocs,
           currentPage: page,
           totalPages,
-          hasMore: hasNextPage && !reachedLimit,
+          hasMore: totalPages > page && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType,
           isLoadingMore: false,
@@ -562,7 +562,7 @@ export const useFeedStore = create<FeedState>()(
       });
       
       if (response.status) {
-        const { posts, totalDocs, page, totalPages, hasNextPage } = response.data;
+        const { posts, totalDocs, page, totalPages,  } = response.data;
         
         // Apply post limits based on user context
         const postLimit = getPostLimit();
@@ -588,7 +588,7 @@ export const useFeedStore = create<FeedState>()(
           totalCount: totalDocs,
           currentPage: page,
           totalPages,
-          hasMore: hasNextPage && !reachedLimit,
+          hasMore: totalPages > page && !reachedLimit,
           hasReachedLimit: reachedLimit,
           modalType,
           isInitialLoad: false, // Mark as no longer initial load

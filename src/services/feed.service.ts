@@ -32,10 +32,6 @@ export interface FetchPostsResponse {
   page: number;
   limit: number;
   totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  nextPage: number;
-  prevPage: number | null;
 }
 
 export interface ApiResponse<T> {
@@ -211,11 +207,8 @@ class FeedService {
             totalDocs: response.data.totalDocs,
             page: response.data.page,
             totalPages: response.data.totalPages,
-            hasNextPage: response.data.hasNextPage,
-            hasPrevPage: response.data.hasPrevPage,
-            nextPage: response.data.nextPage,
-            prevPage: response.data.prevPage
-          },
+
+                     },
         status: true,
         message: response.message || `Successfully fetched ${transformedPosts.length} posts`
       };
@@ -308,10 +301,7 @@ class FeedService {
           totalDocs: 1,
           page: 1,
           totalPages: 1,
-          hasNextPage: false,
-          hasPrevPage: false,
-          nextPage: 1,
-          prevPage: null
+          
         },
         status: true,
         message: response.message || `Successfully fetched user post`

@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { Navigate, useNavigate } from 'react-router';
 import { useAuthStore } from '../../store/auth.store';
 import LoadingScreen from '../../features/common/components/LoadingScreen';
+import ROUTES from '../../constants/routes';
 
 export const withAuth = <P extends object>(
   WrappedComponent: React.ComponentType<P>
@@ -12,6 +13,7 @@ export const withAuth = <P extends object>(
 
     useEffect(() => {
       if (!user && !isLoading) {
+        
         fetchUser().catch(() => {
           navigate('/public');
         });
@@ -28,6 +30,10 @@ export const withAuth = <P extends object>(
 
     if (!user) {
       return null;
+    }
+
+    if(!user.isProfileCompleted){
+      return <Navigate to={ROUTES.PROFILE_COMPLETION} />
     }
 
     return <WrappedComponent {...props} />;

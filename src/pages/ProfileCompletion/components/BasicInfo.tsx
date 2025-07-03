@@ -89,6 +89,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
               label: styles.label,
               input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
             }}
+            styles={{
+              input: {
+                paddingLeft: isMobile ? '36px' : '40px'
+              }
+            }}
             size={isMobile ? "sm" : "md"}
           />
 
@@ -103,6 +108,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
             classNames={{
               label: styles.label,
               input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
+            }}
+            styles={{
+              input: {
+                paddingLeft: isMobile ? '36px' : '40px'
+              }
             }}
             size={isMobile ? "sm" : "md"}
           />

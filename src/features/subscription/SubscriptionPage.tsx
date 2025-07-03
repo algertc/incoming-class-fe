@@ -444,7 +444,7 @@ const SubscriptionPage: React.FC = () => {
                     color="white"
                     variant="light"
                   >
-                    <Text size="sm">No payment history found.</Text>
+                    <Text c={"white"} size="sm">No payment history found.</Text>
                   </Alert>
                 ) : (
                   <ScrollArea>

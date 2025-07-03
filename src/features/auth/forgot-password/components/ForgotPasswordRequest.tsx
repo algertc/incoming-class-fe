@@ -7,6 +7,8 @@ import {
   Box,
   Title,
   Alert,
+  Stack,
+  Container
 } from "@mantine/core";
 import { Link, useNavigate } from "react-router";
 import classes from "./ForgotPassword.module.scss";
@@ -14,12 +16,14 @@ import { IconArrowLeft, IconMail } from "@tabler/icons-react";
 import { useRequestPasswordReset } from "../../../../hooks/api";
 import { object, string } from "yup";
 import { showError } from "../../../../utils";
+import { useMediaQuery } from '@mantine/hooks';
 
 const ForgotPasswordRequest: React.FC = () => {
   const [email, setEmail] = useState("");
   const [requestSent, setRequestSent] = useState(false);
   const { mutateAsync, isPending } = useRequestPasswordReset();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 576px)');
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,19 +55,10 @@ const ForgotPasswordRequest: React.FC = () => {
   };
 
   return (
-    <Box
-      style={{
-        width: "100%",
-        height: "100%",
-        maxHeight: "700px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-      }}
-    >
+    <Container size="xs" px={isMobile ? "xs" : "sm"} py={isMobile ? "md" : "xl"}>
       <Box className={classes.formContainer}>
-        <form onSubmit={handleSendOTP}>
-          <Flex direction={"column"} gap={{ base: 20, md: 24 }}>
+        <form onSubmit={handleSendOTP} style={{ width: '100%' }}>
+          <Stack gap={isMobile ? "md" : "lg"}>
             <Box>
               <Link to="/login">
                 <Text
@@ -91,6 +86,7 @@ const ForgotPasswordRequest: React.FC = () => {
                 title="Check your email"
                 color="blue"
                 radius="md"
+                c={"white"}
               >
                 We've sent a one-time password (OTP) to <b>{email}</b>. Please
                 check your inbox and proceed to the next step.
@@ -99,7 +95,7 @@ const ForgotPasswordRequest: React.FC = () => {
                     onClick={handleContinueToReset}
                     color="#4361ee"
                     radius="md"
-                    size="sm"
+                    size={isMobile ? "md" : "lg"}
                     className={classes.primaryButton}
                     fullWidth
                   >
@@ -108,13 +104,13 @@ const ForgotPasswordRequest: React.FC = () => {
                 </Flex>
               </Alert>
             ) : (
-              <>
+              <Stack gap={isMobile ? "md" : "lg"}>
                 <TextInput
                   classNames={{ label: classes.label, input: classes.input }}
-                  label={"Email address"}
+                  label="Email address"
                   placeholder="Enter your email"
                   radius="md"
-                  size="md"
+                  size={isMobile ? "sm" : "md"}
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -131,7 +127,7 @@ const ForgotPasswordRequest: React.FC = () => {
                   type="submit"
                   color="#4361ee"
                   radius="md"
-                  size="lg"
+                  size={isMobile ? "md" : "lg"}
                   fullWidth
                   loading={isPending}
                   className={classes.primaryButton}
@@ -139,10 +135,10 @@ const ForgotPasswordRequest: React.FC = () => {
                 >
                   Send OTP
                 </Button>
-              </>
+              </Stack>
             )}
 
-            <Box style={{ marginTop: "16px", textAlign: "center" }}>
+            <Box style={{ marginTop: isMobile ? '12px' : '16px', textAlign: 'center' }}>
               <Text size="sm" className={classes.formText}>
                 Remember your password?{" "}
                 <Link to="/login">
@@ -158,14 +154,10 @@ const ForgotPasswordRequest: React.FC = () => {
                 </Link>
               </Text>
             </Box>
-
-            {/* Decorative elements to match the login form theme */}
-            <Box className={classes.decorativeCircle1} />
-            <Box className={classes.decorativeCircle2} />
-          </Flex>
+          </Stack>
         </form>
       </Box>
-    </Box>
+    </Container>
   );
 };
 

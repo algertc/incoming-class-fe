@@ -120,3 +120,14 @@
     transform: none;
   }
 } 
+
+/* Add padding to the left section (icon container) */
+.section {
+  padding-right: 8px;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding-right: 12px;
+  }
+}

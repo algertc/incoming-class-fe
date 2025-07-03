@@ -3,6 +3,7 @@ import { AppShell } from "@mantine/core";
 import { Outlet } from "react-router";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
+import { ScrollToTop } from "../../../components/common";
 
 const MainLayout: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const MainLayout: React.FC = () => {
         },
       }}
     >
+      <ScrollToTop />
       <AppShell.Header>
         <Header />
       </AppShell.Header>

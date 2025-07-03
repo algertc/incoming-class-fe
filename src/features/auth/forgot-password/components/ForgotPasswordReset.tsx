@@ -1,14 +1,15 @@
 import React, { useState } from 'react'
 import { 
   Button, 
-  Flex, 
   Text, 
   Box,
   Title,
   Alert,
   PinInput,
   PasswordInput,
-  Group
+  Group,
+  Stack,
+  Container
 } from '@mantine/core'
 import { useForm, yupResolver } from '@mantine/form'
 import { Link, useNavigate, useSearchParams } from 'react-router'
@@ -18,6 +19,7 @@ import { useResetPassword } from '../../../../hooks/api'
 import { showError, showSuccess } from '../../../../utils'
 import { resetPasswordSchema } from '../../../../forms/schemas/auth.schemas'
 import { resetPasswordInitialValues } from '../../../../forms/initialValues/auth.initialValues'
+import { useMediaQuery } from '@mantine/hooks'
 
 interface ResetPasswordFormValues {
   password: string;
@@ -29,6 +31,7 @@ const ForgotPasswordReset: React.FC = () => {
   const [otp, setOtp] = useState('');
   const [resetComplete, setResetComplete] = useState(false);
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 576px)');
   
   // Get email from URL parameters or localStorage
   const email = searchParams.get('email') || localStorage.getItem('resetEmail') || '';
@@ -40,9 +43,6 @@ const ForgotPasswordReset: React.FC = () => {
     initialValues: resetPasswordInitialValues,
     validate: yupResolver(resetPasswordSchema),
   });
-
-  console.log("what the fuck is this ?");
-  
   
   const otpError = otp.length > 0 && otp.length < 6 
     ? 'Verification code must be 6 digits' 
@@ -54,8 +54,6 @@ const ForgotPasswordReset: React.FC = () => {
     email.length > 0;
   
   const handleResetPassword = async (values: ResetPasswordFormValues) => {
-    console.log("form submissin opening  ?  :",values);
-    
     if (otp.length !== 6) {
       showError('Please enter a valid 6-digit verification code');
       return;
@@ -67,20 +65,11 @@ const ForgotPasswordReset: React.FC = () => {
         otp,
         password: values.password
       });
-
-      console.log(
-        "why not responding", response
-      );
-      
       
       if (response.status) {
         setResetComplete(true);
         showSuccess('Password reset successfully! Redirecting to login...');
-        
-        // Clean up stored email
         localStorage.removeItem('resetEmail');
-        
-        // The useResetPassword hook will handle navigation automatically
       }
     } catch (error) {
       const errorMessage = (error as Error).message || 'Failed to reset password. Please try again.';
@@ -96,10 +85,10 @@ const ForgotPasswordReset: React.FC = () => {
   }, [email, navigate]);
   
   return (
-    <Box style={{ width: "100%", height: "100%", maxHeight: "700px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+    <Container size="xs" px={isMobile ? "xs" : "sm"} py={isMobile ? "md" : "xl"}>
       <Box className={classes.formContainer}>
-        <form onSubmit={form.onSubmit(handleResetPassword)}>
-          <Flex direction={"column"} gap={{ base: 20, md: 24 }}>
+        <form onSubmit={form.onSubmit(handleResetPassword)} style={{ width: '100%' }}>
+          <Stack gap={isMobile ? "md" : "lg"}>
             <Box>
               <Link to="/forgot-password">
                 <Text 
@@ -128,7 +117,7 @@ const ForgotPasswordReset: React.FC = () => {
                 Your password has been successfully reset. You will be redirected to the login page shortly.
               </Alert>
             ) : (
-              <>
+              <Stack gap={isMobile ? "md" : "lg"}>
                 <Box>
                   <Text className={classes.label} component="label" htmlFor="otp">
                     Verification Code
@@ -137,7 +126,7 @@ const ForgotPasswordReset: React.FC = () => {
                     <PinInput 
                       id="otp"
                       length={6} 
-                      size="md" 
+                      size={isMobile ? "sm" : "md"}
                       radius="md"
                       value={otp}
                       onChange={setOtp}
@@ -160,7 +149,7 @@ const ForgotPasswordReset: React.FC = () => {
                   label="New Password" 
                   placeholder="Enter new password"
                   radius="md"
-                  size="md"
+                  size={isMobile ? "sm" : "md"}
                   leftSection={<IconLock size={16} />}
                   {...form.getInputProps('password')}
                 />
@@ -170,7 +159,7 @@ const ForgotPasswordReset: React.FC = () => {
                   label="Confirm Password" 
                   placeholder="Confirm new password"
                   radius="md"
-                  size="md"
+                  size={isMobile ? "sm" : "md"}
                   leftSection={<IconLock size={16} />}
                   {...form.getInputProps('confirmPassword')}
                 />
@@ -179,7 +168,7 @@ const ForgotPasswordReset: React.FC = () => {
                   type="submit"
                   color="#4361ee"
                   radius="md"
-                  size="lg"
+                  size={isMobile ? "md" : "lg"}
                   fullWidth
                   loading={isPending}
                   className={classes.primaryButton}
@@ -187,10 +176,10 @@ const ForgotPasswordReset: React.FC = () => {
                 >
                   Reset Password
                 </Button>
-              </>
+              </Stack>
             )}
             
-            <Box style={{ marginTop: '16px', textAlign: 'center' }}>
+            <Box style={{ marginTop: isMobile ? '12px' : '16px', textAlign: 'center' }}>
               <Text size="sm" className={classes.formText}>
                 Remember your password?{' '}
                 <Link to="/login">
@@ -206,15 +195,11 @@ const ForgotPasswordReset: React.FC = () => {
                 </Link>
               </Text>
             </Box>
-            
-            {/* Decorative elements */}
-            <Box className={classes.decorativeCircle1} />
-            <Box className={classes.decorativeCircle2} />
-          </Flex>
+          </Stack>
         </form>
       </Box>
-    </Box>
-  )
-}
+    </Container>
+  );
+};
 
-export default ForgotPasswordReset 
+export default ForgotPasswordReset; 
