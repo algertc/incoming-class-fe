@@ -10,7 +10,7 @@ export interface FetchPostsParams {
   lastDays?: number; // Number of days to look back from today
   college?: string | null;
   substances?: string | null;
-  homeState?: string | null;
+  hometown?: string | null;
   religion?: string | null;
   gender?: string | null;
   campusInvolvement?: string | null;
@@ -74,15 +74,15 @@ interface ApiPost {
 }
 
 interface GetAllPostsApiResponse {
-    posts:ApiPost[];
-    totalDocs: number;
-    limit:  number;
-    page: number;
-    totalPages: number;
-    hasNextPage: boolean;
-    hasPrevPage: boolean;
-    nextPage: number;
-    prevPage: number | null;
+  posts: ApiPost[];
+  totalDocs: number;
+  limit: number;
+  page: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  nextPage: number;
+  prevPage: number | null;
 }
 
 
@@ -128,8 +128,8 @@ class FeedService {
     }
 
     // New filters
-    if (params.homeState) {
-      queryParams.homeState = params.homeState;
+    if (params.hometown) {
+      queryParams.hometown = params.hometown; // Assuming hometown is a state
     }
     if (params.religion) {
       queryParams.religion = params.religion;
@@ -175,14 +175,14 @@ class FeedService {
 
   // Fetch posts - backend handles all filtering, pagination, sorting
   async fetchPosts(params: FetchPostsParams = {}): Promise<ApiResponse<FetchPostsResponse>> {
- 
-    
+
+
     try {
       const queryParams = this.buildQueryParams(params);
-      
- 
- 
- 
+
+
+
+
 
       const response = await request<GetAllPostsApiResponse>({
         method: 'GET',
@@ -190,25 +190,25 @@ class FeedService {
         params: queryParams,
       });
 
- 
+
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to fetch posts');
       }
 
- 
+
 
       const transformedPosts = response.data.posts.map(this.transformApiPost);
 
       return {
-          data: {
-            posts: transformedPosts,
-            limit: response.data.limit,
-            totalDocs: response.data.totalDocs,
-            page: response.data.page,
-            totalPages: response.data.totalPages,
+        data: {
+          posts: transformedPosts,
+          limit: response.data.limit,
+          totalDocs: response.data.totalDocs,
+          page: response.data.page,
+          totalPages: response.data.totalPages,
 
-                     },
+        },
         status: true,
         message: response.message || `Successfully fetched ${transformedPosts.length} posts`
       };
@@ -266,15 +266,15 @@ class FeedService {
 
   // Fetch current user's posts - API returns single post, not array
   async fetchUserPosts(params: { page?: number; limit?: number } = {}): Promise<ApiResponse<FetchPostsResponse>> {
- 
-    
+
+
     try {
       const queryParams: Record<string, string> = {};
       if (params.page) queryParams.page = params.page.toString();
       if (params.limit) queryParams.limit = params.limit.toString();
-      
- 
- 
+
+
+
 
       const response = await request<ApiPost>({
         method: 'GET',
@@ -282,7 +282,7 @@ class FeedService {
         params: queryParams,
       });
 
- 
+
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to fetch user posts');
@@ -292,7 +292,7 @@ class FeedService {
       const transformedPost = this.transformApiPost(response.data);
       const transformedPosts = [transformedPost];
 
- 
+
 
       return {
         data: {
@@ -301,7 +301,7 @@ class FeedService {
           totalDocs: 1,
           page: 1,
           totalPages: 1,
-          
+
         },
         status: true,
         message: response.message || `Successfully fetched user post`
@@ -315,8 +315,8 @@ class FeedService {
 
   // Create a new post
   async createPost(postData: { title: string; content: string; images?: string[] }): Promise<ApiResponse<Post>> {
- 
-    
+
+
     try {
       const response = await request<ApiPost>({
         method: 'POST',
@@ -324,7 +324,7 @@ class FeedService {
         data: postData,
       });
 
- 
+
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to create post');
@@ -346,7 +346,7 @@ class FeedService {
 
   // Update a post - matches CreatePostDto structure
   async updatePost(postId: string, updateData: { title: string; content?: string; images?: string[] }): Promise<ApiResponse<Post>> {
-        
+
     try {
       const response = await request<ApiPost>({
         method: 'PATCH',
@@ -374,15 +374,15 @@ class FeedService {
 
   // Boost a post
   async boostPost(postId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
- 
-    
+
+
     try {
       const response = await request<{ success: boolean; message: string }>({
         method: 'PATCH',
         url: API_ENDPOINTS.posts.boostPost(postId),
       });
 
- 
+
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to boost post');
@@ -402,15 +402,15 @@ class FeedService {
 
   // Delete a post
   async deletePost(postId: string): Promise<ApiResponse<{ success: boolean; message: string }>> {
- 
-    
+
+
     try {
       const response = await request<{ success: boolean; message: string }>({
         method: 'DELETE',
         url: API_ENDPOINTS.posts.deletePost(postId),
       });
 
- 
+
 
       if (!response.status) {
         throw new Error(response.message || 'Failed to delete post');

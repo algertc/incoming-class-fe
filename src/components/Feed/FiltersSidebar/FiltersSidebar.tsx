@@ -24,9 +24,12 @@ import { useFeedStore, type FeedFilters } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
 import { useCollegeSearch } from "../../../hooks/api/useColleges";
 
-export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen?: () => void }> = ({ showSearch = false, onPremiumModalOpen }) => {
+export const FiltersSidebar: React.FC<{
+  showSearch?: boolean;
+  onPremiumModalOpen?: () => void;
+}> = ({ showSearch = false, onPremiumModalOpen }) => {
   const theme = useMantineTheme();
-  
+
   // Get feed store state and actions
   const {
     filters,
@@ -54,10 +57,11 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
   // Count how many filters are currently active
   const getActiveFiltersCount = () => {
     let count = 0;
-    if (showSearch && filters.searchQuery && filters.searchQuery.trim() !== '') count++;
+    if (showSearch && filters.searchQuery && filters.searchQuery.trim() !== "")
+      count++;
     if (filters.lastDays !== 30) count++;
     if (filters.substances !== null) count++;
-    if (filters.homeState !== null) count++;
+    if (filters.hometown !== null) count++;
     if (filters.religion !== null) count++;
     if (filters.gender !== null) count++;
     if (filters.campusInvolvement !== null) count++;
@@ -81,18 +85,18 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
 
     // Check if the specific filter is non-default
     switch (filterKey) {
-      case 'searchQuery':
-        return filters.searchQuery.trim() !== '';
-      case 'lastDays':
+      case "searchQuery":
+        return filters.searchQuery.trim() !== "";
+      case "lastDays":
         return filters.lastDays !== 30;
-      case 'personality':
-      case 'physicalActivity':
-      case 'pastimes':
-      case 'food':
+      case "personality":
+      case "physicalActivity":
+      case "pastimes":
+      case "food":
         const value = filters[filterKey];
         return Array.isArray(value) && value.length > 0;
       default:
-        return filters[filterKey] !== null && filters[filterKey] !== 'all';
+        return filters[filterKey] !== null && filters[filterKey] !== "all";
     }
   };
 
@@ -113,7 +117,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
   // Transform college data for Select component
   const collegeOptions = React.useMemo(() => {
     const options = [{ value: "all", label: "All Colleges" }];
-    
+
     if (collegeData?.data.colleges) {
       const apiColleges = collegeData.data.colleges.map((college) => ({
         value: college._id,
@@ -121,7 +125,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       }));
       options.push(...apiColleges);
     }
-    
+
     return options;
   }, [collegeData]);
 
@@ -149,20 +153,22 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
   // Handle search input change
   const handleSearchChange = (value: string) => {
     const activeFilterCount = getActiveFiltersCount();
-    if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter('searchQuery')) {
-      if (value.trim() !== '') showPremiumModal();
+    if (
+      !isPremium &&
+      activeFilterCount > 0 &&
+      !isOnlyActiveFilter("searchQuery")
+    ) {
+      if (value.trim() !== "") showPremiumModal();
       return;
     }
     setSearchQuery(value);
   };
 
- 
-
   // Handle filter changes
   const handleFilterChange = (value: any, filterKey: keyof FeedFilters) => {
     const activeFilterCount = getActiveFiltersCount();
     if (!isPremium && activeFilterCount > 0 && !isOnlyActiveFilter(filterKey)) {
-      if (value !== null && value !== 'all') showPremiumModal();
+      if (value !== null && value !== "all") showPremiumModal();
       return;
     }
     updateFilter(filterKey, value);
@@ -191,13 +197,13 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         <Group gap="xs">
           <IconFilter size={20} color={theme.colors.blue[5]} />
           <Text fw={600} size="sm" c={theme.white}>
-            Filters{showSearch && ' & Search'}
+            Filters{showSearch && " & Search"}
           </Text>
         </Group>
         {!isPremium && (
           <Badge
             variant="gradient"
-            gradient={{ from: 'yellow', to: 'orange' }}
+            gradient={{ from: "yellow", to: "orange" }}
             size="xs"
             leftSection={<IconCrown size={12} />}
           >
@@ -246,7 +252,11 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
         <Slider
           value={timePeriod}
           onChange={(value) => {
-            if (!isPremium && getActiveFiltersCount() > 0 && !isOnlyActiveFilter('lastDays')) {
+            if (
+              !isPremium &&
+              getActiveFiltersCount() > 0 &&
+              !isOnlyActiveFilter("lastDays")
+            ) {
               if (value !== 30) showPremiumModal();
               return;
             }
@@ -258,10 +268,10 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
           step={1}
           label={(value) => `${value} days`}
           marks={[
-            { value: 1, label: '1d' },
-            { value: 7, label: '1w' },
-            { value: 30, label: '1m' },
-            { value: 90, label: '3m' },
+            { value: 1, label: "1d" },
+            { value: 7, label: "1w" },
+            { value: 30, label: "1m" },
+            { value: 90, label: "3m" },
           ]}
           styles={{
             track: {
@@ -294,13 +304,19 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select college"
         value={filters.college}
-        onChange={(value) => handleFilterChange(value, 'college')}
+        onChange={(value) => handleFilterChange(value, "college")}
         onSearchChange={setCollegeSearchQuery}
         searchValue={collegeSearchQuery}
         data={collegeOptions}
         searchable
         leftSection={<IconSchool size={16} />}
-        rightSection={isLoadingColleges ? <Text size="xs" c="dimmed">Loading...</Text> : null}
+        rightSection={
+          isLoadingColleges ? (
+            <Text size="xs" c="dimmed">
+              Loading...
+            </Text>
+          ) : null
+        }
         mb="md"
         styles={{
           input: {
@@ -336,7 +352,7 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select preference"
         value={filters.substances}
-        onChange={(value) => handleFilterChange(value, 'substances')}
+        onChange={(value) => handleFilterChange(value, "substances")}
         data={[
           { value: "Fine with Drinking", label: "Fine with Drinking" },
           { value: "Sober", label: "Sober" },
@@ -377,11 +393,60 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select state"
         searchable
-        value={filters.homeState}
-        onChange={(value) => handleFilterChange(value, 'homeState')}
+        value={filters.hometown}
+        onChange={(value) => handleFilterChange(value, "hometown")}
         data={[
-          "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"
-        ].map(s=>({value:s,label:s}))}
+          "Alabama",
+          "Alaska",
+          "Arizona",
+          "Arkansas",
+          "California",
+          "Colorado",
+          "Connecticut",
+          "Delaware",
+          "Florida",
+          "Georgia",
+          "Hawaii",
+          "Idaho",
+          "Illinois",
+          "Indiana",
+          "Iowa",
+          "Kansas",
+          "Kentucky",
+          "Louisiana",
+          "Maine",
+          "Maryland",
+          "Massachusetts",
+          "Michigan",
+          "Minnesota",
+          "Mississippi",
+          "Missouri",
+          "Montana",
+          "Nebraska",
+          "Nevada",
+          "New Hampshire",
+          "New Jersey",
+          "New Mexico",
+          "New York",
+          "North Carolina",
+          "North Dakota",
+          "Ohio",
+          "Oklahoma",
+          "Oregon",
+          "Pennsylvania",
+          "Rhode Island",
+          "South Carolina",
+          "South Dakota",
+          "Tennessee",
+          "Texas",
+          "Utah",
+          "Vermont",
+          "Virginia",
+          "Washington",
+          "West Virginia",
+          "Wisconsin",
+          "Wyoming",
+        ].map((s) => ({ value: s, label: s }))}
         mb="md"
         styles={{
           input: {
@@ -417,22 +482,38 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select religion"
         value={filters.religion}
-        onChange={(value) => handleFilterChange(value, 'religion')}
+        onChange={(value) => handleFilterChange(value, "religion")}
         data={[
-          {value:'Christianity',label:'Christianity'},
-          {value:'Islam',label:'Islam'},
-          {value:'Hinduism',label:'Hinduism'},
-          {value:'Buddhism',label:'Buddhism'},
-          {value:'Judaism',label:'Judaism'},
-          {value:'Atheism',label:'Atheism'},
-          {value:'Agnostic',label:'Agnostic'},
-          {value:'Other',label:'Other'},
+          { value: "Christianity", label: "Christianity" },
+          { value: "Islam", label: "Islam" },
+          { value: "Hinduism", label: "Hinduism" },
+          { value: "Buddhism", label: "Buddhism" },
+          { value: "Judaism", label: "Judaism" },
+          { value: "Atheism", label: "Atheism" },
+          { value: "Agnostic", label: "Agnostic" },
+          { value: "Other", label: "Other" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)","&::placeholder":{color:theme.colors.dark[2]}},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": { color: theme.colors.dark[2] },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -443,18 +524,34 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select gender"
         value={filters.gender}
-        onChange={(value) => handleFilterChange(value, 'gender')}
+        onChange={(value) => handleFilterChange(value, "gender")}
         data={[
-          {value:'Male',label:'Male'},
-          {value:'Female',label:'Female'},
-          {value:'Non-binary',label:'Non-binary'},
-          {value:'Prefer not to say',label:'Prefer not to say'},
+          { value: "Male", label: "Male" },
+          { value: "Female", label: "Female" },
+          { value: "Non-binary", label: "Non-binary" },
+          { value: "Prefer not to say", label: "Prefer not to say" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)","&::placeholder":{color:theme.colors.dark[2]}},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": { color: theme.colors.dark[2] },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -465,17 +562,34 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select status"
         value={filters.campusInvolvement}
-        onChange={(value) => handleFilterChange(value, 'campusInvolvement')}
+        onChange={(value) => handleFilterChange(value, "campusInvolvement")}
         data={[
-          {value:'Rushing a fraternity/sorority',label:'Rushing a fraternity/sorority'},
-          {value:'Business fraternity',label:'Business fraternity'},
-         
+          {
+            value: "Rushing a fraternity/sorority",
+            label: "Rushing a fraternity/sorority",
+          },
+          { value: "Business fraternity", label: "Business fraternity" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -486,16 +600,31 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select option"
         value={filters.other}
-        onChange={(value) => handleFilterChange(value, 'other')}
+        onChange={(value) => handleFilterChange(value, "other")}
         data={[
-          {value:'Looking for a roommate',label:'Looking for a roommate'},
-          {value:'Student Athlete',label:'Student Athlete'},
+          { value: "Looking for a roommate", label: "Looking for a roommate" },
+          { value: "Student Athlete", label: "Student Athlete" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -511,17 +640,32 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select sleep schedule"
         value={filters.sleepSchedule}
-        onChange={(value) => handleFilterChange(value, 'sleepSchedule')}
+        onChange={(value) => handleFilterChange(value, "sleepSchedule")}
         data={[
-          { value: 'Early Bird', label: 'Early Bird' },
-          { value: 'Night Owl', label: 'Night Owl' },
-          { value: 'Flexible', label: 'Flexible' },
+          { value: "Early Bird", label: "Early Bird" },
+          { value: "Night Owl", label: "Night Owl" },
+          { value: "Flexible", label: "Flexible" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -532,18 +676,33 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select cleanliness level"
         value={filters.cleanliness}
-        onChange={(value) => handleFilterChange(value, 'cleanliness')}
+        onChange={(value) => handleFilterChange(value, "cleanliness")}
         data={[
-          { value: 'Neat Freak', label: 'Neat Freak' },
-          { value: 'Organized', label: 'Organized' },
-          { value: 'Casual', label: 'Casual' },
-          { value: 'Messy', label: 'Messy' },
+          { value: "Neat Freak", label: "Neat Freak" },
+          { value: "Organized", label: "Organized" },
+          { value: "Casual", label: "Casual" },
+          { value: "Messy", label: "Messy" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -554,17 +713,32 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select guest preference"
         value={filters.guests}
-        onChange={(value) => handleFilterChange(value, 'guests')}
+        onChange={(value) => handleFilterChange(value, "guests")}
         data={[
-          { value: 'Over Whenever', label: 'Over Whenever' },
-          { value: 'With Notice', label: 'With Notice' },
-          { value: 'Rarely', label: 'Rarely' },
+          { value: "Over Whenever", label: "Over Whenever" },
+          { value: "With Notice", label: "With Notice" },
+          { value: "Rarely", label: "Rarely" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -575,18 +749,33 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select studying preference"
         value={filters.studying}
-        onChange={(value) => handleFilterChange(value, 'studying')}
+        onChange={(value) => handleFilterChange(value, "studying")}
         data={[
-          { value: 'Around Campus', label: 'Around Campus' },
-          { value: 'In Room', label: 'In Room' },
-          { value: 'Library', label: 'Library' },
-          { value: 'Flexible', label: 'Flexible' },
+          { value: "Around Campus", label: "Around Campus" },
+          { value: "In Room", label: "In Room" },
+          { value: "Library", label: "Library" },
+          { value: "Flexible", label: "Flexible" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -597,22 +786,39 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select personality traits"
         value={filters.personality ? filters.personality[0] : null}
-        onChange={(value) => handleFilterChange(value ? [value] : null, 'personality')}
+        onChange={(value) =>
+          handleFilterChange(value ? [value] : null, "personality")
+        }
         data={[
-          { value: 'Introvert', label: 'Introvert' },
-          { value: 'Extrovert', label: 'Extrovert' },
-          { value: 'Spontaneous', label: 'Spontaneous' },
-          { value: 'Organized', label: 'Organized' },
-          { value: 'Creative', label: 'Creative' },
-          { value: 'Analytical', label: 'Analytical' },
-          { value: 'Adventurous', label: 'Adventurous' },
-          { value: 'Cautious', label: 'Cautious' },
+          { value: "Introvert", label: "Introvert" },
+          { value: "Extrovert", label: "Extrovert" },
+          { value: "Spontaneous", label: "Spontaneous" },
+          { value: "Organized", label: "Organized" },
+          { value: "Creative", label: "Creative" },
+          { value: "Analytical", label: "Analytical" },
+          { value: "Adventurous", label: "Adventurous" },
+          { value: "Cautious", label: "Cautious" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -623,22 +829,39 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select physical activities"
         value={filters.physicalActivity ? filters.physicalActivity[0] : null}
-        onChange={(value) => handleFilterChange(value ? [value] : null, 'physicalActivity')}
+        onChange={(value) =>
+          handleFilterChange(value ? [value] : null, "physicalActivity")
+        }
         data={[
-          { value: 'Working Out', label: 'Working Out' },
-          { value: 'Basketball', label: 'Basketball' },
-          { value: 'Running', label: 'Running' },
-          { value: 'Yoga', label: 'Yoga' },
-          { value: 'Swimming', label: 'Swimming' },
-          { value: 'Tennis', label: 'Tennis' },
-          { value: 'Soccer', label: 'Soccer' },
-          { value: 'Other Sports', label: 'Other Sports' },
+          { value: "Working Out", label: "Working Out" },
+          { value: "Basketball", label: "Basketball" },
+          { value: "Running", label: "Running" },
+          { value: "Yoga", label: "Yoga" },
+          { value: "Swimming", label: "Swimming" },
+          { value: "Tennis", label: "Tennis" },
+          { value: "Soccer", label: "Soccer" },
+          { value: "Other Sports", label: "Other Sports" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -649,24 +872,41 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select pastimes"
         value={filters.pastimes ? filters.pastimes[0] : null}
-        onChange={(value) => handleFilterChange(value ? [value] : null, 'pastimes')}
+        onChange={(value) =>
+          handleFilterChange(value ? [value] : null, "pastimes")
+        }
         data={[
-          { value: 'Art', label: 'Art' },
-          { value: 'Fashion', label: 'Fashion' },
-          { value: 'Stocks', label: 'Stocks' },
-          { value: 'Thrifting', label: 'Thrifting' },
-          { value: 'Politics', label: 'Politics' },
-          { value: 'Video Games', label: 'Video Games' },
-          { value: 'Reading', label: 'Reading' },
-          { value: 'Music', label: 'Music' },
-          { value: 'Movies', label: 'Movies' },
-          { value: 'Travel', label: 'Travel' },
+          { value: "Art", label: "Art" },
+          { value: "Fashion", label: "Fashion" },
+          { value: "Stocks", label: "Stocks" },
+          { value: "Thrifting", label: "Thrifting" },
+          { value: "Politics", label: "Politics" },
+          { value: "Video Games", label: "Video Games" },
+          { value: "Reading", label: "Reading" },
+          { value: "Music", label: "Music" },
+          { value: "Movies", label: "Movies" },
+          { value: "Travel", label: "Travel" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -677,24 +917,39 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
       <Select
         placeholder="Select food preferences"
         value={filters.food ? filters.food[0] : null}
-        onChange={(value) => handleFilterChange(value ? [value] : null, 'food')}
+        onChange={(value) => handleFilterChange(value ? [value] : null, "food")}
         data={[
-          { value: 'Coffee', label: 'Coffee' },
-          { value: 'Tea', label: 'Tea' },
-          { value: 'Sushi', label: 'Sushi' },
-          { value: 'Pizza', label: 'Pizza' },
-          { value: 'Italian', label: 'Italian' },
-          { value: 'Mexican', label: 'Mexican' },
-          { value: 'Chinese', label: 'Chinese' },
-          { value: 'Indian', label: 'Indian' },
-          { value: 'Vegan', label: 'Vegan' },
-          { value: 'Vegetarian', label: 'Vegetarian' },
+          { value: "Coffee", label: "Coffee" },
+          { value: "Tea", label: "Tea" },
+          { value: "Sushi", label: "Sushi" },
+          { value: "Pizza", label: "Pizza" },
+          { value: "Italian", label: "Italian" },
+          { value: "Mexican", label: "Mexican" },
+          { value: "Chinese", label: "Chinese" },
+          { value: "Indian", label: "Indian" },
+          { value: "Vegan", label: "Vegan" },
+          { value: "Vegetarian", label: "Vegetarian" },
         ]}
         mb="md"
         styles={{
-          input:{backgroundColor:"rgba(255, 255, 255, 0.05)",color:theme.white,border:"1px solid rgba(255, 255, 255, 0.1)"},
-          dropdown:{backgroundColor:theme.colors.dark[7],border:"1px solid rgba(255, 255, 255, 0.1)",zIndex:1300},
-          option:{color:theme.white,"&[data-selected]":{backgroundColor:theme.colors.blue[9],color:theme.white},"&[data-hovered]":{backgroundColor:theme.colors.dark[5]}}
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
         }}
       />
 
@@ -722,9 +977,10 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
           radius="md"
           mt="md"
           style={{
-            background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)',
-            border: '1px solid rgba(255, 215, 0, 0.3)',
-            textAlign: 'center',
+            background:
+              "linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%)",
+            border: "1px solid rgba(255, 215, 0, 0.3)",
+            textAlign: "center",
           }}
         >
           <Stack align="center" gap="sm">
@@ -735,11 +991,12 @@ export const FiltersSidebar: React.FC<{ showSearch?: boolean, onPremiumModalOpen
               </Text>
             </Group>
             <Text size="xs" c="dimmed" ta="center">
-              You can use 1 filter free. Upgrade to Premium for unlimited filters.
+              You can use 1 filter free. Upgrade to Premium for unlimited
+              filters.
             </Text>
           </Stack>
         </Paper>
       )}
     </Box>
   );
-}; 
+};
