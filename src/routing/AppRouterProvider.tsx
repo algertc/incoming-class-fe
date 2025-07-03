@@ -11,6 +11,7 @@ import HomePage from "../features/home/HomePage";
 import AboutPage from "../features/about/AboutPage";
 import ContactPage from "../features/contact/ContactPage";
 import PrivacyPage from "../features/privacy/PrivacyPage";
+import TermsPage from "../features/terms/TermsPage";
 import CollegesPage from "../features/colleges/CollegesPage";
 import FeedPage from "../features/feed/FeedPage";
 import SubscriptionPage from "../features/subscription/SubscriptionPage";
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
             {
                 path: "privacy",
                 element: <PrivacyPage />
+            },
+            {
+                path: "terms",
+                element: <TermsPage />
             },
             {
                 path: "feed",
@@ -131,6 +136,10 @@ const router = createBrowserRouter([
             {
                 path: "contact",
                 element: <ContactPage />
+            },
+            {
+                path: "terms",
+                element: <TermsPage />
             },
             {
                 path: "error-test",

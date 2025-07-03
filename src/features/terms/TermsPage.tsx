@@ -13,11 +13,11 @@ import {
   Anchor,
 } from '@mantine/core';
 import { 
-  IconShield, 
-  IconLock, 
-  IconEye,
-  IconSettings,
-  IconMail
+  IconScale,
+  IconMail,
+  IconUser,
+  IconCreditCard,
+  IconAlertTriangle
 } from '@tabler/icons-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -26,54 +26,56 @@ import AnimatedBackground from '../feed/components/AnimatedBackground';
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
-// Privacy sections data
-const privacySections = [
+// Terms sections data
+const termsSections = [
   {
-    icon: IconEye,
-    title: "Types of Data Collected",
+    icon: IconUser,
+    title: "Use of Site",
     content: [
-      "Personal Data: Email address, full name, social media usernames, uploaded photos, self-identified interests or traits, school choices",
-      "Usage Data: IP address, browser type and version, pages visited, time spent on pages, device and diagnostic identifiers, mobile OS and browser data",
-      "Third-Party Social Media Data: If you log in via platforms like Google, we may access associated data (email, name, contacts) with your permission"
+      "Must be at least 18 years old or have parental consent to use this Site",
+      "Any use by individuals under 13 is prohibited",
+      "Do not post unlawful, harassing, defamatory, obscene, or harmful content",
+      "Do not engage in spamming, solicitation, or commercial activity unrelated to the Service",
+      "Do not share private information without consent or submit copyrighted materials without permission"
     ]
   },
   {
-    icon: IconSettings,
-    title: "How We Use Your Personal Data",
+    icon: IconAlertTriangle,
+    title: "Prohibited Activities",
     content: [
-      "Provide and operate the Service",
-      "Manage your account and subscription",
-      "Fulfill payments and transaction contracts",
-      "Communicate with you about updates, support, or relevant offers",
-      "Analyze and improve the Service",
-      "Monitor engagement and detect fraud"
+      "Use bots, scrapers, or similar tools to gather data",
+      "Collect personal info from users to send unsolicited messages",
+      "Interfere with Site security or operations",
+      "Misrepresent your identity or impersonate others",
+      "Create or use fake profiles to deceive others",
+      "Post viruses, malicious code, or spyware"
     ]
   },
   {
-    icon: IconShield,
-    title: "Sharing of Personal Data",
+    icon: IconCreditCard,
+    title: "Subscription Model",
     content: [
-      "With service providers like Stripe for payment processing",
-      "With universities and educational institutions for research and outreach (engagement metrics, application preferences, commitment status, common search terms, self-identified traits, public profile activity)",
-      "With business partners offering services or promotions",
-      "For business transfers (e.g., acquisition)",
-      "Publicly, if you interact on our Instagram pages",
-      "With your consent, for any other purpose"
+      "Incoming Class operates on a paid subscription model",
+      "Payments are processed securely via Stripe",
+      "All payments are non-refundable except where required by law",
+      "You may cancel anytime at https://incomingclass.com/subscription",
+      "Pricing may change with notice for future billing cycles"
     ]
   },
   {
-    icon: IconLock,
-    title: "Your Privacy Rights",
+    icon: IconScale,
+    title: "Legal Terms",
     content: [
-      "Request to delete your personal data by contacting support@incomingclass.com",
-      "Access and manage your account information",
-      "Control privacy settings and data sharing preferences",
-      "Receive notifications about policy changes via email or platform announcements"
+      "Agreement governed by the laws of the State of California, U.S.A.",
+      "Submit to jurisdiction of courts in Contra Costa County, California",
+      "Any legal claim must be filed within one year of its occurrence",
+      "We may suspend or terminate your account for violating these Terms",
+      "All subscription payments are non-refundable"
     ]
   }
 ];
 
-const PrivacyPage: React.FC = () => {
+const TermsPage: React.FC = () => {
   const theme = useMantineTheme();
   
   // Refs for animations
@@ -94,7 +96,7 @@ const PrivacyPage: React.FC = () => {
         {
           y: 0,
           opacity: 1,
-          duration: 1.2, // Slower animation for smoother feel
+          duration: 1.2,
           stagger: 0.25,
           ease: "power2.out",
           clearProps: 'willChange'
@@ -105,7 +107,7 @@ const PrivacyPage: React.FC = () => {
     // Sections animation - optimized for iOS
     if (sectionsRef.current) {
       gsap.fromTo(
-        sectionsRef.current.querySelectorAll('.privacy-section'),
+        sectionsRef.current.querySelectorAll('.terms-section'),
         { 
           y: 40, 
           opacity: 0,
@@ -158,7 +160,7 @@ const PrivacyPage: React.FC = () => {
     <Box style={{ 
       backgroundColor: theme.colors.dark[9], 
       minHeight: "100vh",
-      WebkitOverflowScrolling: 'touch' // Enable momentum scrolling on iOS
+      WebkitOverflowScrolling: 'touch'
     }}>
       {/* Animated Background - Optimized for iOS */}
       <AnimatedBackground />
@@ -170,7 +172,7 @@ const PrivacyPage: React.FC = () => {
           padding: "120px 0 80px",
           position: "relative",
           overflow: "hidden",
-          transform: 'translate3d(0,0,0)', // Force GPU acceleration
+          transform: 'translate3d(0,0,0)',
           WebkitBackfaceVisibility: 'hidden',
           WebkitPerspective: 1000
         }}
@@ -211,7 +213,7 @@ const PrivacyPage: React.FC = () => {
               gradient={{ from: "#4361ee", to: "#3a0ca3" }}
               style={{ fontWeight: 600 }}
             >
-              PRIVACY POLICY
+              TERMS OF SERVICE
             </Badge>
             
             <Title
@@ -225,7 +227,7 @@ const PrivacyPage: React.FC = () => {
               }}
             >
               <Text inherit component="span" c={theme.white}>
-                Your privacy is{" "}
+                Your agreement{" "}
               </Text>
               <Text
                 inherit
@@ -233,7 +235,7 @@ const PrivacyPage: React.FC = () => {
                 variant="gradient"
                 gradient={{ from: "#4361ee", to: "#3a0ca3", deg: 45 }}
               >
-                our priority
+                with us
               </Text>
             </Title>
 
@@ -243,7 +245,7 @@ const PrivacyPage: React.FC = () => {
               ta="center"
               style={{ maxWidth: 600, lineHeight: 1.6 }}
             >
-              This Privacy Policy describes how Incoming Class collects, uses, and discloses your information when you use our services. By using our Service, you agree to the collection and use of information in accordance with this policy.
+              These Terms of Use constitute a license that governs your use of the Site and any transactions you engage in. By accessing, viewing, or using the Site, you acknowledge you've read, understood, and agree to be bound by these Terms.
             </Text>
 
             <Text size="sm" c="gray.5" ta="center">
@@ -253,22 +255,22 @@ const PrivacyPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Privacy Sections */}
+      {/* Terms Sections */}
       <Box py={80} style={{ backgroundColor: theme.colors.dark[9] }}>
         <Container size="lg">
           <Stack gap="xl" ref={sectionsRef}>
-            {privacySections.map((section, index) => (
+            {termsSections.map((section, index) => (
               <Paper
                 key={index}
-                className="privacy-section"
+                className="terms-section"
                 p="xl"
                 radius="lg"
                 style={{
                   background: "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
                   border: "1px solid rgba(67, 97, 238, 0.15)",
-                  backdropFilter: "blur(5px)", // Reduced blur for better performance
-                  WebkitBackdropFilter: "blur(5px)", // iOS support
-                  transform: 'translate3d(0,0,0)', // Force GPU acceleration
+                  backdropFilter: "blur(5px)",
+                  WebkitBackdropFilter: "blur(5px)",
+                  transform: 'translate3d(0,0,0)',
                   WebkitBackfaceVisibility: 'hidden',
                   WebkitPerspective: 1000
                 }}
@@ -331,7 +333,7 @@ const PrivacyPage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Additional Information */}
+      {/* Cancellation & Refund Policy Section */}
       <Box py={60} style={{ backgroundColor: theme.colors.dark[8] }}>
         <Container size="lg">
           <Stack gap="xl">
@@ -341,7 +343,7 @@ const PrivacyPage: React.FC = () => {
               c={theme.white}
               style={{ fontSize: "2rem" }}
             >
-              Additional Information
+              Cancellation & Refund Policy
             </Title>
             
             <Paper
@@ -355,64 +357,130 @@ const PrivacyPage: React.FC = () => {
               <Stack gap="lg">
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Tracking Technologies
+                    Non-Refundable Policy
                   </Title>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    We use browser storage and request headers (e.g., IP address, browser type) to maintain session information, improve service performance, and analyze user behavior. We do not use tracking cookies, web beacons, or flash cookies.
+                    All subscription payments are non-refundable, including but not limited to mistaken purchases, subscriber dissatisfaction, missed promotional periods, and removal of posts due to Terms of Service violations (e.g., trolling, impersonation, inappropriate content). No partial refunds will be issued for unused time within a billing cycle.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Data Storage and Transfer
+                    Cancellation Process
                   </Title>
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }} mb="sm">
+                    You may cancel your subscription at any time by visiting: <strong>https://incomingclass.com/subscription</strong>
+                  </Text>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    Your information is securely stored using MongoDB. MongoDB servers may be located internationally. By using the Service, you consent to international data transfer in accordance with this policy. We do not transfer data to any platform without proper safeguards.
+                    Upon cancellation: Your subscription remains active until the end of your current billing period, you will not be billed again after the current period ends, and canceling does not result in a refund for the current or previous charges.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Data Retention
+                    Content Denial
                   </Title>
-                  <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    We retain data as long as needed for the purposes listed, to comply with legal obligations, and for internal analytics. If no longer needed, your data will be deleted or anonymized within a reasonable timeframe.
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }} mb="sm">
+                    Incoming Class reserves the right to deny, remove, or refuse to post any submitted content that violates our Terms of Service. Reasons include, but are not limited to:
+                  </Text>
+                  <Text c="gray.3" style={{ lineHeight: 1.6, paddingLeft: "20px" }}>
+                    • Harassment, hate speech, or trolling<br/>
+                    • Impersonation or misleading identity<br/>
+                    • Promotion of external products or services<br/>
+                    • False information or spam
+                  </Text>
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }} mt="sm">
+                    No refund will be issued if your post is denied or removed due to violations.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Children's Privacy
+                    Contact for Billing Support
                   </Title>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    Our Service is not intended for anyone under 15 years old. We do not knowingly collect data from individuals under 15. If you are a parent or guardian and believe your child provided data, contact us immediately to have it removed.
+                    For billing or account support, reach out to us at: <strong>📧 support@incomingclass.com</strong>
+                  </Text>
+                </Box>
+              </Stack>
+            </Paper>
+          </Stack>
+        </Container>
+      </Box>
+
+      {/* Additional Terms Information */}
+      <Box py={60} style={{ backgroundColor: theme.colors.dark[9] }}>
+        <Container size="lg">
+          <Stack gap="xl">
+            <Title
+              order={2}
+              ta="center"
+              c={theme.white}
+              style={{ fontSize: "2rem" }}
+            >
+              Additional Terms
+            </Title>
+            
+            <Paper
+              p="xl"
+              radius="lg"
+              style={{
+                backgroundColor: theme.colors.dark[9],
+                border: `1px solid ${theme.colors.dark[7]}`
+              }}
+            >
+              <Stack gap="lg">
+                <Box>
+                  <Title order={3} c={theme.white} mb="sm" size="lg">
+                    User-Generated Content
+                  </Title>
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }}>
+                    You may submit bios, images, and other content to be posted publicly. You represent that you own or have permission to use the content, it's not false or harmful, doesn't infringe on others' rights, and any people featured have consented. We may remove any content at our discretion.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    External Links
+                    Site Contents and Ownership
                   </Title>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    Our Service may link to third-party websites. We are not responsible for their privacy policies or practices. Please review their policies before using them.
+                    All content, design, logos, and materials on the Site and social media pages are the intellectual property of Incoming Class. You may not reuse or reproduce them without permission. Any authorized uses must retain our copyright notice.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Disclosure of Personal Data
+                    Disclaimer of Warranty
                   </Title>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    We may disclose data to comply with legal obligations, protect the rights or safety of Incoming Class or its users, and prevent or investigate fraud or violations.
+                    We provide the Site and Service "as is." We make no guarantees about uptime, accuracy, or outcomes. Use the Service at your own risk.
                   </Text>
                 </Box>
 
                 <Box>
                   <Title order={3} c={theme.white} mb="sm" size="lg">
-                    Changes to This Policy
+                    Limitation of Liability
                   </Title>
                   <Text c="gray.3" style={{ lineHeight: 1.6 }}>
-                    We may update this Privacy Policy periodically. You will be notified via email or a post on our site or Instagram page. Changes are effective once posted.
+                    Incoming Class and Incoming Class LLC are not liable for any indirect, incidental, or consequential damages. Our maximum liability to you will not exceed the payment option selected or the amount you paid us in the past 12 months.
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Title order={3} c={theme.white} mb="sm" size="lg">
+                    DMCA Policy
+                  </Title>
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }}>
+                    If you believe content infringes your copyright, send a DMCA notice to legal@incomingclass.com including your contact info, signature, description of the infringing material and location, good faith belief of unauthorized use, and statement of accuracy under penalty of perjury.
+                  </Text>
+                </Box>
+
+                <Box>
+                  <Title order={3} c={theme.white} mb="sm" size="lg">
+                    Modifications to Terms
+                  </Title>
+                  <Text c="gray.3" style={{ lineHeight: 1.6 }}>
+                    We may update these Terms at any time. It's your responsibility to review them periodically. Your continued use means acceptance. Electronic signatures (clicking "I Agree" or using the Service) constitute legally binding agreements.
                   </Text>
                 </Box>
               </Stack>
@@ -432,9 +500,9 @@ const PrivacyPage: React.FC = () => {
             style={{
               background: "linear-gradient(135deg, rgba(67, 97, 238, 0.1) 0%, rgba(229, 56, 59, 0.1) 100%)",
               border: "1px solid rgba(67, 97, 238, 0.2)",
-              backdropFilter: "blur(8px)", // Reduced blur for better performance
-              WebkitBackdropFilter: "blur(8px)", // iOS support
-              transform: 'translate3d(0,0,0)', // Force GPU acceleration
+              backdropFilter: "blur(8px)",
+              WebkitBackdropFilter: "blur(8px)",
+              transform: 'translate3d(0,0,0)',
               WebkitBackfaceVisibility: 'hidden',
               WebkitPerspective: 1000
             }}
@@ -451,11 +519,11 @@ const PrivacyPage: React.FC = () => {
               </ThemeIcon>
               
               <Title order={2} c={theme.white}>
-                Questions About Privacy?
+                Questions About Terms?
               </Title>
               
               <Text c="gray.3" size="lg" maw={400} mx="auto">
-                For questions or requests regarding this policy, please contact us at support@incomingclass.com or visit our contact page.
+                For questions about these terms or billing support, please contact us at support@incomingclass.com.
               </Text>
               
               <Group justify="center" gap="md" mt="lg">
@@ -485,7 +553,7 @@ const PrivacyPage: React.FC = () => {
                 </Anchor>
                 
                 <Anchor
-                  href="https://incomingclass.com/public/contact"
+                  href="mailto:legal@incomingclass.com"
                   style={{
                     color: theme.colors.blue[4],
                     textDecoration: "none",
@@ -506,7 +574,7 @@ const PrivacyPage: React.FC = () => {
                     e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
-                  Contact Page
+                  legal@incomingclass.com
                 </Anchor>
               </Group>
             </Stack>
@@ -517,4 +585,4 @@ const PrivacyPage: React.FC = () => {
   );
 };
 
-export default PrivacyPage; 
+export default TermsPage; 

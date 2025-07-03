@@ -212,6 +212,7 @@ const FeedContent: React.FC<FeedContentProps> = ({ onFiltersClick }) => {
             <PostCard 
               key={post.id} 
               post={post} 
+              hideDots={true}
             />
           ))}
           

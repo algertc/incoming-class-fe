@@ -388,11 +388,11 @@ const SignupForm: React.FC = () => {
             label={
               <Text size="sm">
                 I agree to the{" "}
-                <Link to="/terms" className={classes.linkText}>
+                <Link to="/public/terms" className={classes.linkText}>
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link to="/privacy" className={classes.linkText}>
+                <Link to="/public/privacy" className={classes.linkText}>
                   Privacy Policy
                 </Link>
               </Text>

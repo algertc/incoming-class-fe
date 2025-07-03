@@ -8,7 +8,7 @@ import {
   Title,
   Alert,
 } from "@mantine/core";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import classes from "./ForgotPassword.module.scss";
 import { IconArrowLeft, IconMail } from "@tabler/icons-react";
 import { useRequestPasswordReset } from "../../../../hooks/api";
@@ -19,6 +19,7 @@ const ForgotPasswordRequest: React.FC = () => {
   const [email, setEmail] = useState("");
   const [requestSent, setRequestSent] = useState(false);
   const { mutateAsync, isPending } = useRequestPasswordReset();
+  const navigate = useNavigate();
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,11 +36,18 @@ const ForgotPasswordRequest: React.FC = () => {
       const response = await mutateAsync(email);
       if (response.status) {
         setRequestSent(true);
+        // Store email for the reset page
+        localStorage.setItem('resetEmail', email);
       }
     } catch (error) {
       const errMsg = (error as Error).message;
       showError(errMsg || "Failed to send OTP. Please try again.");
     }
+  };
+
+  const handleContinueToReset = () => {
+    // Navigate to reset page with email as URL parameter
+    navigate(`/forgot-password/reset?email=${encodeURIComponent(email)}`);
   };
 
   return (
@@ -87,17 +95,16 @@ const ForgotPasswordRequest: React.FC = () => {
                 We've sent a one-time password (OTP) to <b>{email}</b>. Please
                 check your inbox and proceed to the next step.
                 <Flex mt="md">
-                  <Link to="/forgot-password/reset">
-                    <Button
-                      color="#4361ee"
-                      radius="md"
-                      size="sm"
-                      className={classes.primaryButton}
-                      fullWidth
-                    >
-                      Continue to Reset Password
-                    </Button>
-                  </Link>
+                  <Button
+                    onClick={handleContinueToReset}
+                    color="#4361ee"
+                    radius="md"
+                    size="sm"
+                    className={classes.primaryButton}
+                    fullWidth
+                  >
+                    Continue to Reset Password
+                  </Button>
                 </Flex>
               </Alert>
             ) : (

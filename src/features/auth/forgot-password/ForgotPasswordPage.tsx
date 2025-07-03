@@ -7,6 +7,7 @@ import ForgotPasswordReset from './components/ForgotPasswordReset'
 const ForgotPasswordPage: React.FC = () => {
   const location = useLocation();
   const isResetStep = location.pathname.includes('/reset');
+  console.log("is this event the page  ?",isResetStep);
   
   return (
     <Box 

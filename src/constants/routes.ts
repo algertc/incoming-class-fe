@@ -2,6 +2,7 @@ const ROUTES = {
   // Public routes
   HOME: "/",
   PUBLIC_COLLEGES: "/public/colleges",
+  PUBLIC_TERMS: "/public/terms",
   
   // Auth routes
   LOGIN: "/login",
@@ -18,6 +19,7 @@ const ROUTES = {
   APPLICATIONS: "/applications",
   PROFILE: "/profile",
   SETTINGS: "/settings",
+  TERMS: "/terms",
 };
 
 export default ROUTES; 

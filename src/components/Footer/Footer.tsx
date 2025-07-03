@@ -12,11 +12,13 @@ import {
 } from '@mantine/core';
 import { IconBrandTwitter, IconBrandInstagram, IconBrandFacebook, IconHeart } from '@tabler/icons-react';
 import { Link } from 'react-router';
+import { useAuthStore } from '../../store/auth.store';
 import gsap from 'gsap';
 
 export const Footer: React.FC = () => {
   const theme = useMantineTheme();
   const currentYear = new Date().getFullYear();
+  const { user } = useAuthStore();
   
   const footerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLHeadingElement>(null);
@@ -54,6 +56,17 @@ export const Footer: React.FC = () => {
       );
     }
   }, []);
+  
+  // Determine routes based on auth state
+  const getRoute = (routeName: 'about' | 'contact' | 'privacy' | 'terms') => {
+    if (user) {
+      // Authenticated user - use authenticated routes
+      return `/${routeName}`;
+    } else {
+      // Unauthenticated user - use public routes
+      return `/public/${routeName}`;
+    }
+  };
   
   return (
     <Box 
@@ -125,7 +138,7 @@ export const Footer: React.FC = () => {
             maw={500}
             mx="auto"
           >
-            <Link to="/about" style={{ textDecoration: 'none' }}>
+            <Link to={getRoute('about')} style={{ textDecoration: 'none' }}>
               <Text 
                 size="sm" 
                 c="dimmed" 
@@ -139,7 +152,7 @@ export const Footer: React.FC = () => {
               </Text>
             </Link>
 
-            <Link to="/contact" style={{ textDecoration: 'none' }}>
+            <Link to={getRoute('contact')} style={{ textDecoration: 'none' }}>
               <Text 
                 size="sm" 
                 c="dimmed" 
@@ -152,7 +165,7 @@ export const Footer: React.FC = () => {
                 Contact
               </Text>
             </Link>
-            <Link to="/privacy" style={{ textDecoration: 'none' }}>
+            <Link to={getRoute('privacy')} style={{ textDecoration: 'none' }}>
               <Text 
                 size="sm" 
                 c="dimmed" 
@@ -163,6 +176,19 @@ export const Footer: React.FC = () => {
                 }}
               >
                 Privacy
+              </Text>
+            </Link>
+            <Link to={getRoute('terms')} style={{ textDecoration: 'none' }}>
+              <Text 
+                size="sm" 
+                c="dimmed" 
+                style={{ 
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease',
+                  '&:hover': { color: theme.white }
+                }}
+              >
+                Terms
               </Text>
             </Link>
           </Flex>

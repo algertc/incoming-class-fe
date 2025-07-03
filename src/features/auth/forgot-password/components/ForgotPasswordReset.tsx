@@ -10,53 +10,95 @@ import {
   PasswordInput,
   Group
 } from '@mantine/core'
-import { Link, useNavigate } from 'react-router'
+import { useForm, yupResolver } from '@mantine/form'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import classes from './ForgotPassword.module.scss'
 import { IconArrowLeft, IconCheck, IconLock } from '@tabler/icons-react'
+import { useResetPassword } from '../../../../hooks/api'
+import { showError, showSuccess } from '../../../../utils'
+import { resetPasswordSchema } from '../../../../forms/schemas/auth.schemas'
+import { resetPasswordInitialValues } from '../../../../forms/initialValues/auth.initialValues'
+
+interface ResetPasswordFormValues {
+  password: string;
+  confirmPassword: string;
+}
 
 const ForgotPasswordReset: React.FC = () => {
+  const [searchParams] = useSearchParams();
   const [otp, setOtp] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [resetComplete, setResetComplete] = useState(false);
   const navigate = useNavigate();
   
-  const passwordError = password.length > 0 && password.length < 8 
-    ? 'Password must be at least 8 characters' 
-    : null;
+  // Get email from URL parameters or localStorage
+  const email = searchParams.get('email') || localStorage.getItem('resetEmail') || '';
   
-  const confirmPasswordError = confirmPassword.length > 0 && password !== confirmPassword
-    ? 'Passwords do not match'
+  const { mutateAsync: resetPassword, isPending } = useResetPassword();
+  
+  // Initialize Mantine form with validation
+  const form = useForm<ResetPasswordFormValues>({
+    initialValues: resetPasswordInitialValues,
+    validate: yupResolver(resetPasswordSchema),
+  });
+
+  console.log("what the fuck is this ?");
+  
+  
+  const otpError = otp.length > 0 && otp.length < 6 
+    ? 'Verification code must be 6 digits' 
     : null;
   
   const isFormValid = 
     otp.length === 6 && 
-    password.length >= 8 && 
-    password === confirmPassword;
+    form.isValid() &&
+    email.length > 0;
   
-  const handleResetPassword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isFormValid) return;
+  const handleResetPassword = async (values: ResetPasswordFormValues) => {
+    console.log("form submissin opening  ?  :",values);
     
-    setIsLoading(true);
+    if (otp.length !== 6) {
+      showError('Please enter a valid 6-digit verification code');
+      return;
+    }
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      setResetComplete(true);
+    try {
+      const response = await resetPassword({
+        email,
+        otp,
+        password: values.password
+      });
+
+      console.log(
+        "why not responding", response
+      );
       
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000);
-    }, 1500);
+      
+      if (response.status) {
+        setResetComplete(true);
+        showSuccess('Password reset successfully! Redirecting to login...');
+        
+        // Clean up stored email
+        localStorage.removeItem('resetEmail');
+        
+        // The useResetPassword hook will handle navigation automatically
+      }
+    } catch (error) {
+      const errorMessage = (error as Error).message || 'Failed to reset password. Please try again.';
+      showError(errorMessage);
+    }
   };
+  
+  // If no email is available, redirect back to request page
+  React.useEffect(() => {
+    if (!email) {
+      navigate('/forgot-password');
+    }
+  }, [email, navigate]);
   
   return (
     <Box style={{ width: "100%", height: "100%", maxHeight: "700px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
       <Box className={classes.formContainer}>
-        <form onSubmit={handleResetPassword}>
+        <form onSubmit={form.onSubmit(handleResetPassword)}>
           <Flex direction={"column"} gap={{ base: 20, md: 24 }}>
             <Box>
               <Link to="/forgot-password">
@@ -72,7 +114,7 @@ const ForgotPasswordReset: React.FC = () => {
               </Link>
               <Title order={3} mb="sm" mt="md" className={classes.formTitle}>Reset Your Password</Title>
               <Text size="sm" className={classes.formText} mb="lg">
-                Enter the verification code sent to your email and create a new password.
+                Enter the verification code sent to <strong>{email}</strong> and create a new password.
               </Text>
             </Box>
             
@@ -103,32 +145,34 @@ const ForgotPasswordReset: React.FC = () => {
                       oneTimeCode
                       aria-label="Verification code"
                       classNames={{ input: classes.input }}
+                      error={!!otpError}
                     />
                   </Group>
+                  {otpError && (
+                    <Text size="sm" c="red" mt="xs" ta="center">
+                      {otpError}
+                    </Text>
+                  )}
                 </Box>
                 
                 <PasswordInput 
                   classNames={{ label: classes.label, input: classes.input }} 
-                  label={"New Password"} 
+                  label="New Password" 
                   placeholder="Enter new password"
                   radius="md"
                   size="md"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  error={passwordError}
                   leftSection={<IconLock size={16} />}
+                  {...form.getInputProps('password')}
                 />
                 
                 <PasswordInput 
                   classNames={{ label: classes.label, input: classes.input }} 
-                  label={"Confirm Password"} 
+                  label="Confirm Password" 
                   placeholder="Confirm new password"
                   radius="md"
                   size="md"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={confirmPasswordError}
                   leftSection={<IconLock size={16} />}
+                  {...form.getInputProps('confirmPassword')}
                 />
                 
                 <Button 
@@ -137,7 +181,7 @@ const ForgotPasswordReset: React.FC = () => {
                   radius="md"
                   size="lg"
                   fullWidth
-                  loading={isLoading}
+                  loading={isPending}
                   className={classes.primaryButton}
                   disabled={!isFormValid}
                 >

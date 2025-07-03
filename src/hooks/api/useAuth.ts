@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { authService } from '../../services';
 import type { LoginCredentials, SignupData, ResetPasswordData } from '../../models/user.model';
 import { useNavigate } from 'react-router';
-import ROUTES from '../../constants/routes';
 
 /**
  * React Query key factory for auth-related queries
@@ -97,18 +96,10 @@ export const useRequestPasswordReset = () => {
  * Hook for resetting password with OTP
  */
 export const useResetPassword = () => {
-  const navigate = useNavigate();
 
   return useMutation({
     mutationFn: (data: ResetPasswordData) => authService.resetPassword(data),
-    onSuccess: (data) => {
-      if (data.status) {
-        // Navigate to login page after successful reset
-        setTimeout(() => {
-          navigate(ROUTES.LOGIN);
-        }, 2000); // Allow time for success message to be shown
-      }
-    }
+ 
   });
 };
 

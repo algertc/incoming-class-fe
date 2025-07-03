@@ -63,9 +63,10 @@ export interface Post {
 interface PostCardProps {
   post: Post;
   isStatic?: boolean; // Controls if the post is interactive or static (for previews)
+  hideDots?: boolean; // Controls if the three-dot dropdown should be hidden
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = false }) => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const updatePostMutation = useUpdatePost();
@@ -505,8 +506,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false }) => {
           </Box>
         </Group>
         
-        {/* Edit button - only show for post author and when not static */}
-        {!isStatic && isAuthor && (
+        {/* Edit button - only show for post author and when not static and not hidden */}
+        {!isStatic && !hideDots && isAuthor && (
           <Menu shadow="md" width={200} position="bottom-end" withinPortal>
             <Menu.Target>
               <ActionIcon
