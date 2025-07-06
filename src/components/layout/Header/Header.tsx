@@ -180,13 +180,17 @@ export const Header: React.FC = () => {
                         src={user?.profilePicture}
                         alt={fullName}
                         radius="xl"
-                        size="sm"
+                        size={"sm"}
                         styles={{
                           root: {
                             border: "none",
                             "@media (max-width: 768px)": {
                               width: rem(24),
                               height: rem(24),
+                            },
+                            "@media (min-width: 769px)": {
+                              width: rem(36),
+                              height: rem(36),
                             },
                           },
                           image: {

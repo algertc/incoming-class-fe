@@ -39,22 +39,19 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
       setIsSubmitting(true);
       
       const profileData = {
-        
-          sleepSchedule: values.sleepSchedule,
-          cleanliness: values.cleanliness,
-          guests: values.guests,
-          studying: values.studying,
-          substances: values.substances,
-          personality: values.personality,
-          physicalActivity: values.physicalActivity,
-          pastimes: values.pastimes,
-          food: values.food,
-          other: values.other,
-          campusInvolvement: values.campusInvolvement,
-          profileStage: ProfileStage.PROFILE_PREVIEW // Move to next stage
+        sleepSchedule: values.sleepSchedule,
+        cleanliness: values.cleanliness,
+        guests: values.guests,
+        studying: values.studying,
+        substances: values.substances,
+        personality: values.personality,
+        physicalActivity: values.physicalActivity,
+        pastimes: values.pastimes,
+        food: values.food,
+        other: values.other,
+        campusInvolvement: values.campusInvolvement,
+        profileStage: ProfileStage.PROFILE_PREVIEW
       };
-      
- 
       
       const response = await updateProfile(profileData);
 
@@ -63,7 +60,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
       }
       
       showSuccess("Preferences saved successfully!");
-      onComplete(); // Move to next step in the UI
+      onComplete();
     } catch (error) {
       showError((error as Error).message);
     } finally {

@@ -49,7 +49,7 @@ export const useStudentProfileData = () => {
               name: user.firstName && user.lastName 
                 ? `${user.firstName} ${user.lastName}` 
                 : user.email,
-              avatar: user.profilePicture || 'https://i.pravatar.cc/150?img=20',
+              profileImage: user.profilePicture || 'https://i.pravatar.cc/150?img=20',
               verified: user.isPremium || false
             },
             content: 'Looking forward to meeting new people this semester! Anyone interested in study groups for computer science courses?',
@@ -66,7 +66,7 @@ export const useStudentProfileData = () => {
               name: user.firstName && user.lastName 
                 ? `${user.firstName} ${user.lastName}` 
                 : user.email,
-              avatar: user.profilePicture || 'https://i.pravatar.cc/150?img=20',
+              profileImage: user.profilePicture || 'https://i.pravatar.cc/150?img=20',
               verified: user.isPremium || false
             },
             content: 'Just joined the campus hiking club! Great way to explore the area and meet fellow outdoor enthusiasts.',

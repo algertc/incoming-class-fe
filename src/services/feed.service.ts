@@ -96,7 +96,7 @@ class FeedService {
       author: {
         id: apiPost.author._id,
         name: `${apiPost.author.firstName} ${apiPost.author.lastName}`,
-        avatar: apiPost.author.profilePicture || '',
+        profileImage: apiPost.author.profilePicture || '',
         verified: apiPost.author.verified || false,
       },
       timestamp: new Date(apiPost.createdAt),

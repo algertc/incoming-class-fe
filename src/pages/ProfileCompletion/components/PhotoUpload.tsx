@@ -37,7 +37,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
-  const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
   const theme = useMantineTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -77,68 +77,79 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
       return;
     }
 
-    // Process each file one by one with cropping
-    files.forEach((file, index) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result;
-          if (result) {
-            // Open crop modal for the first file
-            if (index === 0) {
-              setCurrentImageUrl(result as string);
-              setCurrentFileIndex(selectedFiles.length);
-              setCropModalOpen(true);
-            }
-            // Add file to selected files
-            setSelectedFiles(prev => [...prev, file]);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // If there are already pending files, add new files to the queue
+    const newPendingFiles = [...pendingFiles, ...files];
+    setPendingFiles(newPendingFiles);
+
+    // Only start processing if modal is not already open
+    if (!cropModalOpen && newPendingFiles.length > 0) {
+      processNextFile(newPendingFiles);
+    }
   };
 
-  const handleCropComplete = async (croppedImageBlob: Blob) => {
-    // Convert blob to File
-    const croppedFile = new File([croppedImageBlob], selectedFiles[currentFileIndex].name, {
-      type: 'image/jpeg',
-    });
-
-    // Update selectedFiles with cropped version
-    setSelectedFiles(prev => {
-      const newFiles = [...prev];
-      newFiles[currentFileIndex] = croppedFile;
-      return newFiles;
-    });
-
-    // Create preview URL
+  // Separate function to process the next file
+  const processNextFile = (files: File[]) => {
+    if (files.length === 0) return;
+    
     const reader = new FileReader();
     reader.onload = (e) => {
       const result = e.target?.result;
       if (result) {
-        setPhotos(prev => [...prev, result as string]);
+        setCurrentImageUrl(result as string);
+        setCropModalOpen(true);
       }
     };
-    reader.readAsDataURL(croppedFile);
+    reader.readAsDataURL(files[0]);
+  };
 
-    // Check if there are more files to crop
-    if (currentFileIndex < selectedFiles.length - 1) {
-      // Process next file
+  const handleCropComplete = async (croppedImageBlob: Blob) => {
+    try {
+      // Convert blob to File
+      const croppedFile = new File([croppedImageBlob], pendingFiles[0].name, {
+        type: 'image/jpeg',
+      });
+
+      // Add the cropped file to selectedFiles
+      setSelectedFiles(prev => [...prev, croppedFile]);
+
+      // Create preview URL
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result;
         if (result) {
-          setCurrentImageUrl(result as string);
-          setCurrentFileIndex(prev => prev + 1);
-          setCropModalOpen(true);
+          setPhotos(prev => [...prev, result as string]);
         }
       };
-      reader.readAsDataURL(selectedFiles[currentFileIndex + 1]);
-    } else {
-      // All files processed
-      setCropModalOpen(false);
-      setCurrentFileIndex(-1);
+      reader.readAsDataURL(croppedFile);
+
+      // Remove the processed file from pending files
+      const remainingFiles = pendingFiles.slice(1);
+      setPendingFiles(remainingFiles);
+
+      // Process next file if available
+      if (remainingFiles.length > 0) {
+        processNextFile(remainingFiles);
+      } else {
+        // All files processed
+        setCropModalOpen(false);
+        setCurrentImageUrl('');
+      }
+    } catch (error) {
+      console.error('Error processing cropped image:', error);
+      showError('Failed to process the cropped image');
+    }
+  };
+
+  const handleModalClose = () => {
+    // Just close the modal, keeping the current file in pendingFiles
+    setCropModalOpen(false);
+    setCurrentImageUrl('');
+  };
+
+  const handleRetry = () => {
+    // Retry processing the current pending file
+    if (pendingFiles.length > 0) {
+      processNextFile(pendingFiles);
     }
   };
 
@@ -151,32 +162,47 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
     try {
       setIsSubmitting(true);
       
-      // Validate files before upload
-      const validation = validateImageFiles(selectedFiles);
-      if (!validation.isValid) {
-        showError(validation.error || 'Please select valid images');
+      // Check if user has existing photos or new selected files
+      const hasExistingPhotos = photos.length > 0;
+      const hasNewFiles = selectedFiles.length > 0;
+      
+      if (!hasExistingPhotos && !hasNewFiles) {
+        showError('Please upload at least one photo to continue');
         return;
       }
+      
+      let uploadResponse;
+      // Only upload if there are new files
+      if (hasNewFiles) {
+        // Validate files before upload
+        const validation = validateImageFiles(selectedFiles);
+        if (!validation.isValid) {
+          showError(validation.error || 'Please select valid images');
+          return;
+        }
 
-      // Upload images to server
-      const formData = createImageFormData(selectedFiles);
-      const uploadResponse = await uploadImages(formData);
+        // Upload images to server
+        const formData = createImageFormData(selectedFiles);
+        uploadResponse = await uploadImages(formData);
 
-      if (!uploadResponse.status) {
-        throw new Error(uploadResponse.message || 'Failed to upload images');
+        if (!uploadResponse.status) {
+          throw new Error(uploadResponse.message || 'Failed to upload images');
+        }
       }
       
-      // Update profile stage to move to next step
+      // Update profile stage in the same request as any other profile updates
       const profileResponse = await updateProfile({
-        profileStage: ProfileStage.ABOUT_YOU
+        profileStage: ProfileStage.ABOUT_YOU,
+        // Add any other profile updates if needed
+        ...(uploadResponse?.data && { photos: uploadResponse.data })
       });
 
       if (!profileResponse.status) {
-        throw new Error(profileResponse.message || 'Failed to update profile stage');
+        throw new Error(profileResponse.message || 'Failed to update profile');
       }
       
-      showSuccess("Photos uploaded successfully!");
-      onComplete(); // Move to next step in the UI
+      showSuccess(hasNewFiles ? "Photos uploaded successfully!" : "Continuing with existing photos!");
+      onComplete();
     } catch (error) {
       showError((error as Error).message);
     } finally {
@@ -207,11 +233,22 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
         className={`${styles.dropzone} ${isMobile ? styles.dropzoneMobile : ''}`}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => {
+          // If there are pending files, retry processing the current one
+          if (pendingFiles.length > 0) {
+            handleRetry();
+          } else {
+            fileInputRef.current?.click();
+          }
+        }}
       >
         <IconUpload style={{ width: rem(isMobile ? 32 : 48), height: rem(isMobile ? 32 : 48), color: theme.white }} />
         <Text className={styles.dropzoneText} size={isMobile ? "sm" : "md"}>
-          {isMobile ? "Tap to select photos" : "Drag and drop photos here or click to select"}
+          {pendingFiles.length > 0 
+            ? "Click to retry processing the current image" 
+            : isMobile 
+              ? "Tap to select photos" 
+              : "Drag and drop photos here or click to select"}
         </Text>
         <Text size={isMobile ? "xs" : "sm"} c="dimmed" mt="xs">
           Upload up to 10 images (max 5MB each). Images will be fitted to your chosen aspect ratio without cropping.
@@ -260,7 +297,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
         <Button
           size={isMobile ? "md" : "lg"}
           onClick={handleNext}
-          disabled={selectedFiles.length === 0}
+          disabled={photos.length === 0 && selectedFiles.length === 0}
           className={styles.nextButton}
           c="white"
           loading={isLoading}
@@ -272,7 +309,7 @@ const PhotoUpload: React.FC<PhotoUploadProps> = ({ onComplete }) => {
 
       <ImageCropModal
         opened={cropModalOpen}
-        onClose={() => setCropModalOpen(false)}
+        onClose={handleModalClose}
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
       />

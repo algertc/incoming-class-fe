@@ -33,7 +33,7 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
   
   const [image, setImage] = useState<HTMLImageElement | null>(null);
   const [aspectRatio, setAspectRatio] = useState(1); // Default to square
-  const [previewDimensions, setPreviewDimensions] = useState({ width: 0, height: 0 });
+  const [previewDimensions, setPreviewDimensions] = useState({ width: 600, height: 600 }); // Set initial dimensions
 
   // Load image when modal opens
   useEffect(() => {
@@ -45,6 +45,22 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
         const imageAspectRatio = img.width / img.height;
         const constrainedRatio = Math.max(MIN_ASPECT_RATIO, Math.min(MAX_ASPECT_RATIO, imageAspectRatio));
         setAspectRatio(constrainedRatio);
+        
+        // Set initial preview dimensions based on the image's aspect ratio
+        const containerWidth = 600; // Default max width
+        const containerHeight = 400; // Default max height
+        
+        if (constrainedRatio > containerWidth / containerHeight) {
+          // Aspect ratio is wider than container
+          const previewWidth = Math.min(containerWidth, 600);
+          const previewHeight = previewWidth / constrainedRatio;
+          setPreviewDimensions({ width: previewWidth, height: previewHeight });
+        } else {
+          // Aspect ratio is taller than container
+          const previewHeight = Math.min(containerHeight, 400);
+          const previewWidth = previewHeight * constrainedRatio;
+          setPreviewDimensions({ width: previewWidth, height: previewHeight });
+        }
       };
       img.src = imageUrl;
     }
@@ -191,9 +207,17 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
           content: {
             backgroundColor: theme.colors.dark[7],
           },
+          body: {
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            paddingBottom: theme.spacing.xl,
+          },
+          inner: {
+            padding: theme.spacing.xs,
+          }
         }}
       >
-        <Stack gap="md">
+        <Stack gap="md" pb={50}>
           <Text size="sm" c="dimmed">
             Choose your preferred aspect ratio. The image will be fitted within these dimensions without cropping.
           </Text>
@@ -235,8 +259,8 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
             style={{
               position: 'relative',
               width: '100%',
-              height: '400px',
-              background: '#000',
+              height: '300px', // Reduced height for better mobile view
+              background: '#1A1B1E',
               borderRadius: theme.radius.md,
               overflow: 'hidden',
               display: 'flex',
@@ -244,58 +268,35 @@ const ImageCropModal: React.FC<ImageCropModalProps> = ({
               justifyContent: 'center',
             }}
           >
+            {!image && imageUrl && (
+              <Text size="sm" c="dimmed">Loading image...</Text>
+            )}
             {image && previewDimensions.width > 0 && (
               <Box
                 style={{
                   position: 'relative',
-                  width: previewDimensions.width,
-                  height: previewDimensions.height,
+                  width: `${previewDimensions.width}px`,
+                  height: `${previewDimensions.height}px`,
                   background: '#000',
-                  borderRadius: '4px',
-                  border: '2px solid #4361ee',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                 }}
               >
                 <img
                   src={imageUrl}
-                  alt="Fitted preview"
+                  alt="Preview"
                   style={{
-                    maxWidth: '100%',
-                    maxHeight: '100%',
-                    objectFit: 'contain', // This ensures the entire image is visible
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
                   }}
                 />
-                
-                {/* Aspect ratio indicator */}
-                <Box
-                  style={{
-                    position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    background: 'rgba(67, 97, 238, 0.9)',
-                    color: 'white',
-                    padding: '4px 8px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    fontWeight: 500,
-                  }}
-                >
-                  {aspectRatio.toFixed(2)}:1
-                </Box>
               </Box>
             )}
           </Box>
 
-          <Group justify="flex-end" mt="md">
-            <Button variant="subtle" color="gray" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleComplete} disabled={!image}>
-              Apply Aspect Ratio
-            </Button>
+          {/* Action Buttons */}
+          <Group justify="flex-end" mt="xl">
+            <Button variant="default" onClick={onClose}>Cancel</Button>
+            <Button onClick={handleComplete}>Continue</Button>
           </Group>
         </Stack>
       </Modal>

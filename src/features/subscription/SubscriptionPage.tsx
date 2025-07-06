@@ -35,7 +35,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import AnimatedBackground from '../feed/components/AnimatedBackground';
 import { useCurrentUser, useCurrentUserTransactions } from '../../hooks/api';
 import { format } from 'date-fns';
-import { CancelSubscriptionCard } from './components';
+import { CancelSubscriptionCard, SubscriptionPlans } from './components';
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
@@ -121,7 +121,7 @@ const SubscriptionPage: React.FC = () => {
 
   // Format amount from cents to dollars
   const formatAmount = (amountInCents: number) => {
-    return `$${(amountInCents / 100).toFixed(2)}`;
+    return `$${(amountInCents).toFixed(2)}`;
   };
 
   // Get payment type display
@@ -199,31 +199,30 @@ const SubscriptionPage: React.FC = () => {
                 fontWeight: 500,
                 maxWidth: 600
               }}
+              c={theme.white}
             >
-              <Text inherit component="span" c={theme.white}>
-                Subscription{" "}
-              </Text>
-              <Text
-                inherit
-                component="span"
-                variant="gradient"
-                gradient={{ from: "#4361ee", to: "#3a0ca3", deg: 45 }}
-              >
-                Management
-              </Text>
+              Your Subscription
             </Title>
-
-            <Text
-              size="lg"
-              c="gray.4"
-              ta="center"
-              style={{ maxWidth: 500, lineHeight: 1.5 }}
-            >
-              View your premium status and payment history
+            <Text c="dimmed" ta="center" size="lg" maw={600}>
+              {user?.isSubscribed 
+                ? "Manage your Premium Watch+ subscription and view your transaction history"
+                : "Upgrade from Starter Pack to Premium Watch+ for enhanced features"}
             </Text>
           </Stack>
         </Container>
       </Box>
+
+      {/* Subscription Plans Section */}
+      <Container size="lg" py="xl">
+        <Stack gap="xl">
+          <SubscriptionPlans isSubscribed={user?.isSubscribed || false} />
+          
+          {/* Only show cancel subscription card if user is subscribed */}
+          {user?.isSubscribed && (
+            <CancelSubscriptionCard onSubscriptionCanceled={refetchUser} />
+          )}
+        </Stack>
+      </Container>
 
       {/* Current Subscription Status */}
       <Box py={60} style={{ backgroundColor: theme.colors.dark[9] }}>
@@ -322,12 +321,12 @@ const SubscriptionPage: React.FC = () => {
                       Premium Status
                     </Title>
                     <Badge
-                      color={user?.isPremium ? "green" : "blue"}
+                      color={user?.isSubscribed ? "green" : "blue"}
                       variant="filled"
                       size="lg"
-                      leftSection={user?.isPremium ? <IconCrown size={14} /> : undefined}
+                      leftSection={user?.isSubscribed ? <IconCrown size={14} /> : undefined}
                     >
-                      {user?.isPremium ? "Premium Active" : "Free Plan"}
+                      {user?.isSubscribed ? "Premium Match+ Active" : "Starter Pack Active"}
                     </Badge>
                   </Group>
 
@@ -335,7 +334,7 @@ const SubscriptionPage: React.FC = () => {
                     <Box>
                       <Text size="sm" c="gray.5" mb="xs">Plan Status</Text>
                       <Group align="center" gap="xs">
-                        {user?.isPremium ? (
+                        {user?.isSubscribed ? (
                           <>
                             <IconCheck size={16} color="green" />
                             <Text fw={600} c="green" size="lg">Active</Text>
@@ -343,7 +342,7 @@ const SubscriptionPage: React.FC = () => {
                         ) : (
                           <>
                             <IconX size={16} color="orange" />
-                            <Text fw={600} c="orange" size="lg">Free</Text>
+                            <Text fw={600} c="orange" size="lg">Starter Pack</Text>
                           </>
                         )}
                       </Group>
@@ -366,7 +365,7 @@ const SubscriptionPage: React.FC = () => {
                     <Box>
                       <Text size="sm" c="gray.5" mb="xs">Posts Access</Text>
                       <Text fw={600} c={theme.white} size="lg">
-                        {user?.isPremium ? (
+                        {user?.isSubscribed ? (
                           <Group align="center" gap="xs">
                             <IconInfinity size={16} />
                             <Text>Unlimited</Text>
@@ -384,7 +383,7 @@ const SubscriptionPage: React.FC = () => {
                       color="blue"
                       variant="light"
                     >
-                      <Text size="sm">
+                      <Text size="sm" c={"white"}>
                         Last successful payment: {formatAmount(subscriptionStats.lastPayment.amount)} on{' '}
                         {format(new Date(subscriptionStats.lastPayment.transactionDate), 'MMM dd, yyyy')}
                       </Text>
@@ -503,16 +502,6 @@ const SubscriptionPage: React.FC = () => {
                 )}
               </Stack>
             </Paper>
-
-            {/* Cancel Subscription Card */}
-            <CancelSubscriptionCard
-              onSubscriptionCanceled={() => {
-                // Refetch user data to update premium status
-                refetchUser();
-                // Optionally refetch transactions to show updated history
-                refetchTransactions();
-              }}
-            />
           </Stack>
         </Container>
       </Box>

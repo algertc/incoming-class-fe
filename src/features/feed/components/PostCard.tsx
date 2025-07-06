@@ -47,7 +47,7 @@ export interface Post {
   author: {
     id: string;
     name: string;
-    avatar: string;
+    profileImage: string;
     verified?: boolean;
     isSubscribed?: boolean;
   };
@@ -399,7 +399,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
       <Group justify="space-between" mb="md">
         <Group>
           <Avatar 
-            src={post.author.avatar} 
+            src={post.author.profileImage} 
             alt={post.author.name} 
             radius="xl"
             onClick={isStatic ? undefined : handleProfileClick}

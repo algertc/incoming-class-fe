@@ -30,7 +30,7 @@ const ProfilePostCard: React.FC<ProfilePostCardProps> = ({ post }) => {
       {/* Post Header */}
       <Group justify="space-between" mb="md">
         <Group>
-          <Avatar src={post.author.avatar} alt={post.author.name} radius="xl" />
+          <Avatar src={post.author.profileImage} alt={post.author.name} radius="xl" />
           <Box>
             <Group gap={5}>
               <Text fw={600} size="sm">{post.author.name}</Text>

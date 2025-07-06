@@ -21,6 +21,7 @@ import {
   IconInfinity,
   IconBolt,
   IconSparkles,
+  
 } from "@tabler/icons-react";
 import { useAuthStore } from "../../../store/auth.store";
 import { useCreateSubscriptionSession, usePricing } from "../../../hooks/api";
@@ -38,6 +39,9 @@ export const PremiumFeatures: React.FC = () => {
   const { mutateAsync: createSubscriptionSession, isPending: isInitiatingPayment } = useCreateSubscriptionSession();
   const { data: pricingData, isLoading: isPricingLoading } = usePricing();
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  console.log(pricingData, "pricingData");
+  
 
   const price = pricingData?.data?.premium || 0;
 

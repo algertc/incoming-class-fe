@@ -17,7 +17,7 @@ export const useProfileData = () => {
       author: {
         id: 'current-user',
         name: user?.firstName + ' ' + user?.lastName || 'Current User',
-        avatar: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
+        profileImage: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
         verified: true
       },
       content: 'Excited to start my college journey! Looking forward to meeting new people and exploring all the opportunities ahead. Any tips for incoming freshmen?',
@@ -32,7 +32,7 @@ export const useProfileData = () => {
       author: {
         id: 'current-user',
         name: user?.firstName + ' ' + user?.lastName || 'Current User',
-        avatar: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
+        profileImage: user?.profilePicture || 'https://i.pravatar.cc/150?img=50',
         verified: true
       },
       content: 'Just finished my campus tour! The facilities are amazing, especially the new library and student center. Can\'t wait to start classes here!',

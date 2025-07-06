@@ -108,6 +108,8 @@ export interface User {
   cleanliness?: string;
   guests?: string;
   substances?: string;
+  studying?: string;
+  lookingForRoommate?: boolean;
   pastimes?: string[];
   interests?: string[];
   instagram?: string;

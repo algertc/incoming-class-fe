@@ -34,7 +34,7 @@ interface ProfileData {
   hometown?: string;
   bio?: string;
   university?: string;
-  college?: { name: string; _id?: string; id?: string } | string;
+  college?: { name: string; _id?: string; id?: string,username?:string,logoUrl?:string }
   traits?: {
     sleepSchedule?: string;
     cleanliness?: string;
@@ -59,6 +59,8 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
   useEffect(() => {
     // Only use real user data for the preview
     if (currentUserData?.data) {
+      console.log("user data", currentUserData.data );
+      
       setUserData(currentUserData.data as unknown as ProfileData);
     }
   }, [currentUserData]);
@@ -72,7 +74,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
 
   // Create a mock post for preview using user data
   const createMockPost = (): Post => {
-    const name = userData?.instagram?.replace('@', '') || 'John Doe';
+    const fullName = `${userData?.firstName || ''} ${userData?.lastName || ''}`.trim() || 'John Doe';
     const avatar = userData?.profileImage || userData?.photos?.[0] || 'https://i.pravatar.cc/150?img=1';
     
     // Better image selection for preview
@@ -103,9 +105,10 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
       id: 'preview-post',
       author: {
         id: 'preview-user',
-        name: name,
-        avatar: avatar,
+        name: fullName,
+        profileImage: avatar,
         verified: false,
+        isSubscribed: false
       },
       content: userData?.bio || '',
       images: getPreviewImages(),
@@ -173,8 +176,8 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
                     </Text>
             <InstagramPost
               user={{
-                username: userData.instagram?.replace('@', '') || userData.firstName || 'username',
-                avatar: userData.profileImage || userData.photos?.[0] || 'https://i.pravatar.cc/150?img=1',
+                username: userData.college?.username?.replace('@', '') || userData.firstName || 'username',
+                avatar: userData.college?.logoUrl || userData.profileImage || userData.photos?.[0] || 'https://i.pravatar.cc/150?img=1',
                 verified: false
               }}
               image={userData.photos?.[1] || userData.photos?.[0]}

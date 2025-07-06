@@ -30,11 +30,9 @@ import {
   IconCrown,
   IconBolt,
   IconInfinity,
-  IconClock,
 } from "@tabler/icons-react";
 import { showError } from "../../../utils";
 import { useCreateCheckoutSession, useCreateSubscriptionSession, usePricing } from "../../../hooks/api";
-import { usePaymentPolling } from "../../../hooks/usePaymentPolling";
 
 // Starter Plan features data
 const STARTER_FEATURES = [
@@ -158,9 +156,6 @@ const Payment: React.FC = () => {
   const { mutateAsync: createCheckoutSession, isPending: isInitiatingPayment } = useCreateCheckoutSession();
   const { mutateAsync: createSubscriptionSession, isPending: isInitiatingPremiumPayment } = useCreateSubscriptionSession();
   const { data: pricingData, isLoading: isPricingLoading } = usePricing();
-  
-  // Use the payment polling hook
-  const { isPolling: isPollingPayment, startPolling: startPaymentPolling } = usePaymentPolling();
 
   // Pricing keys: post (starter one-time), premium (monthly subscription)
   const starterPrice = pricingData?.data?.post || 0;
@@ -169,10 +164,7 @@ const Payment: React.FC = () => {
   const tax = 0.0;
   const starterTotal = starterPrice + tax;
 
-
-
   const initiatePayment = async () => {
- 
     setPaymentError(null);
 
     try {
@@ -190,15 +182,8 @@ const Payment: React.FC = () => {
         throw new Error(errorMsg);
       }
 
-      // Open Stripe checkout in a new tab
-      const newTab = window.open(response.data.checkoutUrl, '_blank');
-      if (!newTab) {
-        // Fallback if popup is blocked
-        window.location.href = response.data.checkoutUrl;
-      } else {
-        // Start polling for payment completion
-        startPaymentPolling();
-      }
+      // Navigate directly to checkout URL
+      window.location.href = response.data.checkoutUrl;
     } catch (error) {
       const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
       setPaymentError(errorMessage);
@@ -207,7 +192,6 @@ const Payment: React.FC = () => {
   };
 
   const initiatePremiumPayment = async () => {
- 
     setPremiumPaymentError(null);
 
     try {
@@ -225,15 +209,8 @@ const Payment: React.FC = () => {
         throw new Error(errorMsg);
       }
 
-      // Open Stripe checkout in a new tab
-      const newTab = window.open(response.data.checkoutUrl, '_blank');
-      if (!newTab) {
-        // Fallback if popup is blocked
-        window.location.href = response.data.checkoutUrl;
-      } else {
-        // Start polling for payment completion
-        startPaymentPolling();
-      }
+      // Navigate directly to checkout URL
+      window.location.href = response.data.checkoutUrl;
     } catch (error) {
       const errorMessage = (error as Error).message || "Failed to initialize payment. Please try again.";
       setPremiumPaymentError(errorMessage);
@@ -258,32 +235,11 @@ const Payment: React.FC = () => {
       }}
     >
       <LoadingOverlay 
-        visible={isInitiatingPayment || isInitiatingPremiumPayment || isPricingLoading || isPollingPayment} 
+        visible={isInitiatingPayment || isInitiatingPremiumPayment || isPricingLoading} 
         overlayProps={{ blur: 2 }}
-        loaderProps={{
-          children: isPollingPayment ? "Waiting for payment completion..." : undefined
-        }}
       />
 
-              <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
-        {/* Payment Status Alert */}
-        {isPollingPayment && (
-          <Alert
-            icon={<IconClock size={16} />}
-            title="Waiting for Payment"
-            color="blue"
-            variant="light"
-            style={{
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.2)",
-            }}
-          >
-            <Text size="sm" style={{ color: theme.colors.blue[3] }}>
-              Complete your payment in the new tab. This page will automatically redirect you once payment is confirmed.
-            </Text>
-          </Alert>
-        )}
-
+      <Stack gap={isMobile ? "md" : "xl"} style={isMobile ? { flex: 1 } : {}}>
         {/* Header */}
         <Box ta="center">
           <Group justify="center" mb={isMobile ? "xs" : "sm"}>

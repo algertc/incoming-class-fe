@@ -56,8 +56,7 @@ const ProfileCompletion: React.FC = () => {
   const [active, setActive] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
   const theme = useMantineTheme();
-  // const navigate = useNavigate();
-  const { user, fetchUser } = useAuthStore();
+  const { user } = useAuthStore();
   const { mutateAsync: updateProfile } = useUpdateCurrentUserProfile();
   const isMobile = useMediaQuery("(max-width: 768px)");
   
@@ -71,10 +70,10 @@ const ProfileCompletion: React.FC = () => {
       // If no profile stage, start at college selection
       setActive(0);
     }
-  }, [user]);
+  }, [user?.profileStage]); // Only depend on profileStage, not entire user object
 
-  const nextStep = () =>
-    setActive((current) => (current < 5 ? current + 1 : current));
+  const nextStep = () => setActive((current) => (current < 5 ? current + 1 : current));
+  
   const prevStep = async () => {
     if (active === 0 || isNavigating) return;
     
@@ -83,7 +82,6 @@ const ProfileCompletion: React.FC = () => {
       const newStepIndex = active - 1;
       const newStage = indexToStage[newStepIndex];
       
-      // Update backend stage
       if (newStage !== null) {
         const response = await updateProfile({
           profileStage: newStage
@@ -92,12 +90,8 @@ const ProfileCompletion: React.FC = () => {
         if (!response.status) {
           throw new Error(response.errorMessage?.message || 'Failed to update profile stage');
         }
-        
-        // Refresh user data
-        await fetchUser();
       }
 
-      // Update local state
       setActive(newStepIndex);
     } catch (error) {
       console.error('Error navigating back:', error);
@@ -151,14 +145,9 @@ const ProfileCompletion: React.FC = () => {
     },
   ];
 
-  // Handle completion of a step
-  const handleStepComplete = async (stepIndex: number) => {
-console.log("stepIndex", stepIndex);
-
+  // Handle completion of a step - now just updates UI
+  const handleStepComplete = () => {
     nextStep();
-
-    // Refresh user data to get updated profileStage
-    await fetchUser();
   };
 
   return (
@@ -272,19 +261,19 @@ console.log("stepIndex", stepIndex);
               }}
             >
               {active === 0 && (
-                <CollegeSelectStep onComplete={() => handleStepComplete(0)} />
+                <CollegeSelectStep onComplete={() => handleStepComplete()} />
               )}
               {active === 1 && (
-                <PhotoUpload onComplete={() => handleStepComplete(1)} />
+                <PhotoUpload onComplete={() => handleStepComplete()} />
               )}
               {active === 2 && (
-                <BasicInfo onComplete={() => handleStepComplete(2)} />
+                <BasicInfo onComplete={() => handleStepComplete()} />
               )}
               {active === 3 && (
-                <TraitsPreferences onComplete={() => handleStepComplete(3)} />
+                <TraitsPreferences onComplete={() => handleStepComplete()} />
               )}
               {active === 4 && (
-                <ProfilePreview onComplete={() => handleStepComplete(4)} />
+                <ProfilePreview onComplete={() => handleStepComplete()} />
               )}
               {active === 5 && <Payment />}
             </Box>

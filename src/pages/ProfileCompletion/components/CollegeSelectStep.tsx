@@ -44,11 +44,13 @@ const CollegeSelectStep: React.FC<CollegeSelectStepProps> = ({ onComplete }) => 
       const response = await updateProfile({
         college: collegeId ?? collegeName,
         university: collegeName,
-        profileStage: ProfileStage.UPLOAD_PHOTOS, // Move to next stage after college selection
+        profileStage: ProfileStage.UPLOAD_PHOTOS,
       });
+      
       if (!response.status) {
         throw new Error(response.errorMessage?.message || "Failed to save college");
       }
+      
       showSuccess("College saved successfully!");
       onComplete();
     } catch (err) {
