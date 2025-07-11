@@ -10,6 +10,7 @@ interface ChipGroupProps {
   onChange: (value: string | string[]) => void;
   error?: string;
   multiple?: boolean; // Enable multiple selection (default true)
+  'data-error'?: string; // Add data-error attribute
 }
 
 export const ChipGroup: React.FC<ChipGroupProps> = ({ 
@@ -17,7 +18,8 @@ export const ChipGroup: React.FC<ChipGroupProps> = ({
   value, 
   onChange, 
   error, 
-  multiple = true 
+  multiple = true,
+  'data-error': dataError 
 }) => {
   const handleChange = (newValue: string | string[]) => {
     if (multiple) {
@@ -31,26 +33,26 @@ export const ChipGroup: React.FC<ChipGroupProps> = ({
   };
 
   return (
-  <Box className={styles.chipGroupWrapper}>
-    <Chip.Group
+    <Box className={styles.chipGroupWrapper} data-error={dataError}>
+      <Chip.Group
         value={value}
         onChange={handleChange}
         multiple={multiple}
-    >
-      {data.map((item) => (
-        <Chip
-          key={item}
-          value={item}
-          className={styles.chip}
-          variant="filled"
-        >
-          {item}
-        </Chip>
-      ))}
-    </Chip.Group>
-    {error && <div className={styles.error}>{error}</div>}
-  </Box>
-);
+      >
+        {data.map((item) => (
+          <Chip
+            key={item}
+            value={item}
+            className={styles.chip}
+            variant="filled"
+          >
+            {item}
+          </Chip>
+        ))}
+      </Chip.Group>
+      {error && <div className={styles.error}>{error}</div>}
+    </Box>
+  );
 };
 
 export default ChipGroup; 

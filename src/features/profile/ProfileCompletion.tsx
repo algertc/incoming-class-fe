@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Container,
   Stepper,
@@ -19,7 +19,6 @@ import {
   IconEye,
   IconCreditCard,
 } from "@tabler/icons-react";
-// import { useNavigate } from "react-router";
 import CollegeSelectStep from "../../pages/ProfileCompletion/components/CollegeSelectStep";
 import PhotoUpload from "../../pages/ProfileCompletion/components/PhotoUpload";
 import BasicInfo from "../../pages/ProfileCompletion/components/BasicInfo";
@@ -27,12 +26,12 @@ import TraitsPreferences from "../../pages/ProfileCompletion/components/TraitsPr
 import ProfilePreview from "../../pages/ProfileCompletion/components/ProfilePreview";
 import Payment from "../../pages/ProfileCompletion/components/Payment";
 import styles from "../../pages/ProfileCompletion/ProfileCompletion.module.css";
-// import ROUTES from "../../constants/routes";
 import { useAuthStore } from "../../store/auth.store";
 import { ProfileStage } from "../../models/user.model";
 import { withProfileStageGuard } from "./withProfileStageGuard";
 import { useUpdateCurrentUserProfile } from "../../hooks/api";
 import { ScrollToTop } from "../../components/common";
+import { showError } from "../../utils";
 
 const stageToIndex = {
   [ProfileStage.COLLEGE_SELECTION]: 0,
@@ -43,7 +42,7 @@ const stageToIndex = {
   [ProfileStage.PAYMENT]: 5,
 };
 
-const indexToStage: Record<number, ProfileStage | null> = {
+const indexToStage: Record<number, ProfileStage> = {
   0: ProfileStage.COLLEGE_SELECTION,
   1: ProfileStage.UPLOAD_PHOTOS,
   2: ProfileStage.ABOUT_YOU,
@@ -53,48 +52,34 @@ const indexToStage: Record<number, ProfileStage | null> = {
 };
 
 const ProfileCompletion: React.FC = () => {
-  const [active, setActive] = useState(0);
   const [isNavigating, setIsNavigating] = useState(false);
   const theme = useMantineTheme();
   const { user } = useAuthStore();
   const { mutateAsync: updateProfile } = useUpdateCurrentUserProfile();
   const isMobile = useMediaQuery("(max-width: 768px)");
-  
 
-  // Initialize active step based on user's profileStage
-  useEffect(() => {
-    if (user?.profileStage) {
-      const stageIndex = stageToIndex[user.profileStage];
-      setActive(stageIndex);
-    } else {
-      // If no profile stage, start at college selection
-      setActive(0);
-    }
-  }, [user?.profileStage]); // Only depend on profileStage, not entire user object
+  // Get current active step from user's profileStage - single source of truth
+  const currentStage = user?.profileStage || ProfileStage.COLLEGE_SELECTION;
+  const active = stageToIndex[currentStage];
 
-  const nextStep = () => setActive((current) => (current < 5 ? current + 1 : current));
-  
   const prevStep = async () => {
     if (active === 0 || isNavigating) return;
-    
+
+    setIsNavigating(true);
     try {
-      setIsNavigating(true);
-      const newStepIndex = active - 1;
-      const newStage = indexToStage[newStepIndex];
-      
-      if (newStage !== null) {
-        const response = await updateProfile({
-          profileStage: newStage
-        });
+      const newStage = indexToStage[active - 1];
+      const response = await updateProfile({
+        profileStage: newStage,
+      });
 
-        if (!response.status) {
-          throw new Error(response.errorMessage?.message || 'Failed to update profile stage');
-        }
+      if (!response.status) {
+        throw new Error(
+          response.errorMessage?.message || "Failed to update profile stage"
+        );
       }
-
-      setActive(newStepIndex);
     } catch (error) {
-      console.error('Error navigating back:', error);
+      console.error("Error navigating back:", error);
+      showError("Failed to go back. Please try again.");
     } finally {
       setIsNavigating(false);
     }
@@ -144,11 +129,6 @@ const ProfileCompletion: React.FC = () => {
       stage: ProfileStage.PAYMENT,
     },
   ];
-
-  // Handle completion of a step - now just updates UI
-  const handleStepComplete = () => {
-    nextStep();
-  };
 
   return (
     <Box className={styles.container}>
@@ -255,26 +235,16 @@ const ProfileCompletion: React.FC = () => {
                   display: "flex",
                   flexDirection: "column",
                   overflow: "hidden",
-                  minHeight: 0, // Allow flexbox to shrink
-                  height: "calc(100vh - 200px)", // Fixed height for mobile
+                  minHeight: 0,
+                  height: "calc(100vh - 200px)",
                 }),
               }}
             >
-              {active === 0 && (
-                <CollegeSelectStep onComplete={() => handleStepComplete()} />
-              )}
-              {active === 1 && (
-                <PhotoUpload onComplete={() => handleStepComplete()} />
-              )}
-              {active === 2 && (
-                <BasicInfo onComplete={() => handleStepComplete()} />
-              )}
-              {active === 3 && (
-                <TraitsPreferences onComplete={() => handleStepComplete()} />
-              )}
-              {active === 4 && (
-                <ProfilePreview onComplete={() => handleStepComplete()} />
-              )}
+              {active === 0 && <CollegeSelectStep />}
+              {active === 1 && <PhotoUpload />}
+              {active === 2 && <BasicInfo />}
+              {active === 3 && <TraitsPreferences />}
+              {active === 4 && <ProfilePreview />}
               {active === 5 && <Payment />}
             </Box>
           </div>
@@ -301,5 +271,4 @@ const ProfileCompletion: React.FC = () => {
   );
 };
 
-// Wrap with the guard HOC
 export default withProfileStageGuard(ProfileCompletion);

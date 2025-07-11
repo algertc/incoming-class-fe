@@ -22,14 +22,18 @@ import {
 } from "@tabler/icons-react";
 import { useFeedStore, type FeedFilters } from "../../../store/feed.store";
 import { useDebouncedValue } from "@mantine/hooks";
-import { useCollegeSearch } from "../../../hooks/api/useColleges";
+import { useAllColleges } from "../../../hooks/api/useColleges";
+import { useNavigate } from "react-router";
+import { useAuthStore } from "../../../store/auth.store";
 
 export const FiltersSidebar: React.FC<{
   showSearch?: boolean;
   onPremiumModalOpen?: () => void;
 }> = ({ showSearch = false, onPremiumModalOpen }) => {
   const theme = useMantineTheme();
-
+  const navigate = useNavigate();
+  console.log(onPremiumModalOpen);
+  
   // Get feed store state and actions
   const {
     filters,
@@ -47,10 +51,6 @@ export const FiltersSidebar: React.FC<{
   const [timePeriod, setTimePeriod] = useState(filters.lastDays);
   const [debouncedTimePeriod] = useDebouncedValue(timePeriod, 500);
 
-  // College search for dropdown
-  const [collegeSearchQuery, setCollegeSearchQuery] = useState("");
-  const [debouncedCollegeSearch] = useDebouncedValue(collegeSearchQuery, 300);
-
   // Check if user has premium access
   const isPremium = checkFilterAccess();
 
@@ -60,7 +60,6 @@ export const FiltersSidebar: React.FC<{
     if (showSearch && filters.searchQuery && filters.searchQuery.trim() !== "")
       count++;
     if (filters.lastDays !== 30) count++;
-    if (filters.substances !== null) count++;
     if (filters.hometown !== null) count++;
     if (filters.religion !== null) count++;
     if (filters.gender !== null) count++;
@@ -71,10 +70,12 @@ export const FiltersSidebar: React.FC<{
     if (filters.cleanliness !== null) count++;
     if (filters.guests !== null) count++;
     if (filters.studying !== null) count++;
+    if (filters.substances !== null) count++;
     if (filters.personality?.length) count++;
     if (filters.physicalActivity?.length) count++;
     if (filters.pastimes?.length) count++;
     if (filters.food?.length) count++;
+    if (filters.major !== null) count++;
     return count;
   };
 
@@ -102,17 +103,18 @@ export const FiltersSidebar: React.FC<{
 
   // Show premium modal when trying to use multiple filters
   const showPremiumModal = () => {
-    if (onPremiumModalOpen) {
-      onPremiumModalOpen();
+    const { user } = useAuthStore.getState();
+    if (user) {
+      if (onPremiumModalOpen) {
+        onPremiumModalOpen();
+      }
+    } else {
+      navigate('/signup');
     }
   };
 
   // College search API
-  const { data: collegeData, isLoading: isLoadingColleges } = useCollegeSearch({
-    search: debouncedCollegeSearch,
-    limit: 50,
-    page: 1,
-  });
+  const { data: collegeData, isLoading: isLoadingColleges } = useAllColleges();
 
   // Transform college data for Select component
   const collegeOptions = React.useMemo(() => {
@@ -177,7 +179,6 @@ export const FiltersSidebar: React.FC<{
   // Handle reset
   const handleReset = () => {
     setSearchQuery("");
-    setCollegeSearchQuery("");
     setTimePeriod(30);
     resetFilters();
   };
@@ -295,8 +296,6 @@ export const FiltersSidebar: React.FC<{
         />
       </Box>
 
-      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
-
       {/* College Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         College
@@ -305,8 +304,6 @@ export const FiltersSidebar: React.FC<{
         placeholder="Select college"
         value={filters.college}
         onChange={(value) => handleFilterChange(value, "college")}
-        onSearchChange={setCollegeSearchQuery}
-        searchValue={collegeSearchQuery}
         data={collegeOptions}
         searchable
         leftSection={<IconSchool size={16} />}
@@ -345,18 +342,20 @@ export const FiltersSidebar: React.FC<{
         }}
       />
 
-      {/* Substances Filter */}
+      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
+      
+      {/* Gender Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Substances
+        Gender
       </Text>
       <Select
-        placeholder="Select preference"
-        value={filters.substances}
-        onChange={(value) => handleFilterChange(value, "substances")}
+        placeholder="Select gender"
+        value={filters.gender}
+        onChange={(value) => handleFilterChange(value, "gender")}
         data={[
-          { value: "Fine with Drinking", label: "Fine with Drinking" },
-          { value: "Sober", label: "Sober" },
-          { value: "420 Friendly", label: "420 Friendly" },
+          { value: "male", label: "Male" },
+          { value: "female", label: "Female" },
+          { value: "other", label: "Other" },
         ]}
         mb="md"
         styles={{
@@ -474,24 +473,32 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-
-      {/* Religion Filter */}
+      
+      {/* Major Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Religion
+        Major
       </Text>
       <Select
-        placeholder="Select religion"
-        value={filters.religion}
-        onChange={(value) => handleFilterChange(value, "religion")}
+        placeholder="Select major"
+        value={filters.major}
+        onChange={(value) => handleFilterChange(value, "major")}
         data={[
-          { value: "Christianity", label: "Christianity" },
-          { value: "Islam", label: "Islam" },
-          { value: "Hinduism", label: "Hinduism" },
-          { value: "Buddhism", label: "Buddhism" },
-          { value: "Judaism", label: "Judaism" },
-          { value: "Atheism", label: "Atheism" },
-          { value: "Agnostic", label: "Agnostic" },
-          { value: "Other", label: "Other" },
+          { value: "Computer Science", label: "Computer Science" },
+          { value: "Business", label: "Business" },
+          { value: "Engineering", label: "Engineering" },
+          { value: "Biology", label: "Biology" },
+          { value: "Psychology", label: "Psychology" },
+          { value: "Economics", label: "Economics" },
+          { value: "Mathematics", label: "Mathematics" },
+          { value: "Chemistry", label: "Chemistry" },
+          { value: "Physics", label: "Physics" },
+          { value: "English", label: "English" },
+          { value: "History", label: "History" },
+          { value: "Political Science", label: "Political Science" },
+          { value: "Sociology", label: "Sociology" },
+          { value: "Art", label: "Art" },
+          { value: "Music", label: "Music" },
+          { value: "Other", label: "Other" }
         ]}
         mb="md"
         styles={{
@@ -499,7 +506,9 @@ export const FiltersSidebar: React.FC<{
             backgroundColor: "rgba(255, 255, 255, 0.05)",
             color: theme.white,
             border: "1px solid rgba(255, 255, 255, 0.1)",
-            "&::placeholder": { color: theme.colors.dark[2] },
+            "&::placeholder": {
+              color: theme.colors.dark[2],
+            },
           },
           dropdown: {
             backgroundColor: theme.colors.dark[7],
@@ -512,163 +521,13 @@ export const FiltersSidebar: React.FC<{
               backgroundColor: theme.colors.blue[9],
               color: theme.white,
             },
-            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
-          },
-        }}
-      />
-
-      {/* Gender Filter */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Gender
-      </Text>
-      <Select
-        placeholder="Select gender"
-        value={filters.gender}
-        onChange={(value) => handleFilterChange(value, "gender")}
-        data={[
-          { value: "Male", label: "Male" },
-          { value: "Female", label: "Female" },
-          { value: "Non-binary", label: "Non-binary" },
-          { value: "Prefer not to say", label: "Prefer not to say" },
-        ]}
-        mb="md"
-        styles={{
-          input: {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: theme.white,
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            "&::placeholder": { color: theme.colors.dark[2] },
-          },
-          dropdown: {
-            backgroundColor: theme.colors.dark[7],
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            zIndex: 1300,
-          },
-          option: {
-            color: theme.white,
-            "&[data-selected]": {
-              backgroundColor: theme.colors.blue[9],
-              color: theme.white,
+            "&[data-hovered]": {
+              backgroundColor: theme.colors.dark[5],
             },
-            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
           },
         }}
       />
-
-      {/* Campus Involvement */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Campus Involvement
-      </Text>
-      <Select
-        placeholder="Select status"
-        value={filters.campusInvolvement}
-        onChange={(value) => handleFilterChange(value, "campusInvolvement")}
-        data={[
-          {
-            value: "Rushing a fraternity/sorority",
-            label: "Rushing a fraternity/sorority",
-          },
-          { value: "Business fraternity", label: "Business fraternity" },
-        ]}
-        mb="md"
-        styles={{
-          input: {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: theme.white,
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          },
-          dropdown: {
-            backgroundColor: theme.colors.dark[7],
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            zIndex: 1300,
-          },
-          option: {
-            color: theme.white,
-            "&[data-selected]": {
-              backgroundColor: theme.colors.blue[9],
-              color: theme.white,
-            },
-            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
-          },
-        }}
-      />
-
-      {/* Other */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Other
-      </Text>
-      <Select
-        placeholder="Select option"
-        value={filters.other}
-        onChange={(value) => handleFilterChange(value, "other")}
-        data={[
-          { value: "Looking for a roommate", label: "Looking for a roommate" },
-          { value: "Student Athlete", label: "Student Athlete" },
-        ]}
-        mb="md"
-        styles={{
-          input: {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: theme.white,
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          },
-          dropdown: {
-            backgroundColor: theme.colors.dark[7],
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            zIndex: 1300,
-          },
-          option: {
-            color: theme.white,
-            "&[data-selected]": {
-              backgroundColor: theme.colors.blue[9],
-              color: theme.white,
-            },
-            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
-          },
-        }}
-      />
-
-      {/* Lifestyle Section */}
-      <Text size="lg" fw={600} c={theme.white} mb="md">
-        Lifestyle
-      </Text>
-
-      {/* Sleep Schedule */}
-      <Text size="sm" fw={500} c={theme.white} mb="xs">
-        Sleep Schedule
-      </Text>
-      <Select
-        placeholder="Select sleep schedule"
-        value={filters.sleepSchedule}
-        onChange={(value) => handleFilterChange(value, "sleepSchedule")}
-        data={[
-          { value: "Early Bird", label: "Early Bird" },
-          { value: "Night Owl", label: "Night Owl" },
-          { value: "Flexible", label: "Flexible" },
-        ]}
-        mb="md"
-        styles={{
-          input: {
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            color: theme.white,
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-          },
-          dropdown: {
-            backgroundColor: theme.colors.dark[7],
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            zIndex: 1300,
-          },
-          option: {
-            color: theme.white,
-            "&[data-selected]": {
-              backgroundColor: theme.colors.blue[9],
-              color: theme.white,
-            },
-            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
-          },
-        }}
-      />
-
+      
       {/* Cleanliness */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Cleanliness
@@ -706,6 +565,42 @@ export const FiltersSidebar: React.FC<{
         }}
       />
 
+      {/* Sleep Schedule */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Sleep Schedule
+      </Text>
+      <Select
+        placeholder="Select sleep schedule"
+        value={filters.sleepSchedule}
+        onChange={(value) => handleFilterChange(value, "sleepSchedule")}
+        data={[
+          { value: "Early Bird", label: "Early Bird" },
+          { value: "Night Owl", label: "Night Owl" },
+          { value: "Flexible", label: "Flexible" },
+        ]}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
+        }}
+      />
+      
       {/* Guests */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Guests
@@ -778,7 +673,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-
+      
       {/* Personality */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Personality
@@ -821,7 +716,95 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-
+      
+      {/* Substances Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Substances
+      </Text>
+      <Select
+        mb="md"
+        placeholder="Select substance preference"
+        value={filters.substances}
+        onChange={(value) => handleFilterChange(value, "substances")}
+        data={[
+          { value: "all", label: "Any" },
+          { value: "Fine with Drinking", label: "Fine with Drinking" },
+          { value: "Fine with Smoking", label: "Fine with Smoking" },
+          { value: "Fine with Both", label: "Fine with Both" },
+          { value: "No Substances", label: "No Substances" },
+        ]}
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": {
+              color: theme.colors.dark[2],
+            },
+            "&:focus": {
+              borderColor: theme.colors.blue[5],
+            },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-hovered]": {
+              backgroundColor: theme.colors.dark[5],
+            },
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+          },
+        }}
+      />
+      
+      {/* Religion Filter */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Religion
+      </Text>
+      <Select
+        placeholder="Select religion"
+        value={filters.religion}
+        onChange={(value) => handleFilterChange(value, "religion")}
+        data={[
+          { value: "Christianity", label: "Christianity" },
+          { value: "Islam", label: "Islam" },
+          { value: "Hinduism", label: "Hinduism" },
+          { value: "Buddhism", label: "Buddhism" },
+          { value: "Judaism", label: "Judaism" },
+          { value: "Atheism", label: "Atheism" },
+          { value: "Agnostic", label: "Agnostic" },
+          { value: "Other", label: "Other" },
+        ]}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            "&::placeholder": { color: theme.colors.dark[2] },
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
+        }}
+      />
+      
       {/* Physical Activity */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Physical Activity
@@ -864,7 +847,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-
+      
       {/* Pastimes */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Pastimes
@@ -909,7 +892,45 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-
+      
+      {/* Campus Involvement */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Campus Involvement
+      </Text>
+      <Select
+        placeholder="Select status"
+        value={filters.campusInvolvement}
+        onChange={(value) => handleFilterChange(value, "campusInvolvement")}
+        data={[
+          {
+            value: "Rushing a fraternity/sorority",
+            label: "Rushing a fraternity/sorority",
+          },
+          { value: "Business fraternity", label: "Business fraternity" },
+        ]}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
+        }}
+      />
+      
       {/* Food */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Food Preferences
@@ -952,6 +973,43 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
+      
+      {/* Other */}
+      <Text size="sm" fw={500} c={theme.white} mb="xs">
+        Other
+      </Text>
+      <Select
+        placeholder="Select option"
+        value={filters.other}
+        onChange={(value) => handleFilterChange(value, "other")}
+        data={[
+          { value: "Looking for a roommate", label: "Looking for a roommate" },
+          { value: "Student Athlete", label: "Student Athlete" },
+        ]}
+        mb="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(255, 255, 255, 0.05)",
+            color: theme.white,
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+          },
+          dropdown: {
+            backgroundColor: theme.colors.dark[7],
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            zIndex: 1300,
+          },
+          option: {
+            color: theme.white,
+            "&[data-selected]": {
+              backgroundColor: theme.colors.blue[9],
+              color: theme.white,
+            },
+            "&[data-hovered]": { backgroundColor: theme.colors.dark[5] },
+          },
+        }}
+      />
+      
+      <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
 
       {/* Reset Button */}
       <Group grow>

@@ -6,7 +6,6 @@ import {
   Text,
   Paper,
   Box,
-  ScrollArea,
   LoadingOverlay,
 } from '@mantine/core';
 import { useForm, yupResolver } from '@mantine/form';
@@ -19,11 +18,7 @@ import { useAuthStore } from '../../../store/auth.store';
 import ChipGroup from '../../../components/ChipGroup/ChipGroup';
 import styles from './TraitsPreferences.module.css';
 
-interface TraitsPreferencesProps {
-  onComplete: () => void;
-}
-
-const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => {
+const TraitsPreferences: React.FC = () => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
   const { user } = useAuthStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,11 +55,20 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
       }
       
       showSuccess("Preferences saved successfully!");
-      onComplete();
     } catch (error) {
       showError((error as Error).message);
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleFormError = (errors: typeof form.errors) => {
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      const errorSection = document.querySelector(`[data-field-section="${firstErrorField}"]`);
+      if (errorSection) {
+        errorSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
     }
   };
 
@@ -73,31 +77,13 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
       className={`${styles.container} ${isMobile ? styles.containerMobile : ''}`} 
       p={isMobile ? "md" : "xl"} 
       radius="md"
-      style={{
-        ...(isMobile && {
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column'
-        })
-      }}
     >
       <LoadingOverlay visible={isSubmitting || isPending} overlayProps={{ blur: 2 }} />
-      <form 
-        onSubmit={form.onSubmit(handleSubmit)}
-        style={isMobile ? { height: '100%', display: 'flex', flexDirection: 'column' } : {}}
-      >
-        <Stack gap={isMobile ? "sm" : "md"} style={isMobile ? { flex: 1, overflow: 'hidden' } : {}}>
+      <form onSubmit={form.onSubmit(handleSubmit, handleFormError)}>
+        <Stack gap={isMobile ? "sm" : "md"}>
           <Text c={"white"} className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
             Tell Us About Your Preferences
           </Text>
-
-          <ScrollArea 
-            h={isMobile ? 300 : undefined} 
-            type="auto" 
-            className={isMobile ? styles.scrollAreaMobile : ''}
-            style={isMobile ? { flex: 1 } : {}}
-          >
-            <Stack gap={isMobile ? "lg" : "xl"}>
               {/* Lifestyle Section */}
               <Box>
                 <Text className={styles.sectionTitle} fw={600}>
@@ -105,73 +91,79 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                 </Text>
                 <Stack gap="md">
                   {/* Sleep Schedule */}
-                  <Text size="sm" fw={500} className={styles.label} c="white">
-                    Sleep Schedule
-                  </Text>
-                  <ChipGroup
-                    data={[
-                      'Early Bird',
-                      'Night Owl',
-                      'Flexible',
-                    ]}
-                    multiple={false}
-                    value={form.values.sleepSchedule}
-                    onChange={(v) => form.setFieldValue('sleepSchedule', v as string)}
-                    error={form.errors.sleepSchedule as string}
-                  />
+                  <Box data-field-section="sleepSchedule">
+                    <Text size="sm" fw={500} className={styles.label} c="white">
+                      Sleep Schedule
+                    </Text>
+                    <ChipGroup
+                      data={['Early Bird', 'Night Owl', 'Flexible']}
+                      multiple={false}
+                      value={form.values.sleepSchedule}
+                      onChange={(v) => form.setFieldValue('sleepSchedule', v as string)}
+                      error={form.errors.sleepSchedule as string}
+                    />
+                  </Box>
 
                   {/* Cleanliness */}
-                  <Text size="sm" fw={500} className={styles.label} c="white">
-                    Cleanliness
-                  </Text>
-                  <ChipGroup
-                    data={['Neat Freak', 'Organized', 'Casual', 'Messy']}
-                    multiple={false}
-                    value={form.values.cleanliness}
-                    onChange={(v) => form.setFieldValue('cleanliness', v as string)}
-                    error={form.errors.cleanliness as string}
-                  />
+                  <Box data-field-section="cleanliness">
+                    <Text size="sm" fw={500} className={styles.label} c="white">
+                      Cleanliness
+                    </Text>
+                    <ChipGroup
+                      data={['Very Clean', 'Average', 'Relaxed']}
+                      multiple={false}
+                      value={form.values.cleanliness}
+                      onChange={(v) => form.setFieldValue('cleanliness', v as string)}
+                      error={form.errors.cleanliness as string}
+                    />
+                  </Box>
 
                   {/* Guests */}
-                  <Text size="sm" fw={500} className={styles.label} c="white">
-                    Guests
-                  </Text>
-                  <ChipGroup
-                    data={['Over Whenever', 'With Notice', 'Rarely']}
-                    multiple={false}
-                    value={form.values.guests}
-                    onChange={(v) => form.setFieldValue('guests', v as string)}
-                    error={form.errors.guests as string}
-                  />
+                  <Box data-field-section="guests">
+                    <Text size="sm" fw={500} className={styles.label} c="white">
+                      Guests
+                    </Text>
+                    <ChipGroup
+                      data={['Over Whenever', 'With Notice', 'Rarely']}
+                      multiple={false}
+                      value={form.values.guests}
+                      onChange={(v) => form.setFieldValue('guests', v as string)}
+                      error={form.errors.guests as string}
+                    />
+                  </Box>
 
                   {/* Studying */}
-                  <Text size="sm" fw={500} className={styles.label} c="white">
-                    Studying
-                  </Text>
-                  <ChipGroup
-                    data={['Around Campus', 'In Room', 'Library', 'Flexible']}
-                    multiple={false}
-                    value={form.values.studying}
-                    onChange={(v) => form.setFieldValue('studying', v as string)}
-                    error={form.errors.studying as string}
-                  />
+                  <Box data-field-section="studying">
+                    <Text size="sm" fw={500} className={styles.label} c="white">
+                      Studying
+                    </Text>
+                    <ChipGroup
+                      data={['Around Campus', 'In Room', 'Library', 'Flexible']}
+                      multiple={false}
+                      value={form.values.studying}
+                      onChange={(v) => form.setFieldValue('studying', v as string)}
+                      error={form.errors.studying as string}
+                    />
+                  </Box>
 
                   {/* Substances */}
-                  <Text size="sm" fw={500} className={styles.label} c="white">
-                    Substances
-                  </Text>
-                  <ChipGroup
-                    data={[
-                      'Fine with Drinking',
-                      'Fine with Smoking',
-                      'Fine with Both',
-                      'No Substances',
-                    ]}
-                    multiple={false}
-                    value={form.values.substances}
-                    onChange={(v) => form.setFieldValue('substances', v as string)}
-                    error={form.errors.substances as string}
-                  />
+                  <Box data-field-section="substances">
+                    <Text size="sm" fw={500} className={styles.label} c="white">
+                      Substances
+                    </Text>
+                    <ChipGroup
+                      data={[
+                        'Fine with Drinking',
+                        'Fine with Smoking',
+                        'Fine with Both',
+                        'No Substances',
+                      ]}
+                      multiple={false}
+                      value={form.values.substances}
+                      onChange={(v) => form.setFieldValue('substances', v as string)}
+                      error={form.errors.substances as string}
+                    />
+                  </Box>
                 </Stack>
               </Box>
 
@@ -181,22 +173,24 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                   Personality
                 </Text>
                 <Stack gap="xs">
-                  <Text size="sm" fw={500} className={styles.label} c="white">Select your personality traits (at least one)</Text>
-                  <ChipGroup
-                    data={[
-                      'Introvert',
-                      'Extrovert',
-                      'Spontaneous',
-                      'Organized',
-                      'Creative',
-                      'Analytical',
-                      'Adventurous',
-                      'Cautious',
-                    ]}
-                    value={form.values.personality}
-                    onChange={(value) => form.setFieldValue('personality', value as string[])}
-                    error={form.errors.personality as string}
-                  />
+                  <Box data-field-section="personality">
+                    <Text size="sm" fw={500} className={styles.label} c="white">Select your personality traits (at least one)</Text>
+                    <ChipGroup
+                      data={[
+                        'Introvert',
+                        'Extrovert',
+                        'Spontaneous',
+                        'Organized',
+                        'Creative',
+                        'Analytical',
+                        'Adventurous',
+                        'Cautious',
+                      ]}
+                      value={form.values.personality}
+                      onChange={(value) => form.setFieldValue('personality', value as string[])}
+                      error={form.errors.personality as string}
+                    />
+                  </Box>
                 </Stack>
               </Box>
 
@@ -206,21 +200,23 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                   Physical Activity
                 </Text>
                 <Stack gap="xs">
-                  <Text size="sm" fw={500} className={styles.label} c="white">Select your physical activities</Text>
-                  <ChipGroup
-                    data={[
-                      'Working Out',
-                      'Basketball',
-                      'Running',
-                      'Yoga',
-                      'Swimming',
-                      'Tennis',
-                      'Soccer',
-                      'Other Sports',
-                    ]}
-                    value={form.values.physicalActivity}
-                    onChange={(value) => form.setFieldValue('physicalActivity', value as string[])}
-                  />
+                  <Box data-field-section="physicalActivity">
+                    <Text size="sm" fw={500} className={styles.label} c="white">Select your physical activities</Text>
+                    <ChipGroup
+                      data={[
+                        'Working Out',
+                        'Basketball',
+                        'Running',
+                        'Yoga',
+                        'Swimming',
+                        'Tennis',
+                        'Soccer',
+                        'Other Sports',
+                      ]}
+                      value={form.values.physicalActivity}
+                      onChange={(value) => form.setFieldValue('physicalActivity', value as string[])}
+                    />
+                  </Box>
                 </Stack>
               </Box>
 
@@ -230,24 +226,24 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                   Pastimes
                 </Text>
                 <Stack gap="xs">
-                  <Text size="sm" fw={500} className={styles.label} c="white">Select your pastimes (at least one)</Text>
-                  <ChipGroup
-                    data={[
-                      'Art',
-                      'Fashion',
-                      'Stocks',
-                      'Thrifting',
-                      'Politics',
-                      'Video Games',
-                      'Reading',
-                      'Music',
-                      'Movies',
-                      'Travel',
-                    ]}
-                    value={form.values.pastimes}
-                    onChange={(value) => form.setFieldValue('pastimes', value as string[])}
-                    error={form.errors.pastimes as string}
-                  />
+                  <Box data-field-section="pastimes">
+                    <Text size="sm" fw={500} className={styles.label} c="white">Select your pastimes (at least one)</Text>
+                    <ChipGroup
+                      data={[
+                        'Art',
+                        'Music',
+                        'Gaming',
+                        'Reading',
+                        'Movies',
+                        'Cooking',
+                        'Travel',
+                        'Photography',
+                      ]}
+                      value={form.values.pastimes}
+                      onChange={(value) => form.setFieldValue('pastimes', value as string[])}
+                      error={form.errors.pastimes as string}
+                    />
+                  </Box>
                 </Stack>
               </Box>
 
@@ -317,19 +313,14 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({ onComplete }) => 
                   />
                 </Stack>
               </Box>
-            </Stack>
-          </ScrollArea>
-
-          <Group justify="center" mt={isMobile ? "md" : "xl"}>
+          <Group justify="center" mt="xl">
             <Button
               type="submit"
-              size={isMobile ? "md" : "lg"}
+              size={isMobile ? "sm" : "md"}
               className={styles.nextButton}
-              loading={isSubmitting || isPending}
-              c="white"
-              fullWidth={isMobile}
+              disabled={isSubmitting}
             >
-              Next Step
+              Next
             </Button>
           </Group>
         </Stack>

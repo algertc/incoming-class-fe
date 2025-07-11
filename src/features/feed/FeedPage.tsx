@@ -37,6 +37,7 @@ const FeedPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isFiltersModalOpen, setIsFiltersModalOpen] = useState(false);
   const [collegeFeedModalOpen, setCollegeFeedModalOpen] = useState(false);
+  const [isInteractingWithFilters, setIsInteractingWithFilters] = useState(false);
   const { filters, setCollegeFromHero, refreshFeed } = useFeedStore();
 
   // Centralized state for the premium modal
@@ -83,7 +84,7 @@ const FeedPage: React.FC = () => {
   const isGuestOrNonPremium = !user || !user.isSubscribed;
   const hasNoCollegeFilter = !filters.college || filters.college === 'all';
   const userHasCollegeData = user && getUserCollegeData()?.id;
-  const needsCollegeSelection = isGuestOrNonPremium && hasNoCollegeFilter && !userHasCollegeData;
+  const needsCollegeSelection = isGuestOrNonPremium && hasNoCollegeFilter && !userHasCollegeData && !isInteractingWithFilters;
 
   // This effect enforces the college selection rule
   useEffect(() => {
@@ -145,7 +146,10 @@ const FeedPage: React.FC = () => {
       <Container size="xl" px={{ base: 16, sm: 32, md: 32 }} py={{ base: 20, sm: 30, md: 40 }}>
         <Grid gutter="xl">
           <Grid.Col span={{ base: 12, md: shouldShowPremiumFeatures ? 9 : 12 }}>
-            <FeedContent onFiltersClick={() => setIsFiltersModalOpen(true)} />
+            <FeedContent onFiltersClick={() => {
+              setIsFiltersModalOpen(true);
+              setIsInteractingWithFilters(true);
+            }} />
           </Grid.Col>
 
           {shouldShowPremiumFeatures && (
@@ -158,7 +162,10 @@ const FeedPage: React.FC = () => {
 
       <FiltersModal
             open={isFiltersModalOpen}
-        onClose={() => setIsFiltersModalOpen(false)}
+        onClose={() => {
+          setIsFiltersModalOpen(false);
+          setIsInteractingWithFilters(false);
+        }}
         onPremiumRequest={handleOpenPremiumModal}
       />
       

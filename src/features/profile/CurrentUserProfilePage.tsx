@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Stack,
@@ -10,11 +10,10 @@ import {
 import { useProfileData, useProfileEditing } from './hooks';
 
 
-// Lazy load components for code splitting
-const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
-const CurrentUserTabNavigation = lazy(() => import('./components/CurrentUserTabNavigation'));
-const ProfileOverviewTab = lazy(() => import('./components/ProfileOverviewTab'));
-const MyPostsTab = lazy(() => import('./components/MyPostsTab'));
+import ModernProfileHeader from './components/ModernProfileHeader';
+import CurrentUserTabNavigation from './components/CurrentUserTabNavigation';
+import ProfileOverviewTab from './components/ProfileOverviewTab';
+import MyPostsTab from './components/MyPostsTab';
 
 const CurrentUserProfilePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('overview');
@@ -103,7 +102,6 @@ const CurrentUserProfilePage: React.FC = () => {
     >
       <Container size="lg" py="md">
         {/* Modern Profile Header */}
-        <Suspense fallback={<Skeleton height={180} radius="xl" mb="md" />}>
           <ModernProfileHeader
             name={fullName}
             designation={designation}
@@ -113,24 +111,15 @@ const CurrentUserProfilePage: React.FC = () => {
             isPremium={profileData.isPremium || false}
             isEditable={true}
           />
-        </Suspense>
         
         {/* Modern Tab Navigation */}
-        <Suspense fallback={<Skeleton height={50} radius="xl" mb="md" />}>
           <CurrentUserTabNavigation
             activeTab={activeTab}
             onTabChange={(value) => setActiveTab(value as string)}
           />
-        </Suspense>
         
         {/* Tab Content */}
         {activeTab === 'overview' && (
-        <Suspense fallback={
-          <Stack gap="md">
-            <Skeleton height={200} radius="xl" />
-            <Skeleton height={200} radius="xl" />
-          </Stack>
-        }>
           <ProfileOverviewTab
             profileData={profileData}
             user={user}
@@ -144,20 +133,10 @@ const CurrentUserProfilePage: React.FC = () => {
             handleSaveInterests={handleSaveInterests}
             handleSaveContact={handleSaveContact}
           />
-        </Suspense>
         )}
         
         {activeTab === 'posts' && (
-          <Suspense fallback={
-            <Stack gap="md">
-              <Skeleton height={200} radius="xl" />
-              <Skeleton height={200} radius="xl" />
-            </Stack>
-          }>
-            <MyPostsTab
-               
-            />
-          </Suspense>
+            <MyPostsTab />
         )}
       </Container>
 

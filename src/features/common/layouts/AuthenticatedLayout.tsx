@@ -3,8 +3,10 @@ import { AppShell, Box } from '@mantine/core';
 import { Outlet } from 'react-router';
 import { Header } from '../../../components/layout/Header/Header';
 import { BottomNavigation } from '../../../components/layout/BottomNavigation/BottomNavigation';
+import Footer from '../../../components/Footer/Footer';
 import { withAuth } from '../../../components/auth/withAuth';
 import { ScrollToTop } from '../../../components/common';
+import ProfilePictureSpotlight from '../../../components/common/ProfilePictureSpotlight';
 
 export const AuthenticatedLayout: React.FC = () => {
   return (
@@ -21,6 +23,7 @@ export const AuthenticatedLayout: React.FC = () => {
       }}
     >
       <ScrollToTop />
+      <ProfilePictureSpotlight />
       <AppShell.Header>
         <Header />
       </AppShell.Header>
@@ -29,6 +32,10 @@ export const AuthenticatedLayout: React.FC = () => {
         {/* Add bottom padding on mobile to prevent content from being hidden behind bottom navigation */}
         <Box pb={{ base: 80, sm: 0 }}>
           <Outlet />
+        </Box>
+          {/* Footer for desktop/tablet */}
+          <Box mt="lg">
+            <Footer />
         </Box>
       </AppShell.Main>
 

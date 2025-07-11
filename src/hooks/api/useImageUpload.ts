@@ -5,10 +5,7 @@ import type { IServerResponse } from '../../models/serverResponse.model';
 import type { User } from '../../models/user.model';
 import { authKeys } from './useAuth';
 
-
-type ImageUploadResponse =string[];
-
-
+type ImageUploadResponse = string[];
 
 export const useUploadMultipleImages = () => {
   const queryClient = useQueryClient();
@@ -49,6 +46,56 @@ export const useUploadMultipleImages = () => {
             };
           }
           return oldData;
+        });
+      }
+    },
+  });
+};
+
+/**
+ * Hook for uploading photos with existing photos context
+ * This allows merging existing photos with new uploads
+ */
+export const useUploadPhotosWithMerge = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<
+    IServerResponse<ImageUploadResponse>,
+    Error,
+    { files: File[]; existingPhotos: string[] }
+  >({
+    mutationFn: async ({ files, existingPhotos }) => {
+      const formData = new FormData();
+      
+      // Add existing photos to preserve them
+      existingPhotos.forEach((photo, index) => {
+        formData.append(`existingPhoto_${index}`, photo);
+      });
+      
+      // Add new files
+      files.forEach((file, index) => {
+        formData.append('file', file);
+        
+        // Set the first image as profile image if no existing photos
+        if (index === 0 && existingPhotos.length === 0) {
+          formData.append('isProfileImage', 'true');
+        }
+      });
+      
+      return request<ImageUploadResponse>({
+        url: API_ENDPOINTS.users.uploadUserImages,
+        method: 'POST',
+        data: formData,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    },
+    onSuccess: (data) => {
+      if (data.status && data.data) {
+        // Invalidate and refetch current user data to update the profile
+        queryClient.invalidateQueries({
+          queryKey: authKeys.currentUser(),
         });
       }
     },
@@ -138,7 +185,7 @@ export const validateImageFiles = (files: File[]): { isValid: boolean; error?: s
 export const useUploadProfilePicture = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<
+  const mutation = useMutation<
     IServerResponse<ImageUploadResponse>,
     Error,
     FormData
@@ -159,24 +206,11 @@ export const useUploadProfilePicture = () => {
         queryClient.invalidateQueries({
           queryKey: authKeys.currentUser(),
         });
-        
-        // Optionally update the cache directly if we want immediate updates
-        queryClient.setQueryData(authKeys.currentUser(), (oldData: unknown) => {
-          if (oldData && typeof oldData === 'object' && 'data' in oldData) {
-            const currentUser = oldData as IServerResponse<User>;
-            return {
-              ...currentUser,
-              data: {
-                ...currentUser.data,
-                // profilePicture: data.data.profilePicture || currentUser.data?.profilePicture,
-              },
-            };
-          }
-          return oldData;
-        });
       }
     },
   });
+
+  return mutation;
 };
 
 /**

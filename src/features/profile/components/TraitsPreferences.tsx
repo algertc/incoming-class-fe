@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import {
   Card,
   Group,
-  ThemeIcon,
   Title,
   Divider,
   Grid,
@@ -13,9 +12,31 @@ import {
   Select,
   MultiSelect,
   Button,
-  Box
+  Box,
+  ThemeIcon,
 } from '@mantine/core';
 import { IconUser, IconEdit, IconCheck, IconX } from '@tabler/icons-react';
+import { useForm, yupResolver } from '@mantine/form';
+import * as yup from 'yup';
+
+const traitsSchema = yup.object().shape({
+  sleepSchedule: yup.string().required('Sleep schedule is required'),
+  cleanliness: yup.string().required('Cleanliness preference is required'),
+  guests: yup.string().required('Guests preference is required'),
+  studying: yup.string().required('Studying preference is required'),
+  substances: yup.string().required('Substances preference is required'),
+  personality: yup.array().of(yup.string()).min(1, 'Select at least one personality trait'),
+});
+
+const sleepOptions = ['Early Bird', 'Night Owl', 'Flexible'];
+const cleanlinessOptions = ['Very Clean', 'Average', 'Relaxed'];
+const guestOptions = ['Over Whenever', 'With Notice', 'Rarely'];
+const studyingOptions = ['Around Campus', 'In Room', 'Library', 'Flexible'];
+const substanceOptions = ['Fine with Drinking', 'Fine with Smoking', 'Fine with Both', 'No Substances'];
+const personalityOptions = [
+  'Introvert', 'Extrovert', 'Spontaneous', 'Organized',
+  'Creative', 'Analytical', 'Adventurous', 'Cautious',
+];
 
 interface TraitsPreferencesProps {
   sleepSchedule: string;
@@ -24,20 +45,11 @@ interface TraitsPreferencesProps {
   studying: string;
   substances: string;
   personality: string[];
-  isEditable?: boolean;
-  isEditing?: boolean;
-  onEdit?: () => void;
-  onSave?: (data: {
-    traits: {
-      sleepSchedule: string;
-      cleanliness: string;
-      guests: string;
-      studying: string;
-      substances: string;
-    };
-    personality: string[];
-  }) => void;
-  onCancel?: () => void;
+  isEditable: boolean;
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: (data: any) => Promise<void>;
+  onCancel: () => void;
 }
 
 const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({
@@ -47,105 +59,47 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({
   studying,
   substances,
   personality,
-  isEditable = false,
-  isEditing = false,
-  onEdit = () => console.log('Edit traits'),
+  isEditable,
+  isEditing,
+  onEdit,
   onSave,
-  onCancel = () => console.log('Cancel edit')
+  onCancel,
 }) => {
   const theme = useMantineTheme();
-  const [editedData, setEditedData] = useState({
-    sleepSchedule,
-    cleanliness,
-    guests,
-    studying,
-    substances,
-    personality
+  const form = useForm({
+    initialValues: {
+      sleepSchedule,
+      cleanliness,
+      guests,
+      studying,
+      substances,
+      personality,
+    },
+    validate: yupResolver(traitsSchema),
   });
 
   useEffect(() => {
-    setEditedData({
+    form.setValues({
       sleepSchedule,
       cleanliness,
       guests,
       studying,
       substances,
-      personality
+      personality,
     });
-  }, [sleepSchedule, cleanliness, guests, studying, substances, personality]);
+  }, [sleepSchedule, cleanliness, guests, studying, substances, personality, isEditing]);
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave({
-        traits: {
-          sleepSchedule: editedData.sleepSchedule,
-          cleanliness: editedData.cleanliness,
-          guests: editedData.guests,
-          studying: editedData.studying,
-          substances: editedData.substances
-        },
-        personality: editedData.personality
-      });
+  const handleSave = async () => {
+    if (await form.validate()) {
+      return;
     }
+    await onSave(form.values);
   };
-
+  
   const handleCancel = () => {
-    setEditedData({
-      sleepSchedule,
-      cleanliness,
-      guests,
-      studying,
-      substances,
-      personality
-    });
+    form.reset();
     onCancel();
-  };
-
-  // Options for dropdowns
-  const sleepOptions = [
-    { value: 'Early Bird', label: 'Early Bird' },
-    { value: 'Night Owl', label: 'Night Owl' },
-    { value: 'Flexible', label: 'Flexible' }
-  ];
-
-  const cleanlinessOptions = [
-    { value: 'Very Clean', label: 'Very Clean' },
-    { value: 'Organized', label: 'Organized' },
-    { value: 'Casual', label: 'Casual' }
-  ];
-
-  const guestOptions = [
-    { value: 'Frequent Guests', label: 'Frequent Guests' },
-    { value: 'With Notice', label: 'With Notice' },
-    { value: 'Rarely', label: 'Rarely' },
-    { value: 'Never', label: 'Never' }
-  ];
-
-  const studyingOptions = [
-    { value: 'Library', label: 'Library' },
-    { value: 'Room', label: 'Room' },
-    { value: 'Common Area', label: 'Common Area' },
-    { value: 'Cafe', label: 'Cafe' }
-  ];
-
-  const substanceOptions = [
-    { value: 'No Substances', label: 'No Substances' },
-    { value: 'Occasional', label: 'Occasional' },
-    { value: 'Social Only', label: 'Social Only' }
-  ];
-
-  const personalityOptions = [
-    { value: 'Extrovert', label: 'Extrovert' },
-    { value: 'Introvert', label: 'Introvert' },
-    { value: 'Creative', label: 'Creative' },
-    { value: 'Analytical', label: 'Analytical' },
-    { value: 'Adventurous', label: 'Adventurous' },
-    { value: 'Calm', label: 'Calm' },
-    { value: 'Organized', label: 'Organized' },
-    { value: 'Spontaneous', label: 'Spontaneous' },
-    { value: 'Social', label: 'Social' },
-    { value: 'Independent', label: 'Independent' }
-  ];
+  }
 
   const selectStyles = {
     label: { color: 'white', fontWeight: 500 },
@@ -161,7 +115,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({
       backgroundColor: theme.colors.dark[6],
       borderColor: theme.colors.dark[4],
     },
-    option: {
+    item: {
       '&[data-selected]': {
         backgroundColor: theme.colors.indigo[6],
       },
@@ -170,7 +124,7 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({
       },
     },
   };
-  
+
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder bg={theme.colors.dark[7]} style={{ borderColor: theme.colors.dark[5] }}>
       <Group mb="md" justify="space-between">
@@ -209,65 +163,26 @@ const TraitsPreferences: React.FC<TraitsPreferencesProps> = ({
         )}
       </Group>
       <Divider mb="md" color={theme.colors.dark[5]} />
-      
+
       {isEditing ? (
         <Box>
           <Grid>
             <Grid.Col span={6}>
-              <Select
-                label="Sleep Schedule"
-                value={editedData.sleepSchedule}
-                onChange={(value) => setEditedData(prev => ({ ...prev, sleepSchedule: value || '' }))}
-                data={sleepOptions}
-                styles={selectStyles}
-                mb="sm"
-              />
-              
-              <Select
-                label="Cleanliness"
-                value={editedData.cleanliness}
-                onChange={(value) => setEditedData(prev => ({ ...prev, cleanliness: value || '' }))}
-                data={cleanlinessOptions}
-                styles={selectStyles}
-                mb="sm"
-              />
-              
-              <Select
-                label="Guests"
-                value={editedData.guests}
-                onChange={(value) => setEditedData(prev => ({ ...prev, guests: value || '' }))}
-                data={guestOptions}
-                styles={selectStyles}
-                mb="sm"
-              />
+              <Select label="Sleep Schedule" data={sleepOptions} {...form.getInputProps('sleepSchedule')} styles={selectStyles} mb="sm" />
+              <Select label="Cleanliness" data={cleanlinessOptions} {...form.getInputProps('cleanliness')} styles={selectStyles} mb="sm" />
+              <Select label="Guests" data={guestOptions} {...form.getInputProps('guests')} styles={selectStyles} mb="sm" />
             </Grid.Col>
             
             <Grid.Col span={6}>
-              <Select
-                label="Studying"
-                value={editedData.studying}
-                onChange={(value) => setEditedData(prev => ({ ...prev, studying: value || '' }))}
-                data={studyingOptions}
-                styles={selectStyles}
-                mb="sm"
-              />
-              
-              <Select
-                label="Substances"
-                value={editedData.substances}
-                onChange={(value) => setEditedData(prev => ({ ...prev, substances: value || '' }))}
-                data={substanceOptions}
-                styles={selectStyles}
-                mb="sm"
-              />
+              <Select label="Studying" data={studyingOptions} {...form.getInputProps('studying')} styles={selectStyles} mb="sm" />
+              <Select label="Substances" data={substanceOptions} {...form.getInputProps('substances')} styles={selectStyles} mb="sm" />
             </Grid.Col>
             
             <Grid.Col span={12} mt="md">
               <MultiSelect
                 label="Personality Traits"
-                value={editedData.personality}
-                onChange={(values) => setEditedData(prev => ({ ...prev, personality: values }))}
                 data={personalityOptions}
+                {...form.getInputProps('personality')}
                 placeholder="Select personality traits"
                 styles={selectStyles}
                 maxValues={5}

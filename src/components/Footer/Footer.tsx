@@ -10,7 +10,7 @@ import {
   useMantineTheme,
   Divider
 } from '@mantine/core';
-import { IconBrandTwitter, IconBrandInstagram, IconBrandFacebook, IconHeart } from '@tabler/icons-react';
+import { IconBrandInstagram,  IconHeart } from '@tabler/icons-react';
 import { Link } from 'react-router';
 import { useAuthStore } from '../../store/auth.store';
 import gsap from 'gsap';
@@ -216,7 +216,7 @@ export const Footer: React.FC = () => {
             </Text>
             
             <Group gap="md" ref={socialRef}>
-              <ActionIcon 
+              {/* <ActionIcon 
                 size="md" 
                 variant="subtle" 
                 radius="xl" 
@@ -231,7 +231,7 @@ export const Footer: React.FC = () => {
                 }}
               >
                 <IconBrandTwitter size={18} />
-              </ActionIcon>
+              </ActionIcon> */}
               <ActionIcon 
                 size="md" 
                 variant="subtle" 
@@ -245,10 +245,11 @@ export const Footer: React.FC = () => {
                     background: 'rgba(67, 97, 238, 0.2)',
                   }
                 }}
+                onClick={() => window.open('https://www.instagram.com/incoming.class/', '_blank')}
               >
                 <IconBrandInstagram size={18} />
               </ActionIcon>
-              <ActionIcon 
+              {/* <ActionIcon 
                 size="md" 
                 variant="subtle" 
                 radius="xl" 
@@ -263,7 +264,7 @@ export const Footer: React.FC = () => {
                 }}
               >
                 <IconBrandFacebook size={18} />
-              </ActionIcon>
+              </ActionIcon> */}
             </Group>
           </Flex>
         </Flex>

@@ -5,7 +5,6 @@ import {
   Title,
   Text,
   Group,
-  Button,
   ActionIcon,
   useMantineTheme,
 } from '@mantine/core';
@@ -15,6 +14,7 @@ import {
   IconShare,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router';
+import { ProfileGlowEffect } from '../../../components/common/ProfileGlowEffect';
 
 interface ProfileBannerProps {
   name: string;
@@ -46,16 +46,18 @@ const ProfileBanner: React.FC<ProfileBannerProps> = ({
       }}
     >
       {/* Profile Picture */}
-      <Avatar
-        src={profileImage}
-        size={120}
-        radius={60}
-        style={{
-          border: `4px solid ${theme.colors.indigo[8]}`,
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-          marginRight: '20px',
-        }}
-      />
+      <ProfileGlowEffect isActive={!profileImage}>
+        <Avatar
+          src={profileImage}
+          size={120}
+          radius={60}
+          style={{
+            border: `4px solid ${theme.colors.indigo[8]}`,
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
+            marginRight: '20px',
+          }}
+        />
+      </ProfileGlowEffect>
 
       {/* Edit Profile Picture Button - Only for current user */}
       {isCurrentUser && (
@@ -77,67 +79,21 @@ const ProfileBanner: React.FC<ProfileBannerProps> = ({
       )}
 
       {/* Action Buttons - Only for current user */}
-      {isCurrentUser ? (
-        <Group
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-          }}
-        >
-          <Button
-            leftSection={<IconSettings size={16} />}
-            variant="light"
-            size="sm"
-            onClick={() => navigate('/settings')}
-            color="indigo"
-          >
-            Settings
-          </Button>
-          <Button
-            leftSection={<IconShare size={16} />}
-            variant="outline"
-            size="sm"
-            onClick={() => console.log('Share profile')}
-            color="indigo"
-          >
-            Share
-          </Button>
-        </Group>
-      ) : (
-        <Group
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-          }}
-        >
-          <Button
-            leftSection={<IconShare size={16} />}
-            variant="outline"
-            size="sm"
-            color="indigo"
-          >
-            Share
-          </Button>
+      {isCurrentUser && (
+        <Group gap={8} style={{ position: 'absolute', top: 20, right: 20 }}>
+          <ActionIcon variant="subtle" color="gray" onClick={() => navigate('/settings')}>
+            <IconSettings size={20} />
+          </ActionIcon>
+          <ActionIcon variant="subtle" color="gray">
+            <IconShare size={20} />
+          </ActionIcon>
         </Group>
       )}
 
-      {/* Name and Designation Container */}
-      <Box
-        style={{
-          position: 'absolute',
-          top: 40,
-          left: 160,
-          color: 'white',
-        }}
-      >
-        <Title order={3}>
-          {name}
-        </Title>
-        <Text size="lg">
-          {designation}
-        </Text>
+      {/* Profile Info */}
+      <Box mt={20}>
+        <Title order={3} style={{ color: theme.white }}>{name}</Title>
+        <Text size="sm" c="dimmed">{designation}</Text>
       </Box>
     </Box>
   );

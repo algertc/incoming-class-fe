@@ -8,9 +8,9 @@ export interface FeedFilters {
   searchQuery: string;
   lastDays: number; // Number of days to look back from today
   college: string | null;
-  substances: string | null;
   hometown: string | null;
   religion: string | null;
+  major: string | null;
   gender: string | null;
   campusInvolvement: string | null; // e.g., Rushing fraternity/sorority, business fraternity
   other: string | null; // e.g., Looking for roommate, Student Athlete
@@ -19,6 +19,7 @@ export interface FeedFilters {
   cleanliness: string | null; // Neat Freak, Organized, Casual, Messy
   guests: string | null; // Over Whenever, With Notice, Rarely
   studying: string | null; // Around Campus, In Room, Library, Flexible
+  substances: string | null; // Fine with Drinking, Fine with Smoking, Fine with Both, No Substances
   personality: string[] | null; // Array of personality traits
   physicalActivity: string[] | null; // Array of physical activities
   pastimes: string[] | null; // Array of pastimes
@@ -69,12 +70,12 @@ export interface FeedState {
   setCollege: (college: string | null) => void;
   setCollegeWithName: (collegeId: string | null, collegeName: string | null) => void;
   setCollegeFromHero: (collegeId: string | null, collegeName?: string | null) => void;
-  setSubstances: (substances: string | null) => void;
   setHomeState: (homeState: string | null) => void;
   setReligion: (religion: string | null) => void;
   setGender: (gender: string | null) => void;
   setCampusInvolvement: (status: string | null) => void;
   setOther: (other: string | null) => void;
+  setMajor: (major: string | null) => void;
   // Lifestyle filter setters
   setSleepSchedule: (schedule: string | null) => void;
   setCleanliness: (level: string | null) => void;
@@ -93,7 +94,6 @@ const initialFilters: FeedFilters = {
   searchQuery: '',
   lastDays: 30, // Default to last 30 days
   college: null,
-  substances: null,
   hometown: null,
   religion: null,
   gender: null,
@@ -104,10 +104,12 @@ const initialFilters: FeedFilters = {
   cleanliness: null,
   guests: null,
   studying: null,
+  substances: null,
   personality: null,
   physicalActivity: null,
   pastimes: null,
   food: null,
+  major:null
 };
 
 // This function will be called whenever the filters change
@@ -182,7 +184,7 @@ const getPostLimit = (): number | null => {
   }
 
 
-  return 20;
+  return 15;
 };
 
 // Helper function to determine modal type
@@ -231,8 +233,8 @@ export const useFeedStore = create<FeedState>()(
     totalCount: 0,
     hasMore: true,
     postsPerPage: 5, // Backend returns 5 posts per page
-    maxPostsForUnauthenticated: 7, // Allow only 10 posts for unauthenticated users
-    maxPostsForNonPremium: 20, // Allow 10 posts for non-premium users with completed profile
+    maxPostsForUnauthenticated: 15, // Allow only 10 posts for unauthenticated users
+    maxPostsForNonPremium: 15, // Allow 10 posts for non-premium users with completed profile
     hasReachedLimit: false,
     modalShownAndDismissed: false,
     modalType: null,
@@ -464,9 +466,9 @@ export const useFeedStore = create<FeedState>()(
       }));
     },
 
-    // Set substances filter
-    setSubstances: (substances) => {
-      get().updateFilter('substances', substances);
+    // Set major filter
+    setMajor: (major) => {
+      get().updateFilter('major', major);
     },
 
     // Set Home State

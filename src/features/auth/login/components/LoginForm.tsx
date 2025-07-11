@@ -16,7 +16,7 @@ import type {
   AuthResponse,
 } from "../../../../models/user.model";
 import { loginSchema, loginInitialValues } from "../../../../forms";
-import { showSuccess } from "../../../../utils";
+
 import { ROUTES } from "../../../../routing/routes";
 import { useAuthStore } from "../../../../store/auth.store";
 
@@ -47,7 +47,7 @@ const LoginForm: React.FC = () => {
 
       if (!response.status) throw new Error(response.errorMessage?.message);
 
-      showSuccess("Login Successful!");
+     
       const authResponse = response.data as AuthResponse;
 
       // Fetch fresh user data from server instead of using login response

@@ -38,6 +38,17 @@ export const useCollegeSearch = (params: CollegeSearchParams) => {
 };
 
 /**
+ * Hook to fetch all colleges without pagination for filter dropdowns.
+ */
+export const useAllColleges = () => {
+  return useQuery<IServerResponse<{colleges:College[], totalDocs:number , page:number , limit:number}>>({
+    queryKey: collegeKeys.lists(), // Use a general key for all colleges list
+    queryFn: async () => await request({url:'/colleges/getAllColleges', params: { limit: 10000 } }), // Fetch a large number to get all
+    staleTime: 1000 * 60 * 60, // 1 hour, since this data is static
+  });
+};
+
+/**
  * Hook to fetch a single college
  */
 export const useCollege = (id: string) => {

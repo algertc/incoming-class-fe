@@ -44,23 +44,25 @@ import { glassCardStyles } from '../utils/glassStyles';
 import ImageCropModal from '../../../pages/ProfileCompletion/components/ImageCropModal';
 import { useAuthStore } from '../../../store/auth.store';
 import { PremiumSubscriptionModal } from '../../../components/common/PremiumSubscriptionModal';
+import { LimitReachedModal } from '../../../components/common/LimitReachedModal';
 
 
 const MyPostsTab: React.FC = () => {
   const theme = useMantineTheme();
-  const { user } = useAuthStore();
+  const { user, fetchUser } = useAuthStore();
   const [editModalOpened, setEditModalOpened] = useState(false);
+  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
+  const [limitReachedModalOpened, setLimitReachedModalOpened] = useState(false);
+  const [limitReachedType, setLimitReachedType] = useState<'edit' | 'boost'>('edit');
   const [currentEditPost, setCurrentEditPost] = useState<Post | null>(null);
   const [cropModalOpened, setCropModalOpened] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [premiumModalOpened, setPremiumModalOpened] = useState(false);
-  const [premiumModalTrigger, setPremiumModalTrigger] = useState<string>('edit');
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // Hooks for API operations
   const { data: userPostsResponse, isLoading, error, refetch } = useUserPosts({ page: 1, limit: 50 });
   const updatePostMutation = useUpdatePost();
   const uploadImagesMutation = useUploadMultipleImages();
@@ -80,11 +82,43 @@ const MyPostsTab: React.FC = () => {
 
   const posts = userPostsResponse?.data?.posts || [];
 
+  const showLimitReachedModal = (type: 'edit' | 'boost') => {
+    if (user?.isSubscribed) {
+      // For subscribed users, show the dedicated limit reached modal
+      setLimitReachedType(type);
+      setLimitReachedModalOpened(true);
+    } else {
+      // For non-subscribed users, show the premium upgrade modal
+      modals.open({
+        title: `No ${type === 'edit' ? 'Edits' : 'Boosts'} Remaining`,
+        centered: true,
+        children: (
+          <Stack>
+            <Text size="sm">
+              You've used all your available post {type}s for your current plan.
+              Upgrade to Premium for more {type}s and other exclusive features!
+            </Text>
+            <Button
+              onClick={() => {
+                modals.closeAll();
+                setPremiumModalOpened(true);
+              }}
+              variant="gradient"
+              gradient={{ from: 'blue', to: 'cyan' }}
+            >
+              Upgrade to Premium
+            </Button>
+          </Stack>
+        ),
+      });
+    }
+  };
+
   // Handle edit post with premium check
   const handleEditPost = (post: Post) => {
-    if (!user?.isSubscribed) {
-      setPremiumModalTrigger('edit');
-      setPremiumModalOpened(true);
+    // Subscription check is now at the call site (onClick)
+    if ((user?.subscriptionEditCount || 0) >= 2) {
+      showLimitReachedModal('edit');
       return;
     }
 
@@ -207,20 +241,29 @@ const MyPostsTab: React.FC = () => {
       }
  
       
-      await updatePostMutation.mutateAsync({
-        postId: currentEditPost.id,
-        updateData: { 
+      const updateData: { title: string; content: string; images?: string[] } = {
           title: values.title,
           content: values.content,
-          images: finalImages
+      };
+
+      if (finalImages.length > 0) {
+        updateData.images = finalImages;
+      }
+      
+      await updatePostMutation.mutateAsync(
+        { postId: currentEditPost.id, updateData },
+        {
+          onSuccess: () => {
+            showSuccess('Post updated successfully');
+            setEditModalOpened(false);
+            refetch(); // Refetch posts
+            fetchUser();
+          },
+          onError: (err) => {
+            showError((err as any)?.response?.data?.message || 'Failed to update post.');
+          },
         }
-      });
-      setEditModalOpened(false);
-      setCurrentEditPost(null);
-      setPreviewImages([]);
-      setSelectedFiles([]);
-      editForm.reset();
-      showSuccess('Post updated successfully!');
+      );
     } catch (error) {
       console.error('Failed to update post:', error);
       showError('Failed to update post. Please try again.');
@@ -229,25 +272,46 @@ const MyPostsTab: React.FC = () => {
 
   // Handle boost post with premium check
   const handleBoostPost = async (postId: string) => {
-    if (!user?.isSubscribed) {
-      setPremiumModalTrigger('boost');
-      setPremiumModalOpened(true);
+    // Subscription check is now at the call site (onClick)
+    if ((user?.subscriptionBumpCount || 0) >= 1) {
+      showLimitReachedModal('boost');
       return;
     }
 
     modals.openConfirmModal({
-      title: 'Boost Post',
+      title: (
+        <Group>
+          <IconRocket />
+          <Text>Boost this Post?</Text>
+        </Group>
+      ),
+      centered: true,
       children: (
         <Text size="sm">
-          Are you sure you want to boost this post? This will increase its visibility in the feed.
+          Boosting your post will increase its visibility in the feed for a limited time.
+          Are you sure you want to proceed?
         </Text>
       ),
-      labels: { confirm: 'Boost Post', cancel: 'Cancel' },
-      confirmProps: { color: 'blue', leftSection: <IconRocket size={16} /> },
-      onConfirm: () => boostPostMutation.mutate(postId),
+      labels: { confirm: 'Boost Now', cancel: 'Cancel' },
+      confirmProps: { color: 'blue' },
+      onConfirm: async () => {
+        try {
+          await boostPostMutation.mutateAsync(postId, {
+            onSuccess: () => {
+              showSuccess('Post boosted successfully!');
+              refetch();
+              fetchUser();
+            },
+            onError: (err) => {
+              showError((err as any)?.response?.data?.message || 'Failed to boost post.');
+            },
+          });
+        } catch (err) {
+          // Error is handled by onError callback
+        }
+      },
     });
   };
-
 
 
   // Enhanced PostCard with edit/boost/delete actions
@@ -290,31 +354,28 @@ const MyPostsTab: React.FC = () => {
           >
             <Menu.Item
               leftSection={<IconEdit size={16} />}
-              onClick={() => handleEditPost(post)}
+              onClick={() => {
+                if (user?.isSubscribed) {
+                  handleEditPost(post);
+                } else {
+                  setPremiumModalOpened(true);
+                }
+              }}
               c={"white"}
-              rightSection={
-                !user?.isSubscribed && (
-                  <Text size="xs" c="yellow" fw={500}>
-                    Premium
-                  </Text>
-                )
-              }
             >
               Edit Post
             </Menu.Item>
             
             <Menu.Item
+            c={"white"}
               leftSection={<IconRocket size={16} />}
-              onClick={() => handleBoostPost(post.id)}
-              style={{ color: '#3b82f6' }}
-              disabled={boostPostMutation.isPending}
-              rightSection={
-                !user?.isSubscribed && (
-                  <Text size="xs" c="yellow" fw={500}>
-                    Premium
-                  </Text>
-                )
-              }
+              onClick={() => {
+                if (user?.isSubscribed) {
+                  handleBoostPost(post.id);
+                } else {
+                  setPremiumModalOpened(true);
+                }
+              }}
             >
               Boost Post
             </Menu.Item>
@@ -434,6 +495,7 @@ const MyPostsTab: React.FC = () => {
           setPreviewImages([]);
           setSelectedFiles([]);
           editForm.reset();
+          setAspectRatio(undefined);
         }}
         title="Edit Post"
         size="xl"
@@ -645,14 +707,25 @@ const MyPostsTab: React.FC = () => {
         onClose={() => setCropModalOpened(false)}
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
+        aspectRatio={aspectRatio}
+        setAspectRatio={setAspectRatio}
       />
 
-      {/* Premium Subscription Modal */}
       <PremiumSubscriptionModal
         opened={premiumModalOpened}
         onClose={() => setPremiumModalOpened(false)}
-        trigger={premiumModalTrigger}
+        trigger="edit-boost-post"
       />
+
+      {/* Limit Reached Modal */}
+      <LimitReachedModal
+        opened={limitReachedModalOpened}
+        onClose={() => setLimitReachedModalOpened(false)}
+        type={limitReachedType}
+        currentCount={limitReachedType === 'edit' ? (user?.subscriptionEditCount || 0) : (user?.subscriptionBumpCount || 0)}
+        maxCount={limitReachedType === 'edit' ? 2 : 2}
+      />
+    
     </>
   );
 };

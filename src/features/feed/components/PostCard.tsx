@@ -78,6 +78,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formattedTime = formatDistanceToNow(new Date(post.timestamp), { addSuffix: true });
   
@@ -105,7 +106,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
     
     // If user is not authenticated, show premium modal instead
     if (!isAuthenticated) {
-      setPremiumModalOpened(true);
+      navigate('/signup');
       return;
     }
     
@@ -118,7 +119,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
     
     // If user is not authenticated, show premium modal instead
     if (!isAuthenticated) {
-      setPremiumModalOpened(true);
+      navigate('/signup');
+      // setPremiumModalOpened(true);
       return;
     }
     
@@ -627,6 +629,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
           setPreviewImages([]);
           setSelectedFiles([]);
           editForm.reset();
+          setAspectRatio(undefined);
         }}
         title="Edit Post"
         size="xl"
@@ -839,6 +842,8 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
         onClose={() => setCropModalOpened(false)}
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
+        aspectRatio={aspectRatio}
+        setAspectRatio={setAspectRatio}
       />
       
       {/* Premium Subscription Modal for unauthenticated users */}

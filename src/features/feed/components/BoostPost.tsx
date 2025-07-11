@@ -15,8 +15,11 @@ import {
 } from '@tabler/icons-react';
 import { useAuthStore } from '../../../store/auth.store';
 import { useUserPosts, useBoostPost } from '../../../hooks/api';
-import { showError } from '../../../utils';
+import { showError, showSuccess } from '../../../utils';
 import { PremiumSubscriptionModal } from '../../../components/common/PremiumSubscriptionModal';
+import { LimitReachedModal } from '../../../components/common/LimitReachedModal';
+import { modals } from '@mantine/modals';
+import { useNavigate } from 'react-router';
 
 interface BoostPostProps {
   variant?: 'icon' | 'button';
@@ -24,9 +27,11 @@ interface BoostPostProps {
 
 const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
   const theme = useMantineTheme();
-  const { user } = useAuthStore();
+  const navigate = useNavigate();
+  const { user, fetchUser } = useAuthStore();
   const [boostModalOpened, setBoostModalOpened] = useState(false);
   const [premiumModalOpened, setPremiumModalOpened] = useState(false);
+  const [limitReachedModalOpened, setLimitReachedModalOpened] = useState(false);
 
   // Fetch user's post
   const { data: userPostsResponse } = useUserPosts({ page: 1, limit: 1 });
@@ -35,17 +40,56 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
   // Get boost mutation
   const boostPostMutation = useBoostPost();
 
+  const showLimitReachedModal = () => {
+    if (user?.isSubscribed) {
+      // For subscribed users, show the dedicated limit reached modal
+      setLimitReachedModalOpened(true);
+    } else {
+      // For non-subscribed users, show the premium upgrade modal
+      modals.open({
+        title: 'No Boosts Remaining',
+        centered: true,
+        children: (
+          <Stack>
+            <Text size="sm">
+              You've used all your available post boosts for your current plan.
+              Upgrade to Premium for more boosts and other exclusive features!
+            </Text>
+            <Button
+              onClick={() => {
+                modals.closeAll();
+                setPremiumModalOpened(true);
+              }}
+              variant="gradient"
+              gradient={{ from: 'blue', to: 'cyan' }}
+            >
+              Upgrade to Premium
+            </Button>
+          </Stack>
+        ),
+      });
+    }
+  };
+
   // Handle boost button click
   const handleClick = () => {
+
     if (!user) {
-      setPremiumModalOpened(true);
+      navigate('/signup');
       return;
+    }
+console.log("user", user);
+
+    if (user?.isSubscribed) {
+      if ((user.subscriptionBumpCount || 0) >= 2) {
+        showLimitReachedModal();
+        return;
+      }
+    } else if (user?.isStarterSubscribed) {
+       setPremiumModalOpened(true);
+       return;
     }
 
-    if (!user.isSubscribed) {
-      setPremiumModalOpened(true);
-      return;
-    }
 
     // For subscribed users, open boost modal
     setBoostModalOpened(true);
@@ -59,7 +103,12 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
     }
 
     try {
-      await boostPostMutation.mutateAsync(userPost.id);
+      await boostPostMutation.mutateAsync(userPost.id, {
+        onSuccess: () => {
+          showSuccess('Post boosted successfully!');
+          fetchUser();
+        }
+      });
       setBoostModalOpened(false);
     } catch (error) {
       console.error('Error boosting post:', error);
@@ -177,6 +226,15 @@ const BoostPost: React.FC<BoostPostProps> = ({ variant = 'button' }) => {
         opened={premiumModalOpened}
         onClose={() => setPremiumModalOpened(false)}
         trigger="boost"
+      />
+
+      {/* Limit Reached Modal */}
+      <LimitReachedModal
+        opened={limitReachedModalOpened}
+        onClose={() => setLimitReachedModalOpened(false)}
+        type="boost"
+        currentCount={user?.subscriptionBumpCount || 0}
+        maxCount={2}
       />
     </>
   );

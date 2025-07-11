@@ -27,7 +27,6 @@ interface ContactData {
   instagram: string;
   snapchat: string;
   university: string;
-  batch: string;
 }
 
 interface ModernContactCardProps {
@@ -210,7 +209,7 @@ const ModernContactCard: React.FC<ModernContactCardProps> = ({
           <Box style={{ flex: 1 }}>
             <Text size="xs" c="dimmed">University</Text>
             <Text size="sm" c="white" fw={500}>{contactData.university}</Text>
-            <Text size="xs" c="dimmed">{contactData.batch}</Text>
+            {/* <Text size="xs" c="dimmed">{contactData.batch}</Text> */}
           </Box>
         </Group>
       </Stack>

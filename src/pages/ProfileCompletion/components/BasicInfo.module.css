@@ -12,7 +12,7 @@
   margin: 0;
   position: relative;
   z-index: 1;
-  height: 100%; /* Take full height of parent */
+  /* Removed fixed height to allow natural content height and proper scrolling */
   overflow-y: auto;
   overflow-x: hidden;
   display: flex;

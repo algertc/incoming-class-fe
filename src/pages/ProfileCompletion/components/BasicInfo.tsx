@@ -15,17 +15,13 @@ import { useForm, yupResolver } from "@mantine/form";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconBrandInstagram, IconBrandSnapchat } from "@tabler/icons-react";
 import { useUpdateCurrentUserProfile } from "../../../hooks/api";
-import { ProfileStage } from "../../../models/user.model";
+import { ProfileStage, Gender } from "../../../models/user.model";
 import { profileBasicInfoSchema, getProfileBasicInfoInitialValues } from "../../../forms";
 import { showSuccess, showError } from "../../../utils";
 import { useAuthStore } from "../../../store/auth.store";
 import styles from "./BasicInfo.module.css";
 
-interface BasicInfoProps {
-  onComplete: () => void;
-}
-
-const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
+const BasicInfo: React.FC = () => {
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
   const { user } = useAuthStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -49,11 +45,28 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
       }
 
       showSuccess("Profile information saved successfully!");
-      onComplete();
     } catch (error) {
       showError((error as Error).message);
     }
   };
+
+  const handleFormError = (errors: typeof form.errors) => {
+    // Find the first error field
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      // Find the input element with error
+      const errorElement = document.querySelector(`[name="${firstErrorField}"]`);
+      if (errorElement) {
+        // Scroll the element into view with smooth behavior
+        errorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
+  const genderOptions = Object.values(Gender).map(gender => ({
+    value: gender,
+    label: gender.charAt(0).toUpperCase() + gender.slice(1)
+  }));
 
   return (
     <Paper 
@@ -68,11 +81,29 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
         })
       }}
     >
-      <form onSubmit={form.onSubmit(handleSubmit)} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      <form 
+        onSubmit={form.onSubmit(handleSubmit, handleFormError)} 
+        style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+      >
         <Stack gap={isMobile ? "xs" : "md"} style={{ flex: 1 }}>
           <Text className={`${styles.title} ${isMobile ? styles.titleMobile : ''}`} size={isMobile ? "md" : "lg"} fw={600}>
             Tell Us About Yourself
           </Text>
+
+          <Select
+            required
+            label="Gender"
+            placeholder="Select your gender"
+            data={genderOptions}
+            {...form.getInputProps("gender")}
+            classNames={{
+              label: styles.label,
+              input: `${styles.input} ${isMobile ? styles.inputMobile : ''}`,
+              dropdown: styles.dropdown,
+              option: styles.item,
+            }}
+            size={isMobile ? "sm" : "md"}
+          />
 
           <TextInput
             required
@@ -144,60 +175,11 @@ const BasicInfo: React.FC<BasicInfoProps> = ({ onComplete }) => {
 
           <Select
             required
-            label="Hometown"
-            placeholder="Select your state"
             searchable
+            label="Home State"
+            placeholder="Select state"
             data={[
-              "Alabama",
-              "Alaska",
-              "Arizona",
-              "Arkansas",
-              "California",
-              "Colorado",
-              "Connecticut",
-              "Delaware",
-              "Florida",
-              "Georgia",
-              "Hawaii",
-              "Idaho",
-              "Illinois",
-              "Indiana",
-              "Iowa",
-              "Kansas",
-              "Kentucky",
-              "Louisiana",
-              "Maine",
-              "Maryland",
-              "Massachusetts",
-              "Michigan",
-              "Minnesota",
-              "Mississippi",
-              "Missouri",
-              "Montana",
-              "Nebraska",
-              "Nevada",
-              "New Hampshire",
-              "New Jersey",
-              "New Mexico",
-              "New York",
-              "North Carolina",
-              "North Dakota",
-              "Ohio",
-              "Oklahoma",
-              "Oregon",
-              "Pennsylvania",
-              "Rhode Island",
-              "South Carolina",
-              "South Dakota",
-              "Tennessee",
-              "Texas",
-              "Utah",
-              "Vermont",
-              "Virginia",
-              "Washington",
-              "West Virginia",
-              "Wisconsin",
-              "Wyoming",
+              "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
             ]}
             {...form.getInputProps("hometown")}
             classNames={{

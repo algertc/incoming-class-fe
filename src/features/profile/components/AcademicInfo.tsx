@@ -1,93 +1,111 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Card,
+  Text,
   Group,
+  ActionIcon,
+  Button,
+  Select,
+  Card,
   ThemeIcon,
   Title,
   Divider,
   Grid,
-  Text,
   Badge,
-  ActionIcon,
   useMantineTheme,
+  Box,
   TextInput,
-  Switch,
-  Button,
-  Box
+  Modal,
+  Stack,
+  Spoiler,
 } from '@mantine/core';
 import { IconSchool, IconEdit, IconCheck, IconX } from '@tabler/icons-react';
+import { useForm, yupResolver } from '@mantine/form';
+import * as yup from 'yup';
+
+const majors = [
+  "Computer Science", "Business", "Engineering", "Psychology",
+  "Biology", "Mathematics", "Economics", "Marketing",
+  "Political Science", "Communications", "Education", "Other",
+];
+const states = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming"
+];
 
 interface AcademicInfoProps {
   major: string;
   university: string;
-  batch: string;
   hometown: string;
-  lookingForRoommate?: boolean;
-  isEditable?: boolean;
-  isEditing?: boolean;
-  onEdit?: () => void;
-  onSave?: (data: {
-    academic: { major: string; university: string; batch: string };
-    location: { hometown: string };
     lookingForRoommate: boolean;
-  }) => void;
-  onCancel?: () => void;
+  isEditable: boolean;
+  isEditing: boolean;
+  onEdit: () => void;
+  onSave: (data: any) => Promise<void>;
+  onCancel: () => void;
 }
+
+const academicSchema = yup.object().shape({
+  major: yup.string().required('Major is required'),
+  hometown: yup.string().required('Hometown is required'),
+});
 
 const AcademicInfo: React.FC<AcademicInfoProps> = ({
   major,
   university,
-  batch,
   hometown,
-  lookingForRoommate = false,
-  isEditable = false,
-  isEditing = false,
-  onEdit = () => console.log('Edit academic info'),
-  onSave = () => console.log('Save academic info'),
-  onCancel = () => console.log('Cancel edit')
+  lookingForRoommate,
+  isEditable,
+  isEditing,
+  onEdit,
+  onSave,
+  onCancel,
 }) => {
   const theme = useMantineTheme();
-  const [editedData, setEditedData] = useState({
-    major,
-    university,
-    batch,
-    hometown,
-    lookingForRoommate
+  const [modalOpened, setModalOpened] = useState(false);
+
+  const form = useForm({
+    initialValues: { major, hometown },
+    validate: yupResolver(academicSchema),
   });
 
-  useEffect(() => {
-    setEditedData({
-      major,
-      university,
-      batch,
-      hometown,
-      lookingForRoommate
-    });
-  }, [major, university, batch, hometown, lookingForRoommate]);
+  React.useEffect(() => {
+    form.setValues({ major, hometown });
+  }, [major, hometown, isEditing]);
 
-  const handleSave = () => {
-    onSave({
-      academic: {
-        major: editedData.major,
-        university: editedData.university,
-        batch: editedData.batch
-      },
-      location: {
-        hometown: editedData.hometown
-      },
-      lookingForRoommate: editedData.lookingForRoommate
-    });
+  const handleSave = async () => {
+    const { hasErrors } = form.validate();
+    if (hasErrors) {
+      return;
+    }
+    await onSave(form.values);
   };
 
   const handleCancel = () => {
-    setEditedData({
-      major,
-      university,
-      batch,
-      hometown,
-      lookingForRoommate
-    });
+    form.reset();
     onCancel();
+  };
+
+  const selectStyles = {
+    label: { color: 'white', fontWeight: 500 },
+    input: {
+      backgroundColor: theme.colors.dark[6],
+      borderColor: theme.colors.dark[4],
+      color: 'white',
+      '&:focus': {
+        borderColor: theme.colors.indigo[5],
+      },
+    },
+    dropdown: {
+      backgroundColor: theme.colors.dark[6],
+      borderColor: theme.colors.dark[4],
+    },
+    item: {
+      '&[data-selected]': {
+        backgroundColor: theme.colors.indigo[6],
+      },
+      '&[data-hovered]': {
+        backgroundColor: theme.colors.dark[5],
+      },
+    },
   };
   
   return (
@@ -133,95 +151,34 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
         <Box>
           <Grid>
             <Grid.Col span={6}>
+              <Box onClick={() => setModalOpened(true)} style={{ cursor: 'not-allowed' }}>
               <TextInput
+                  label="University"
+                  value={university}
+                  disabled
+                  styles={{ ...selectStyles, input: { ...selectStyles.input, pointerEvents: 'none' } }}
+                />
+              </Box>
+              <Select
                 label="Major"
-                value={editedData.major}
-                onChange={(event) => setEditedData(prev => ({ ...prev, major: event.currentTarget.value }))}
-                styles={{
-                  label: { color: 'white', fontWeight: 500 },
-                  input: {
-                    backgroundColor: theme.colors.dark[6],
-                    borderColor: theme.colors.dark[4],
-                    color: 'white',
-                    '&:focus': {
-                      borderColor: theme.colors.indigo[5],
-                    },
-                  },
-                }}
-                mb="sm"
-              />
-              
-              <TextInput
-                label="University"
-                value={editedData.university}
-                onChange={(event) => setEditedData(prev => ({ ...prev, university: event.currentTarget.value }))}
-                styles={{
-                  label: { color: 'white', fontWeight: 500 },
-                  input: {
-                    backgroundColor: theme.colors.dark[6],
-                    borderColor: theme.colors.dark[4],
-                    color: 'white',
-                    '&:focus': {
-                      borderColor: theme.colors.indigo[5],
-                    },
-                  },
-                }}
-                mb="sm"
+                placeholder="Select major"
+                data={majors}
+                {...form.getInputProps('major')}
+                styles={selectStyles}
+                mt="sm"
               />
             </Grid.Col>
-            
             <Grid.Col span={6}>
-              {/* <TextInput
-                label="Batch"
-                value={editedData.batch}
-                onChange={(event) => setEditedData(prev => ({ ...prev, batch: event.currentTarget.value }))}
-                styles={{
-                  label: { color: 'white', fontWeight: 500 },
-                  input: {
-                    backgroundColor: theme.colors.dark[6],
-                    borderColor: theme.colors.dark[4],
-                    color: 'white',
-                    '&:focus': {
-                      borderColor: theme.colors.indigo[5],
-                    },
-                  },
-                }}
-                mb="sm"
-              /> */}
-              
-              <TextInput
+              <Select
                 label="Hometown"
-                value={editedData.hometown}
-                onChange={(event) => setEditedData(prev => ({ ...prev, hometown: event.currentTarget.value }))}
-                styles={{
-                  label: { color: 'white', fontWeight: 500 },
-                  input: {
-                    backgroundColor: theme.colors.dark[6],
-                    borderColor: theme.colors.dark[4],
-                    color: 'white',
-                    '&:focus': {
-                      borderColor: theme.colors.indigo[5],
-                    },
-                  },
-                }}
-                mb="sm"
-              />
-            </Grid.Col>
-            
-            <Grid.Col span={12}>
-              <Switch
-                label="Looking for roommate"
-                checked={editedData.lookingForRoommate}
-                onChange={(event) => setEditedData(prev => ({ ...prev, lookingForRoommate: event.currentTarget.checked }))}
-                color="teal"
-                styles={{
-                  label: { color: 'white', fontWeight: 500 },
-                }}
-                mt="md"
+                placeholder="Select state"
+                data={states}
+                searchable
+                {...form.getInputProps('hometown')}
+                styles={selectStyles}
               />
             </Grid.Col>
           </Grid>
-          
           <Group justify="flex-end" mt="md">
             <Button variant="subtle" color="gray" onClick={handleCancel}>
               Cancel
@@ -234,17 +191,14 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
       ) : (
         <Grid>
           <Grid.Col span={6}>
-            <Text fw={500} size="sm" c="white">Major</Text>
-            <Text c="gray.4" mb="sm">{major}</Text>
-            
             <Text fw={500} size="sm" c="white">University</Text>
             <Text c="gray.4" mb="sm">{university}</Text>
+            
+            <Text fw={500} size="sm" c="white">Major</Text>
+            <Text c="gray.4" mb="sm">{major}</Text>
           </Grid.Col>
           
           <Grid.Col span={6}>
-            {/* <Text fw={500} size="sm" c="white">Batch</Text> */}
-            {/* <Text c="gray.4" mb="sm">{batch}</Text> */}
-            
             <Text fw={500} size="sm" c="white">Hometown</Text>
             <Text c="gray.4" mb="sm">{hometown}</Text>
           </Grid.Col>
@@ -258,6 +212,36 @@ const AcademicInfo: React.FC<AcademicInfoProps> = ({
           )}
         </Grid>
       )}
+      <Modal
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title={<Title order={4}>Heads Up!</Title>}
+        centered
+        styles={{
+          title: { color: theme.white },
+          header: { backgroundColor: theme.colors.dark[7] },
+          content: { backgroundColor: theme.colors.dark[7], color: theme.white },
+          body: { paddingTop: theme.spacing.sm, paddingBottom: theme.spacing.sm },
+        }}
+      >
+        <Stack>
+          <Text>
+            To change your college, you’ll need to create a new account.
+            Your profile is tied to your current school, so switching requires starting fresh.
+          </Text>
+          
+          <Spoiler maxHeight={0} showLabel="Why?" hideLabel="Hide">
+            <Text c="dimmed" size="sm">
+              To keep everything organized and accurate, each account is linked to a single school. 
+              If you’ve committed to a new university, just sign up again with your new school info!
+            </Text>
+          </Spoiler>
+
+          <Button onClick={() => setModalOpened(false)} color="indigo" mt="md">
+            OK
+          </Button>
+        </Stack>
+      </Modal>
     </Card>
   );
 };

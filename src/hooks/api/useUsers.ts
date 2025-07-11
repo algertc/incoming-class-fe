@@ -4,6 +4,7 @@ import { transactionsService } from '../../services/transactions.service';
 import type { UpdateProfileData, User } from '../../models/user.model';
 import type { IServerResponse } from '../../models/serverResponse.model';
 import { authKeys } from './useAuth';
+import { useAuthStore } from '../../store/auth.store';
 
 /**
  * React Query key factory for user-related queries
@@ -62,6 +63,10 @@ export const useUpdateProfile = (userId: string) => {
         
         // Also update the current user data if it's the same user
         // This ensures the updated profile is reflected everywhere in the UI
+        const { user, setUser } = useAuthStore.getState();
+        if(user?.id === userId){
+          setUser(data.data)
+        }
         queryClient.setQueryData(authKeys.currentUser(), (oldData) => {
           // Check if this is the current user's data
           const currentUser = oldData as IServerResponse<User> | undefined;
@@ -102,6 +107,10 @@ export const useUpdateCurrentUserProfile = () => {
           message: 'User profile updated',
           data: data.data
         });
+        
+        // Update Zustand store
+        const { setUser } = useAuthStore.getState();
+        setUser(data.data);
         
         // Also update the user-specific cache to ensure consistency
         if (userId) {

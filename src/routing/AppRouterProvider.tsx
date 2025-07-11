@@ -142,6 +142,10 @@ const router = createBrowserRouter([
                 element: <TermsPage />
             },
             {
+                path: "privacy",
+                element: <PrivacyPage />
+            },
+            {
                 path: "error-test",
                 element: <ErrorTestPage />
             },

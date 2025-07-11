@@ -8,6 +8,7 @@ export const profileBasicInfoInitialValues = {
   snapchat: '',
   major: '',
   hometown: '',
+  gender: '',
   bio: '',
   lookingForRoommate: false
 };
@@ -23,8 +24,9 @@ export const getProfileBasicInfoInitialValues = (user?: User | null) => {
     snapchat: user.snapchat || '',
     major: user.major || '',
     hometown: user.hometown || '',
+    gender: user.gender || '',
     bio: user.bio || '',
-    lookingForRoommate: false // This field doesn't exist in User model
+    lookingForRoommate: false
   };
 };
 
@@ -55,7 +57,7 @@ export const getTraitsPreferencesInitialValues = (user?: User | null) => {
     sleepSchedule: user.sleepSchedule || '',
     cleanliness: user.cleanliness || '',
     guests: user.guests || '',
-    studying: '', // This field doesn't exist in User model
+    studying: user.studying || '',
     substances: user.substances || '',
     personality: user.personality || [],
     physicalActivity: user.physicalActivity || [],

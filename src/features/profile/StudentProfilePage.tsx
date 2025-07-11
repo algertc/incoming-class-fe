@@ -1,4 +1,4 @@
-import React, { useState, lazy, Suspense } from 'react';
+import React, { useState } from 'react';
 import {
   Container,
   Stack,
@@ -12,12 +12,12 @@ import {
 } from '@mantine/core';
 import { useStudentProfileData } from './hooks';
 import { glassCardStyles } from './utils/glassStyles';
+import type { Gender } from '../../models/user.model';
 
 
-// Lazy load components for code splitting
-const ModernProfileHeader = lazy(() => import('./components/ModernProfileHeader'));
-const ModernTabNavigation = lazy(() => import('./components/ModernTabNavigation'));
-const StudentProfileOverviewTab = lazy(() => import('./components/StudentProfileOverviewTab'));
+import ModernProfileHeader from './components/ModernProfileHeader';
+import ModernTabNavigation from './components/ModernTabNavigation';
+import StudentProfileOverviewTab from './components/StudentProfileOverviewTab';
 
 const StudentProfilePage: React.FC = () => {
   const theme = useMantineTheme();
@@ -90,7 +90,6 @@ const StudentProfilePage: React.FC = () => {
     >
       <Container size="lg" py="md">
         {/* Modern Profile Header */}
-        <Suspense fallback={<Skeleton height={180} radius="xl" mb="md" />}>
           <ModernProfileHeader
             name={profileData.firstName + " " + profileData.lastName}
             designation={getCollegeName()}
@@ -99,29 +98,22 @@ const StudentProfilePage: React.FC = () => {
             bio={profileData.bio || ""}
             isPremium={profileData.isPremium}
             isEditable={false}
+            gender={profileData.gender as Gender}
           />
-        </Suspense>
         
         {/* Modern Tab Navigation */}
-        <Suspense fallback={<Skeleton height={50} radius="xl" mb="md" />}>
           <ModernTabNavigation
             activeTab={activeTab}
             onTabChange={(value) => setActiveTab(value as string)}
           />
-        </Suspense>
         
         {/* Tab Content - Only Overview Tab */}
-        <Suspense fallback={
-          <Stack gap="md">
-            <Skeleton height={200} radius="xl" />
-            <Skeleton height={200} radius="xl" />
-          </Stack>
-        }>
           <StudentProfileOverviewTab
             profileData={profileData}
             isLoading={false}
           />
-        </Suspense>
+        
+
       </Container>
 
       <style>{`

@@ -12,7 +12,7 @@ import {
   Burger,
   Stack,
 } from "@mantine/core";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import {
   IconUser,
   IconCreditCard,
@@ -23,12 +23,17 @@ import { useAuthStore } from "../../../store/auth.store";
 import Logo from "../../Header/Logo";
 import HeaderNavLink from "../../Header/HeaderNavLink";
 import gsap from "gsap";
+import { ProfileGlowEffect } from "../../common/ProfileGlowEffect";
 
 export const Header: React.FC = () => {
   const theme = useMantineTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthStore();
   const [mobileMenuOpened, { toggle: toggleMobileMenu, close: closeMobileMenu }] = useDisclosure(false);
+
+  // Check if we're on the profile page
+  const isProfilePage = location.pathname === "/profile";
 
   // Refs for animations
   const headerRef = useRef<HTMLDivElement>(null);
@@ -176,67 +181,82 @@ export const Header: React.FC = () => {
                         },
                       }}
                     >
-                      <Avatar
-                        src={user?.profilePicture}
-                        alt={fullName}
-                        radius="xl"
-                        size={"sm"}
-                        styles={{
-                          root: {
-                            border: "none",
-                            "@media (max-width: 768px)": {
-                              width: rem(24),
-                              height: rem(24),
+                      <ProfileGlowEffect isActive={!user?.profilePicture && !isProfilePage}>
+                        <Avatar
+                          src={user?.profilePicture}
+                          alt={fullName}
+                          radius="xl"
+                          size={"sm"}
+                          styles={{
+                            root: {
+                              border: "none",
+                              "@media (max-width: 768px)": {
+                                width: rem(24),
+                                height: rem(24),
+                              },
+                              "@media (min-width: 769px)": {
+                                width: rem(36),
+                                height: rem(36),
+                              },
                             },
-                            "@media (min-width: 769px)": {
-                              width: rem(36),
-                              height: rem(36),
+                            image: {
+                              objectFit: "cover",
                             },
-                          },
-                          image: {
-                            objectFit: "cover",
-                          },
-                        }}
-                      />
+                          }}
+                        />
+                      </ProfileGlowEffect>
                     </UnstyledButton>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <Menu.Label>Account</Menu.Label>
+                    <Menu.Label>Profile</Menu.Label>
                     <Menu.Item
-                      leftSection={
-                        <IconUser
-                          style={{ width: rem(14), height: rem(14) }}
-                          stroke={1.5}
-                        />
-                      }
-                      onClick={() => navigate("/profile")}
+                      leftSection={<IconUser style={{ width: rem(14), height: rem(14) }} />}
+                      component={Link}
+                      to="/profile"
+                      style={{
+                        position: 'relative',
+                        overflow: 'hidden',
+                        ...((!user?.profilePicture) && {
+                          background: 'linear-gradient(45deg, rgba(67, 97, 238, 0.1), rgba(58, 12, 163, 0.1))',
+                          animation: 'menuPulse 1.5s ease-in-out infinite',
+                        }),
+                      }}
                     >
-                      Profile
+                      <style>
+                        {`
+                          @keyframes menuPulse {
+                            0% { 
+                              background: linear-gradient(45deg, rgba(67, 97, 238, 0.05), rgba(58, 12, 163, 0.05));
+                              box-shadow: inset 0 0 5px 2px rgba(67, 97, 238, 0.05);
+                            }
+                            50% { 
+                              background: linear-gradient(45deg, rgba(67, 97, 238, 0.2), rgba(58, 12, 163, 0.2));
+                              box-shadow: inset 0 0 15px 5px rgba(67, 97, 238, 0.2);
+                            }
+                            100% { 
+                              background: linear-gradient(45deg, rgba(67, 97, 238, 0.05), rgba(58, 12, 163, 0.05));
+                              box-shadow: inset 0 0 5px 2px rgba(67, 97, 238, 0.05);
+                            }
+                          }
+                        `}
+                      </style>
+                      My Profile
                     </Menu.Item>
                     <Menu.Item
-                      leftSection={
-                        <IconCreditCard
-                          style={{ width: rem(14), height: rem(14) }}
-                          stroke={1.5}
-                        />
-                      }
-                      onClick={() => navigate("/subscription")}
+                      leftSection={<IconCreditCard style={{ width: rem(14), height: rem(14) }} />}
+                      component={Link}
+                      to="/subscription"
                     >
                       Subscription
                     </Menu.Item>
                     <Menu.Divider />
                     <Menu.Item
-                      color="red"
-                      leftSection={
-                        <IconLogout
-                          style={{ width: rem(14), height: rem(14) }}
-                          stroke={1.5}
-                        />
-                      }
-                      onClick={async () => {
-                        await logout();
-                        navigate("/public");
+                      leftSection={<IconLogout style={{ width: rem(14), height: rem(14) }} />}
+                      onClick={() => {
+                        logout();
+                        navigate("/login");
                       }}
+                      color="red"
                     >
                       Logout
                     </Menu.Item>

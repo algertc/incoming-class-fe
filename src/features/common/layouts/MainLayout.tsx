@@ -2,8 +2,8 @@ import React from "react";
 import { AppShell } from "@mantine/core";
 import { Outlet } from "react-router";
 import Header from "../../../components/Header/Header";
-import Footer from "../../../components/Footer/Footer";
 import { ScrollToTop } from "../../../components/common";
+import Footer from "../../../components/Footer/Footer";
 
 const MainLayout: React.FC = () => {
   return (
@@ -32,7 +32,7 @@ const MainLayout: React.FC = () => {
 
       <AppShell.Main>
         <Outlet />
-        <Footer />
+       <Footer/>
       </AppShell.Main>
     </AppShell>
   );

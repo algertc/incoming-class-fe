@@ -16,14 +16,13 @@ import type {
   ContactData 
 } from '../hooks/useProfileEditing';
 
-// Lazy load components for code splitting
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 
-const BioCard = lazy(() => import('./BioCard'));
-const AcademicInfo = lazy(() => import('./AcademicInfo'));
-const TraitsPreferences = lazy(() => import('./TraitsPreferences'));
-const InterestsCard = lazy(() => import('./InterestsCard'));
-const ModernContactCard = lazy(() => import('./ModernContactCard'));
+import BioCard from './BioCard';
+import AcademicInfo from './AcademicInfo';
+import TraitsPreferences from './TraitsPreferences';
+import InterestsCard from './InterestsCard';
+import ModernContactCard from './ModernContactCard';
 
 interface ProfileOverviewTabProps {
   profileData: User;
@@ -77,8 +76,7 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
     email: user?.email || 'email@university.edu',
     instagram: profileData.instagram || '@username',
     snapchat: profileData.snapchat || '@username',
-    university: profileData.university || 'University',
-    batch: profileData.collegeGraduationYear || 'Not specified',
+    university: (profileData.college as unknown as {name:string} ).name || 'University',
   };
 
   return (
@@ -109,14 +107,22 @@ const ProfileOverviewTab: React.FC<ProfileOverviewTabProps> = ({
               <Suspense fallback={<ProfileComponentSkeleton height={180} />}>
                 <AcademicInfo 
                   major={profileData.major || 'Not specified'}
-                  university={profileData.university || 'University'}
-                  batch={profileData.collegeGraduationYear || 'Not specified'}
+                  university={(profileData.college as unknown as {name:string} )?.name || 'University'}
                   hometown={profileData.hometown || 'Not specified'}
                   lookingForRoommate={false} // This field doesn't exist in User interface
                   isEditable={true}
                   isEditing={editStates.academic}
                   onEdit={() => toggleEditState('academic')}
-                  onSave={handleSaveAcademic}
+                  onSave={(data) => handleSaveAcademic({
+                    academic: {
+                      major: data.major,
+                      
+                    },
+                    location: {
+                      hometown: data.hometown,
+                    },
+                    lookingForRoommate: false,
+                  })}
                   onCancel={() => setEditStates(prev => ({ ...prev, academic: false }))}
                 />
               </Suspense>

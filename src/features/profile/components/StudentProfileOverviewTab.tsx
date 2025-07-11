@@ -69,10 +69,13 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
               <AcademicInfo 
                 major={profileData.major || 'Not specified'}
                 university={profileData.university || 'University'}
-                batch={profileData.collegeGraduationYear || 'Not specified'}
                 hometown={profileData.hometown || 'Not specified'}
-                lookingForRoommate={false} // This field doesn't exist in User interface
+                lookingForRoommate={profileData.lookingForRoommate || false}
                 isEditable={false}
+                isEditing={false}
+                onEdit={() => {}}
+                onSave={async () => {}}
+                onCancel={() => {}}
               />
           </Box>
           
@@ -81,10 +84,14 @@ const StudentProfileOverviewTab: React.FC<StudentProfileOverviewTabProps> = ({
                 sleepSchedule={profileData.sleepSchedule || 'Not specified'}
                 cleanliness={profileData.cleanliness || 'Not specified'}
                 guests={profileData.guests || 'Not specified'}
-                studying="Library" // This field doesn't exist in User interface
+                studying={profileData.studying || 'Not specified'}
                 substances={profileData.substances || 'Not specified'}
                 personality={profileData.personality || []}
                 isEditable={false}
+                isEditing={false}
+                onEdit={() => {}}
+                onSave={async () => {}}
+                onCancel={() => {}}
               />
           </Box>
         </Stack>

@@ -6,13 +6,9 @@ import { useUpdateCurrentUserProfile } from "../../../hooks/api";
 import { useAuthStore } from "../../../store/auth.store";
 import { ProfileStage } from "../../../models/user.model";
 import { showError, showSuccess } from "../../../utils";
-import styles from "./BasicInfo.module.css"; // reuse basic info styles for consistency
+import styles from "./BasicInfo.module.css";
 
-interface CollegeSelectStepProps {
-  onComplete: () => void;
-}
-
-const CollegeSelectStep: React.FC<CollegeSelectStepProps> = ({ onComplete }) => {
+const CollegeSelectStep: React.FC = () => {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const { mutateAsync: updateProfile, isPending } = useUpdateCurrentUserProfile();
   const { user } = useAuthStore();
@@ -52,7 +48,6 @@ const CollegeSelectStep: React.FC<CollegeSelectStepProps> = ({ onComplete }) => 
       }
       
       showSuccess("College saved successfully!");
-      onComplete();
     } catch (err) {
       showError((err as Error).message);
     } finally {

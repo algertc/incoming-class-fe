@@ -46,6 +46,7 @@ const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Fetch user's posts
@@ -277,6 +278,7 @@ const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
           editForm.reset();
           setPreviewImages([]);
           setSelectedFiles([]);
+          setAspectRatio(undefined);
         }}
         title="Edit Your Post"
         size="xl"
@@ -520,6 +522,8 @@ const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
         onClose={() => setCropModalOpened(false)}
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
+        aspectRatio={aspectRatio}
+        setAspectRatio={setAspectRatio}
       />
     </>
   );

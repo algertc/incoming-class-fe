@@ -67,7 +67,7 @@ const FiltersModal: React.FC<FiltersModalProps> = ({ open, onClose, onPremiumReq
         width: isDesktop ? 'auto' : '100%',
         minWidth: isDesktop ? 400 : undefined,
         maxWidth: isDesktop ? '90vw' : '100%',
-        height: isDesktop ? 'auto' : '100dvh',
+        height: isDesktop ? '90vh' : '100dvh',
         maxHeight: isDesktop ? '90vh' : '100dvh',
         background: '#101720',
         display: 'flex',

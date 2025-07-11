@@ -1,20 +1,15 @@
 .container {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Mobile responsive container */
-.containerMobile {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  margin: 0;
-  position: relative;
-  z-index: 1;
-  height: 100%; /* Take full height of parent */
-  overflow-y: auto;
-  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  max-height: 100%;
+}
+
+.containerMobile {
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Custom scrollbar styling for mobile container */
@@ -109,24 +104,6 @@
 
 .item[data-hovered] {
   background-color: rgba(255, 255, 255, 0.1);
-}
-
-.scrollAreaMobile {
-  /* Custom scrollbar for mobile */
-}
-
-.scrollAreaMobile::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollAreaMobile::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-}
-
-.scrollAreaMobile::-webkit-scrollbar-thumb {
-  background: rgba(67, 97, 238, 0.6);
-  border-radius: 2px;
 }
 
 .nextButton {

@@ -24,10 +24,9 @@ export enum StepStage {
 }
 
 export enum Gender {
-  Male = "male",
-  Female = "female",
-  NonBinary = "non-binary",
-  Other = "other",
+  Male = 'male',
+  Female = 'female',
+  Other = 'other'
 }
 
 export enum Housing {
@@ -142,6 +141,9 @@ export interface User {
   postPaymentDone: boolean;
   isPostedToInstagram: boolean;
   isSubscribed: boolean;
+  isStarterSubscribed?: boolean; // New flag for starter pack
+  subscriptionBumpCount?: number; // New counter for boosts
+  subscriptionEditCount?: number; // New counter for edits
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
   createdAt?: Date;
@@ -181,6 +183,7 @@ export interface UpdateProfileData {
   lastName?: string;
   bio?: string;
   profileImage?: string | File;
+  photos?: string[]; // Add photos array support
   isProfileCompleted?: boolean;
   // Additional profile fields
   major?: string;

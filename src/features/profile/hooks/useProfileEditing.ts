@@ -24,7 +24,7 @@ interface LoadingStates {
 
 // Data interfaces for edit operations
 export interface AcademicData {
-  academic: { major: string; university: string; batch: string };
+  academic: { major: string; };
   location: { hometown: string };
   lookingForRoommate: boolean;
 }
@@ -137,8 +137,6 @@ export const useProfileEditing = (
       
       const updateData: UpdateProfileData = {
         major: academicData.academic.major,
-        university: academicData.academic.university,
-        collegeGraduationYear: academicData.academic.batch,
         hometown: academicData.location.hometown,
       };
 
@@ -154,8 +152,6 @@ export const useProfileEditing = (
         return {
           ...prev,
           major: academicData.academic.major,
-          university: academicData.academic.university,
-          collegeGraduationYear: academicData.academic.batch,
           hometown: academicData.location.hometown,
         };
       });

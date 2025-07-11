@@ -64,14 +64,36 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
     onFiltersClick();
   };
 
-  // Check if any filters are active (only remaining filters)
-  const hasActiveFilters =
-    filters.lastDays !== 30 ||
-    (filters.college !== null && filters.college !== "all");
+  // Dynamically build list of active filters (excluding searchQuery)
+  const activeFilterBadges: { key: keyof typeof filters; label: string }[] = [];
 
-  const activeFiltersCount =
-    (filters.lastDays !== 30 ? 1 : 0) +
-    (filters.college !== null && filters.college !== "all" ? 1 : 0);
+  if (filters.lastDays !== 30) {
+    activeFilterBadges.push({ key: 'lastDays', label: `Last ${filters.lastDays} days` });
+  }
+
+  if (filters.college && filters.college !== 'all') {
+    activeFilterBadges.push({ key: 'college', label: 'College' });
+  }
+
+  if (filters.major) activeFilterBadges.push({ key: 'major', label: 'Major' });
+  if (filters.hometown) activeFilterBadges.push({ key: 'hometown', label: 'Home State' });
+  if (filters.religion) activeFilterBadges.push({ key: 'religion', label: 'Religion' });
+  if (filters.gender) activeFilterBadges.push({ key: 'gender', label: 'Gender' });
+  if (filters.campusInvolvement) activeFilterBadges.push({ key: 'campusInvolvement', label: 'Campus' });
+  if (filters.other) activeFilterBadges.push({ key: 'other', label: 'Other' });
+
+  // Lifestyle arrays / values
+  if (filters.sleepSchedule) activeFilterBadges.push({ key: 'sleepSchedule', label: 'Sleep' });
+  if (filters.cleanliness) activeFilterBadges.push({ key: 'cleanliness', label: 'Cleanliness' });
+  if (filters.guests) activeFilterBadges.push({ key: 'guests', label: 'Guests' });
+  if (filters.studying) activeFilterBadges.push({ key: 'studying', label: 'Studying' });
+  if (filters.personality?.length) activeFilterBadges.push({ key: 'personality', label: 'Personality' });
+  if (filters.physicalActivity?.length) activeFilterBadges.push({ key: 'physicalActivity', label: 'Activity' });
+  if (filters.pastimes?.length) activeFilterBadges.push({ key: 'pastimes', label: 'Pastimes' });
+  if (filters.food?.length) activeFilterBadges.push({ key: 'food', label: 'Food' });
+
+  const activeFiltersCount = activeFilterBadges.length;
+  const hasActiveFilters = activeFiltersCount > 0;
 
   return (
     <>
@@ -192,34 +214,19 @@ export const MobileSearchBar: React.FC<MobileSearchBarProps> = ({
           <Collapse in={hasActiveFilters}>
             <Box pt="sm">
               <Group gap="xs">
-                {filters.lastDays !== 30 && (
+                {activeFilterBadges.map((badge) => (
                   <Badge
-                    color="indigo"
+                    key={badge.key}
+                    color="blue"
                     variant="light"
                     size="xs"
                     styles={{
-                      root: {
-                        textTransform: "none",
-                      },
+                      root: { textTransform: 'none' },
                     }}
                   >
-                    Last {filters.lastDays} days
+                    {badge.label}
                   </Badge>
-                )}
-                {filters.college !== null && filters.college !== "all" && (
-                  <Badge
-                    color="green"
-                    variant="light"
-                    size="xs"
-                    styles={{
-                      root: {
-                        textTransform: "none",
-                      },
-                    }}
-                  >
-                    College Filter
-                  </Badge>
-                )}
+                ))}
               </Group>
             </Box>
           </Collapse>

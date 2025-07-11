@@ -48,7 +48,7 @@ export const PremiumFeatures: React.FC = () => {
   const handleUpgradeClick = async () => {
     if (!user) {
       // Redirect to login page if user is not authenticated
-      navigate('/login');
+      navigate('/signup');
       return;
     }
 

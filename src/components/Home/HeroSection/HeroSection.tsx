@@ -11,11 +11,14 @@ import {
   useMantineTheme,
 } from "@mantine/core";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CollegeSearchSelect from "../../../components/common/CollegeSearchSelect";
 import { useLocalStorage } from "@mantine/hooks";
 import { useNavigate } from "react-router";
 import { useFeedStore } from "../../../store/feed.store";
 import { useAuthStore } from "../../../store/auth.store";
+import { useLandingPageStats } from "../../../hooks/api/useStats";
+gsap.registerPlugin(ScrollTrigger);
 
 // CSS keyframes for the floating animations and stars twinkling - OPTIMIZED FOR IOS SAFARI
 const animationStyles = `
@@ -103,6 +106,7 @@ export const HeroSection: React.FC = () => {
   const heroTitleRef = useRef<HTMLHeadingElement>(null);
   const heroTextRef = useRef<HTMLParagraphElement>(null);
   const heroButtonsRef = useRef<HTMLDivElement>(null);
+  const studentsCountRef = useRef<HTMLDivElement>(null);
   const heroImageRef = useRef<HTMLDivElement>(null);
   const heroImageGlowRef = useRef<HTMLDivElement>(null);
   const heroBadgeRef = useRef<HTMLDivElement>(null);
@@ -114,6 +118,35 @@ export const HeroSection: React.FC = () => {
   const bgCircle3Ref = useRef<HTMLDivElement>(null);
   const bgGradient1Ref = useRef<HTMLDivElement>(null);
   const bgGradient2Ref = useRef<HTMLDivElement>(null);
+
+  const { data: statsResponse } = useLandingPageStats();
+  const totalUsers = statsResponse?.data?.totalUsers || 0;
+
+  useEffect(() => {
+    if (studentsCountRef.current) {
+      gsap.fromTo(
+        studentsCountRef.current,
+        { innerText: 0 },
+        {
+          innerText: totalUsers,
+          duration: 2,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: studentsCountRef.current,
+            start: 'top bottom-=50',
+          },
+          snap: { innerText: 1 },
+          onUpdate: function () {
+            if (studentsCountRef.current) {
+              studentsCountRef.current.innerHTML = Math.floor(
+                Number(this.targets()[0].innerText)
+              ).toLocaleString() + '+';
+            }
+          },
+        }
+      );
+    }
+  }, [totalUsers]);
 
   const handleCollegeSelect = (college: { id: string; name: string }) => {
     setSelectedCollege(college.id);
@@ -523,7 +556,7 @@ export const HeroSection: React.FC = () => {
             className="hero-text"
             style={{ maxWidth: 700 }}
           >
-            Skip the awkward intros later- start connecting now. Link your social media, post your profile, and match with roommates and friends before move-in day.
+            Skip the awkward intros later - start connecting now. Link your social media, post your profile, and match with roommates and friends before move-in day.
           </Text>
 
           <Box 
@@ -557,7 +590,7 @@ export const HeroSection: React.FC = () => {
             </AvatarGroup>
             <Text size="sm" c="gray.5" fw={600}>
               <Text span fw={700} c={theme.white}>
-                526+
+                <div ref={studentsCountRef}>0+</div>
               </Text>{" "}
               Students Connected
             </Text>

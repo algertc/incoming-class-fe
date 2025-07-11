@@ -13,13 +13,10 @@ import { useUpdateCurrentUserProfile } from '../../../hooks/api';
 import { useCurrentUser } from '../../../hooks/api';
 import { ProfileStage } from '../../../models/user.model';
 import { showSuccess, showError } from '../../../utils';
+// import { useAuthStore } from '../../../store/auth.store';
 import PostCard, { type Post } from '../../../features/feed/components/PostCard';
 import InstagramPost from './InstagramPost';
 import styles from './ProfilePreview.module.css';
-
-interface ProfilePreviewProps {
-  onComplete: () => void;
-}
 
 // Define a type-safe interface for our profile data
 interface ProfileData {
@@ -49,9 +46,10 @@ interface ProfileData {
   };
 }
 
-const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
+const ProfilePreview: React.FC = () => {
   const { data: currentUserData, isLoading: isLoadingUser } = useCurrentUser();
   const { mutateAsync: updateProfile, isPending: isUpdating } = useUpdateCurrentUserProfile();
+  // const { user } = useAuthStore();
   const [userData, setUserData] = useState<ProfileData | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -120,7 +118,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
     };
   };
 
-  const handleSubmit = async () => {
+  const handleNext = async () => {
     try {
       setIsSubmitting(true);
       
@@ -135,7 +133,6 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
       }
       
       showSuccess("Profile preview confirmed! Moving to payment...");
-      onComplete(); // Move to next step in the UI
     } catch (error) {
       showError((error as Error).message);
     } finally {
@@ -200,7 +197,7 @@ const ProfilePreview: React.FC<ProfilePreviewProps> = ({ onComplete }) => {
 
           <Group justify="center" mt={isMobile ? "sm" : "xl"}>
             <Button
-            onClick={handleSubmit}
+            onClick={handleNext}
               size={isMobile ? "md" : "lg"}
               loading={isSubmitting || isUpdating}
               className={styles.nextButton}

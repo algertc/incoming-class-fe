@@ -4,12 +4,10 @@ import { request } from '../hooks/api/http.client';
 import API_ENDPOINTS from '../hooks/api/api.endpoints';
 
 export interface FetchPostsParams {
-  page?: number;
-  limit?: number;
   searchQuery?: string;
-  lastDays?: number; // Number of days to look back from today
+  lastDays?: number;
   college?: string | null;
-  substances?: string | null;
+  major?: string | null;
   hometown?: string | null;
   religion?: string | null;
   gender?: string | null;
@@ -24,6 +22,8 @@ export interface FetchPostsParams {
   physicalActivity?: string[] | null;
   pastimes?: string[] | null;
   food?: string[] | null;
+  page?: number;
+  limit?: number;
 }
 
 export interface FetchPostsResponse {
@@ -116,15 +116,11 @@ class FeedService {
     if (params.limit) queryParams.limit = params.limit.toString();
     if (params.searchQuery) queryParams.search = params.searchQuery;
     if (params.college && params.college !== 'all') queryParams.college = params.college;
+    if (params.major) queryParams.major = params.major;
 
     // Handle last days filter
     if (params.lastDays) {
       queryParams.lastDays = params.lastDays.toString();
-    }
-
-    // Handle substances filter
-    if (params.substances) {
-      queryParams.substances = params.substances;
     }
 
     // New filters
