@@ -1,7 +1,7 @@
 // Stripe Configuration for Session-based Checkout
 export const stripeConfig = {
   // Stripe publishable key from environment variables
-  publishableKey: "pk_test_51RYLjuBF0QSYoJotsoRyCP3lnprs1YCqaVPT6oTZ3yQvielG4VFhjtGlpxLB6jZwSeScQXkBV4z5ormYPC8Etude00neyKL6zK",
+  publishableKey: "pk_live_51OqSqGB2dYPDg3OJIP3Qp1DfA5h3jeXKqKfyTXv0Ew8c3qTF7V6t3FDYrTTTWfiTvOXrLX0IneKByZdopd1PjKYl00oxSsujPk",
 } as const;
 
 // Validate Stripe configuration

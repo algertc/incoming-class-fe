@@ -46,7 +46,7 @@ const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
+  const [aspectRatio, setAspectRatio] = useState<string | undefined>(undefined);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Fetch user's posts
@@ -523,7 +523,6 @@ const PostButton: React.FC<PostButtonProps> = ({ variant = 'button' }) => {
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
         aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
       />
     </>
   );

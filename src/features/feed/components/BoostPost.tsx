@@ -86,8 +86,8 @@ console.log("user", user);
         return;
       }
     } else if (user?.isStarterSubscribed) {
-       setPremiumModalOpened(true);
-       return;
+      setPremiumModalOpened(true);
+      return;
     }
 
 

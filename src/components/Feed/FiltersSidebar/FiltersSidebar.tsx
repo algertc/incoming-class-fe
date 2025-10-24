@@ -33,7 +33,7 @@ export const FiltersSidebar: React.FC<{
   const theme = useMantineTheme();
   const navigate = useNavigate();
   console.log(onPremiumModalOpen);
-  
+
   // Get feed store state and actions
   const {
     filters,
@@ -105,8 +105,8 @@ export const FiltersSidebar: React.FC<{
   const showPremiumModal = () => {
     const { user } = useAuthStore.getState();
     if (user) {
-      if (onPremiumModalOpen) {
-        onPremiumModalOpen();
+    if (onPremiumModalOpen) {
+      onPremiumModalOpen();
       }
     } else {
       navigate('/signup');
@@ -343,7 +343,7 @@ export const FiltersSidebar: React.FC<{
       />
 
       <Divider color="rgba(255, 255, 255, 0.1)" my="md" />
-      
+
       {/* Gender Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Gender
@@ -473,7 +473,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Major Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Major
@@ -527,7 +527,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Cleanliness */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Cleanliness
@@ -600,7 +600,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Guests */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Guests
@@ -673,7 +673,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Personality */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Personality
@@ -716,7 +716,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Substances Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Substances
@@ -762,7 +762,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Religion Filter */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Religion
@@ -804,7 +804,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Physical Activity */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Physical Activity
@@ -847,7 +847,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Pastimes */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Pastimes
@@ -930,7 +930,7 @@ export const FiltersSidebar: React.FC<{
           },
         }}
       />
-      
+
       {/* Food */}
       <Text size="sm" fw={500} c={theme.white} mb="xs">
         Food Preferences

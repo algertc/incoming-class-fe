@@ -24,6 +24,7 @@ import styles from './PhotoUpload.module.css';
 
 interface ExtendedUser extends User {
   photos?: string[];
+  aspectRatio?: string;
 }
 
 interface PhotoItem {
@@ -36,18 +37,17 @@ interface PhotoItem {
 const PhotoUpload: React.FC = () => {
   const { user } = useAuthStore();
   
-  // Separate state management for better control
   const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
   const [newPhotos, setNewPhotos] = useState<string[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [removedExistingIndices, setRemovedExistingIndices] = useState<Set<number>>(new Set());
   
+  const [aspectRatio, setAspectRatio] = useState<string | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cropModalOpen, setCropModalOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const [fileForCropping, setFileForCropping] = useState<File | null>(null);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
   
   const theme = useMantineTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -55,38 +55,45 @@ const PhotoUpload: React.FC = () => {
   const { mutateAsync: updateProfile, isPending: isUpdatingProfile } = useUpdateCurrentUserProfile();
   const { mutateAsync: uploadImages, isPending: isUploadingImages } = useUploadMultipleImages();
 
-  // Initialize existing photos from user data
   useEffect(() => {
     if (user) {
       const userData = user as ExtendedUser;
       const userPhotos: string[] = userData?.photos || [];
       
-      // Include profile picture if it's not already in photos
       if (userData?.profilePicture && !userPhotos.includes(userData.profilePicture)) {
         userPhotos.unshift(userData.profilePicture);
       }
       
       setExistingPhotos(userPhotos);
-    }
-  }, [user]);
 
-  // Compute display photos for UI
+      if (userPhotos.length > 0 && userData.aspectRatio) {
+        setAspectRatio(userData.aspectRatio);
+      } else {
+        // Explicitly clear aspect ratio if no photos or not set
+        setAspectRatio(undefined);
+      }
+    }
+  }, [user]); // This remains the primary trigger
+
   const displayPhotos: PhotoItem[] = [
-    // Existing photos that aren't removed
     ...existingPhotos.map((url, index) => ({
       id: `existing-${index}`,
       url,
       isExisting: true,
       isRemoved: removedExistingIndices.has(index)
     })).filter(photo => !photo.isRemoved),
-    
-    // New photos
     ...newPhotos.map((url, index) => ({
       id: `new-${index}`,
       url,
       isExisting: false
     }))
   ];
+
+  useEffect(() => {
+    if (displayPhotos.length === 0) {
+      setAspectRatio(undefined);
+    }
+  }, [displayPhotos.length]);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -102,25 +109,21 @@ const PhotoUpload: React.FC = () => {
   };
 
   const handleFiles = (files: File[]) => {
-    // Validate files before processing
     const validation = validateImageFiles([...selectedFiles, ...files]);
     if (!validation.isValid) {
       showError(validation.error || 'Invalid files selected');
       return;
     }
 
-    // Check total photo limit (existing + new)
     const totalPhotos = displayPhotos.length + files.length;
     if (totalPhotos > 10) {
       showError(`You can only have up to 10 photos total. Currently you have ${displayPhotos.length} photos.`);
       return;
     }
 
-    // Add new files to pending queue
     const newPendingFiles = [...pendingFiles, ...files];
     setPendingFiles(newPendingFiles);
 
-    // Start processing if modal is not already open
     if (!cropModalOpen && newPendingFiles.length > 0) {
       processNextFile(newPendingFiles);
     }
@@ -143,7 +146,7 @@ const PhotoUpload: React.FC = () => {
     reader.readAsDataURL(fileToProcess);
   };
 
-  const handleCropComplete = async (croppedImageBlob: Blob) => {
+  const handleCropComplete = async (croppedImageBlob: Blob, newAspectRatioLabel?: string) => {
     if (!fileForCropping) {
       console.error('Error processing cropped image: No file was available for cropping.');
       showError('An unexpected error occurred. Please try again.');
@@ -153,15 +156,16 @@ const PhotoUpload: React.FC = () => {
     }
 
     try {
-      // Convert blob to File
+      if (newAspectRatioLabel && !aspectRatio) {
+        setAspectRatio(newAspectRatioLabel);
+      }
+
       const croppedFile = new File([croppedImageBlob], fileForCropping.name, {
         type: 'image/jpeg',
       });
 
-      // Add the cropped file to selectedFiles
       setSelectedFiles(prev => [...prev, croppedFile]);
 
-      // Create preview URL and add to newPhotos
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result;
@@ -171,15 +175,12 @@ const PhotoUpload: React.FC = () => {
       };
       reader.readAsDataURL(croppedFile);
 
-      // Remove the processed file from pending files
       const remainingFiles = pendingFiles.slice(1);
       setPendingFiles(remainingFiles);
 
-      // Process next file if available
       if (remainingFiles.length > 0) {
         processNextFile(remainingFiles);
       } else {
-        // All files processed
         setCropModalOpen(false);
         setCurrentImageUrl('');
         setFileForCropping(null);
@@ -191,7 +192,6 @@ const PhotoUpload: React.FC = () => {
   };
 
   const handleModalClose = () => {
-    // If user closes modal during processing, clear pending files
     if (selectedFiles.length === 0) {
       setPendingFiles([]);
     }
@@ -201,7 +201,6 @@ const PhotoUpload: React.FC = () => {
   };
 
   const handleRetry = () => {
-    // Retry processing the current pending file
     if (pendingFiles.length > 0) {
       processNextFile(pendingFiles);
     }
@@ -209,11 +208,9 @@ const PhotoUpload: React.FC = () => {
 
   const removePhoto = (photoId: string) => {
     if (photoId.startsWith('existing-')) {
-      // Remove existing photo by marking it as removed
       const index = parseInt(photoId.split('-')[1]);
       setRemovedExistingIndices(prev => new Set([...prev, index]));
     } else if (photoId.startsWith('new-')) {
-      // Remove new photo by removing from arrays
       const index = parseInt(photoId.split('-')[1]);
       setNewPhotos(prev => prev.filter((_, i) => i !== index));
       setSelectedFiles(prev => prev.filter((_, i) => i !== index));
@@ -224,7 +221,6 @@ const PhotoUpload: React.FC = () => {
     try {
       setIsSubmitting(true);
       
-      // Check if user has any photos (existing or new)
       const hasPhotos = displayPhotos.length > 0;
       
       if (!hasPhotos) {
@@ -232,25 +228,20 @@ const PhotoUpload: React.FC = () => {
         return;
       }
       
-      // Prepare the final photos array
       let finalPhotos: string[] = [];
       
-      // Add existing photos that weren't removed
       const remainingExistingPhotos = existingPhotos.filter((_, index) => 
         !removedExistingIndices.has(index)
       );
       finalPhotos = [...remainingExistingPhotos];
       
-      // Upload new files if any
       if (selectedFiles.length > 0) {
-        // Validate files before upload
         const validation = validateImageFiles(selectedFiles);
         if (!validation.isValid) {
           showError(validation.error || 'Please select valid images');
           return;
         }
 
-        // Upload new images to server
         const formData = createImageFormData(selectedFiles);
         const uploadResponse = await uploadImages(formData);
 
@@ -258,17 +249,21 @@ const PhotoUpload: React.FC = () => {
           throw new Error(uploadResponse.message || 'Failed to upload images');
         }
 
-        // Add newly uploaded photos to final array
         if (uploadResponse.data) {
           finalPhotos = [...finalPhotos, ...uploadResponse.data];
         }
       }
       
-      // Update profile with the final photos array
-      const profileResponse = await updateProfile({
+      const updatePayload: { profileStage: ProfileStage; photos: string[]; aspectRatio?: string } = {
         profileStage: ProfileStage.ABOUT_YOU,
-        photos: finalPhotos
-      });
+        photos: finalPhotos,
+      };
+
+      if (aspectRatio) {
+        updatePayload.aspectRatio = aspectRatio;
+      }
+      
+      const profileResponse = await updateProfile(updatePayload);
 
       if (!profileResponse.status) {
         throw new Error(profileResponse.message || 'Failed to update profile');
@@ -345,7 +340,11 @@ const PhotoUpload: React.FC = () => {
               : "Drag and drop photos here or click to select"}
         </Text>
         <Text size={isMobile ? "xs" : "sm"} c="dimmed" mt="xs">
-          Upload up to 10 images (max 5MB each). Images will be fitted to your chosen aspect ratio without cropping.
+          Upload up to 10 images (max 5MB each). 
+          {aspectRatio 
+            ? `Your photos will be cropped to the ${aspectRatio} aspect ratio.`
+            : 'Your first photo will set the aspect ratio for all subsequent uploads.'
+          }
         </Text>
       </Paper>
 
@@ -405,7 +404,6 @@ const PhotoUpload: React.FC = () => {
         </SimpleGrid>
       )}
 
-      {/* Show continue button even when no photos for mobile */}
       {isMobile && displayPhotos.length === 0 && (
         <Group justify="center" mt="xl">
           <Button
@@ -422,7 +420,6 @@ const PhotoUpload: React.FC = () => {
         </Group>
       )}
 
-      {/* Spacer to push button to bottom on mobile */}
       {isMobile && <Box style={{ flex: 1 }} />}
 
       <ImageCropModal
@@ -431,7 +428,6 @@ const PhotoUpload: React.FC = () => {
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
         aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
       />
     </Paper>
   );

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from "react";
 import {
   Container,
   Title,
@@ -18,9 +18,9 @@ import {
   ActionIcon,
   Tooltip,
   Button,
-} from '@mantine/core';
-import { 
-  IconCreditCard, 
+} from "@mantine/core";
+import {
+  IconCreditCard,
   IconCrown,
   IconCalendar,
   IconInfinity,
@@ -28,39 +28,56 @@ import {
   IconX,
   IconRefresh,
   IconAlertCircle,
-  IconReceipt
-} from '@tabler/icons-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import AnimatedBackground from '../feed/components/AnimatedBackground';
-import { useCurrentUser, useCurrentUserTransactions } from '../../hooks/api';
-import { format } from 'date-fns';
-import { CancelSubscriptionCard, SubscriptionPlans } from './components';
+  IconReceipt,
+} from "@tabler/icons-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import AnimatedBackground from "../feed/components/AnimatedBackground";
+import { useCurrentUser, useCurrentUserTransactions } from "../../hooks/api";
+import { format } from "date-fns";
+import { CancelSubscriptionCard, SubscriptionPlans } from "./components";
 
 // Register ScrollTrigger plugin
 gsap.registerPlugin(ScrollTrigger);
 
 const SubscriptionPage: React.FC = () => {
   const theme = useMantineTheme();
-  
+
   // Refs for animations
   const heroRef = useRef<HTMLDivElement>(null);
   const statusRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLDivElement>(null);
 
   // API hooks
-  const { data: currentUserData, isLoading: isLoadingUser, refetch: refetchUser, error: userError } = useCurrentUser();
-  const { data: transactionsData, isLoading: isLoadingTransactions, refetch: refetchTransactions } = useCurrentUserTransactions();
+  const {
+    data: currentUserData,
+    isLoading: isLoadingUser,
+    refetch: refetchUser,
+    error: userError,
+  } = useCurrentUser();
+  const {
+    data: transactionsData,
+    isLoading: isLoadingTransactions,
+    refetch: refetchTransactions,
+  } = useCurrentUserTransactions();
 
- 
- 
-  
   // Check if user is authenticated
-  const token = localStorage.getItem('token');
- 
-  
+  const token = localStorage.getItem("token");
+
   const user = currentUserData?.data?.user;
-  const transactions = transactionsData?.data?.transactions || [];
+  const rawTransactions = transactionsData?.data?.transactions || [];
+
+  // Deduplicate transactions based on ID to prevent duplicates
+  const transactions = React.useMemo(() => {
+    const seen = new Set<string>();
+    return rawTransactions.filter((transaction) => {
+      if (seen.has(transaction.id)) {
+        return false;
+      }
+      seen.add(transaction.id);
+      return true;
+    });
+  }, [rawTransactions]);
 
   useEffect(() => {
     // Hero section animation
@@ -73,7 +90,7 @@ const SubscriptionPage: React.FC = () => {
           opacity: 1,
           duration: 0.8,
           stagger: 0.2,
-          ease: "power2.out"
+          ease: "power2.out",
         }
       );
     }
@@ -90,8 +107,8 @@ const SubscriptionPage: React.FC = () => {
           scrollTrigger: {
             trigger: statusRef.current,
             start: "top bottom-=100",
-            toggleActions: "play none none none"
-          }
+            toggleActions: "play none none none",
+          },
         }
       );
     }
@@ -108,8 +125,8 @@ const SubscriptionPage: React.FC = () => {
           scrollTrigger: {
             trigger: tableRef.current,
             start: "top bottom-=100",
-            toggleActions: "play none none none"
-          }
+            toggleActions: "play none none none",
+          },
         }
       );
     }
@@ -121,29 +138,34 @@ const SubscriptionPage: React.FC = () => {
 
   // Format amount from cents to dollars
   const formatAmount = (amountInCents: number) => {
-    return `$${(amountInCents).toFixed(2)}`;
+    return `$${amountInCents.toFixed(2)}`;
   };
 
   // Get payment type display
   const getPaymentTypeDisplay = (type: string) => {
-    return type === 'subscription' ? 'Premium Subscription' : 'Post Unlock';
+    return type === "subscription" ? "Premium Subscription" : "Post Unlock";
   };
 
   // Get status color
   const getStatusColor = (status: string) => {
-    return status === 'success' ? 'green' : 'red';
+    return status === "success" ? "green" : "red";
   };
 
   // Calculate subscription stats
   const subscriptionStats = {
     totalSpent: transactions
-      .filter(t => t.status === 'success')
+      .filter((t) => t.status === "success")
       .reduce((sum, t) => sum + t.amount, 0),
-    successfulPayments: transactions.filter(t => t.status === 'success').length,
-    failedPayments: transactions.filter(t => t.status === 'failed').length,
+    successfulPayments: transactions.filter((t) => t.status === "success")
+      .length,
+    failedPayments: transactions.filter((t) => t.status === "failed").length,
     lastPayment: transactions
-      .filter(t => t.status === 'success')
-      .sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())[0]
+      .filter((t) => t.status === "success")
+      .sort(
+        (a, b) =>
+          new Date(b.transactionDate).getTime() -
+          new Date(a.transactionDate).getTime()
+      )[0],
   };
 
   return (
@@ -157,7 +179,7 @@ const SubscriptionPage: React.FC = () => {
           background: `linear-gradient(135deg, #000000 0%, #1a0030 100%)`,
           padding: "80px 0 60px",
           position: "relative",
-          overflow: "hidden"
+          overflow: "hidden",
         }}
       >
         {/* Background decorations */}
@@ -169,9 +191,10 @@ const SubscriptionPage: React.FC = () => {
             width: 120,
             height: 120,
             borderRadius: "50%",
-            background: "radial-gradient(circle at center, rgba(67, 97, 238, 0.08) 0%, rgba(67, 97, 238, 0) 70%)",
+            background:
+              "radial-gradient(circle at center, rgba(67, 97, 238, 0.08) 0%, rgba(67, 97, 238, 0) 70%)",
             filter: "blur(25px)",
-            zIndex: 0
+            zIndex: 0,
           }}
         />
         <Box
@@ -182,9 +205,10 @@ const SubscriptionPage: React.FC = () => {
             width: 100,
             height: 100,
             borderRadius: "50%",
-            background: "radial-gradient(circle at center, rgba(229, 56, 59, 0.06) 0%, rgba(229, 56, 59, 0) 70%)",
+            background:
+              "radial-gradient(circle at center, rgba(229, 56, 59, 0.06) 0%, rgba(229, 56, 59, 0) 70%)",
             filter: "blur(20px)",
-            zIndex: 0
+            zIndex: 0,
           }}
         />
 
@@ -197,16 +221,18 @@ const SubscriptionPage: React.FC = () => {
                 fontSize: "2.5rem",
                 lineHeight: 1.2,
                 fontWeight: 500,
-                maxWidth: 600
+                maxWidth: 600,
               }}
               c={theme.white}
             >
               Your Subscription
             </Title>
             <Text c="dimmed" ta="center" size="lg" maw={600}>
-              {user?.isSubscribed 
+              {user?.isSubscribed
                 ? "Manage your Premium Watch+ subscription and view your transaction history"
-                : "Upgrade from Starter Pack to Premium Watch+ for enhanced features"}
+                : user?.isStarterSubscribed
+                ? "Manage your Starter Pack subscription and view your transaction history"
+                : "Choose a subscription plan to unlock premium features"}
             </Text>
           </Stack>
         </Container>
@@ -216,9 +242,9 @@ const SubscriptionPage: React.FC = () => {
       <Container size="lg" py="xl">
         <Stack gap="xl">
           <SubscriptionPlans isSubscribed={user?.isSubscribed || false} />
-          
-          {/* Only show cancel subscription card if user is subscribed */}
-          {user?.isSubscribed && (
+
+          {/* Show cancel subscription card if user has any active subscription */}
+          {(user?.isSubscribed || user?.isStarterSubscribed) && (
             <CancelSubscriptionCard onSubscriptionCanceled={refetchUser} />
           )}
         </Stack>
@@ -251,7 +277,8 @@ const SubscriptionPage: React.FC = () => {
                 title="Failed to load user data"
               >
                 <Text size="sm">
-                  {(userError as Error).message || 'Unable to load your subscription information. Please try refreshing the page.'}
+                  {(userError as Error).message ||
+                    "Unable to load your subscription information. Please try refreshing the page."}
                 </Text>
                 <Button
                   variant="light"
@@ -271,9 +298,10 @@ const SubscriptionPage: React.FC = () => {
               p="xl"
               radius="lg"
               style={{
-                background: "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
+                background:
+                  "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
                 border: "1px solid rgba(67, 97, 238, 0.15)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(10px)",
               }}
             >
               {isLoadingUser ? (
@@ -294,7 +322,8 @@ const SubscriptionPage: React.FC = () => {
                   title="No user data available"
                 >
                   <Text size="sm">
-                    Unable to load user information. Please try refreshing the page.
+                    Unable to load user information. Please try refreshing the
+                    page.
                   </Text>
                   <Button
                     variant="light"
@@ -321,49 +350,71 @@ const SubscriptionPage: React.FC = () => {
                       Premium Status
                     </Title>
                     <Badge
-                      color={user?.isSubscribed ? "green" : "blue"}
+                      color={
+                        user?.isSubscribed || user?.isStarterSubscribed
+                          ? "green"
+                          : "gray"
+                      }
                       variant="filled"
                       size="lg"
-                      leftSection={user?.isSubscribed ? <IconCrown size={14} /> : undefined}
+                      leftSection={
+                        user?.isSubscribed || user?.isStarterSubscribed ? (
+                          <IconCrown size={14} />
+                        ) : undefined
+                      }
                     >
-                      {user?.isSubscribed ? "Premium Match+ Active" : "Starter Pack Active"}
+                      {user?.isSubscribed
+                        ? "Premium Watch+ Active"
+                        : user?.isStarterSubscribed
+                        ? "Starter Pack Active"
+                        : "No Active Subscription"}
                     </Badge>
                   </Group>
 
-                  <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="lg">
+                  <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="lg">
                     <Box>
-                      <Text size="sm" c="gray.5" mb="xs">Plan Status</Text>
+                      <Text size="sm" c="gray.5" mb="xs">
+                        Plan Status
+                      </Text>
                       <Group align="center" gap="xs">
                         {user?.isSubscribed ? (
                           <>
                             <IconCheck size={16} color="green" />
-                            <Text fw={600} c="green" size="lg">Active</Text>
+                            <Text fw={600} c="green" size="lg">
+                              Premium Active
+                            </Text>
+                          </>
+                        ) : user?.isStarterSubscribed ? (
+                          <>
+                            <IconCheck size={16} color="blue" />
+                            <Text fw={600} c="blue" size="lg">
+                              Starter Active
+                            </Text>
                           </>
                         ) : (
                           <>
-                            <IconX size={16} color="orange" />
-                            <Text fw={600} c="orange" size="lg">Starter Pack</Text>
+                            <IconX size={16} color="gray" />
+                            <Text fw={600} c="gray" size="lg">
+                              No Subscription
+                            </Text>
                           </>
                         )}
                       </Group>
                     </Box>
 
                     <Box>
-                      <Text size="sm" c="gray.5" mb="xs">Total Spent</Text>
-                      <Text fw={600} c={theme.white} size="lg">
-                        {formatAmount(subscriptionStats.totalSpent)}
+                      <Text size="sm" c="gray.5" mb="xs">
+                        Successful Payments
                       </Text>
-                    </Box>
-
-                    <Box>
-                      <Text size="sm" c="gray.5" mb="xs">Successful Payments</Text>
                       <Text fw={600} c="green" size="lg">
                         {subscriptionStats.successfulPayments}
                       </Text>
                     </Box>
 
                     <Box>
-                      <Text size="sm" c="gray.5" mb="xs">Posts Access</Text>
+                      <Text size="sm" c="gray.5" mb="xs">
+                        Posts Access
+                      </Text>
                       <Text fw={600} c={theme.white} size="lg">
                         {user?.isSubscribed ? (
                           <Group align="center" gap="xs">
@@ -384,8 +435,14 @@ const SubscriptionPage: React.FC = () => {
                       variant="light"
                     >
                       <Text size="sm" c={"white"}>
-                        Last successful payment: {formatAmount(subscriptionStats.lastPayment.amount)} on{' '}
-                        {format(new Date(subscriptionStats.lastPayment.transactionDate), 'MMM dd, yyyy')}
+                        Last successful payment:{" "}
+                        {formatAmount(subscriptionStats.lastPayment.amount)} on{" "}
+                        {format(
+                          new Date(
+                            subscriptionStats.lastPayment.transactionDate
+                          ),
+                          "MMM dd, yyyy"
+                        )}
                       </Text>
                     </Alert>
                   )}
@@ -399,9 +456,10 @@ const SubscriptionPage: React.FC = () => {
               p="xl"
               radius="lg"
               style={{
-                background: "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
+                background:
+                  "linear-gradient(135deg, rgba(67, 97, 238, 0.05) 0%, rgba(58, 12, 163, 0.05) 100%)",
                 border: "1px solid rgba(67, 97, 238, 0.15)",
-                backdropFilter: "blur(10px)"
+                backdropFilter: "blur(10px)",
               }}
             >
               <Stack gap="lg">
@@ -443,33 +501,50 @@ const SubscriptionPage: React.FC = () => {
                     color="white"
                     variant="light"
                   >
-                    <Text c={"white"} size="sm">No payment history found.</Text>
+                    <Text c={"white"} size="sm">
+                      No payment history found.
+                    </Text>
                   </Alert>
                 ) : (
                   <ScrollArea>
                     <Table
-                      
-                      
                       style={{
-                        backgroundColor: 'transparent',
+                        backgroundColor: "transparent",
                       }}
                     >
                       <Table.Thead>
                         <Table.Tr>
-                          <Table.Th style={{ color: theme.colors.gray[4] }}>Date</Table.Th>
-                          <Table.Th style={{ color: theme.colors.gray[4] }}>College</Table.Th>
-                          <Table.Th style={{ color: theme.colors.gray[4] }}>Type</Table.Th>
-                          <Table.Th style={{ color: theme.colors.gray[4] }}>Amount</Table.Th>
-                          <Table.Th style={{ color: theme.colors.gray[4] }}>Status</Table.Th>
+                          <Table.Th style={{ color: theme.colors.gray[4] }}>
+                            Date
+                          </Table.Th>
+                          <Table.Th style={{ color: theme.colors.gray[4] }}>
+                            College
+                          </Table.Th>
+                          <Table.Th style={{ color: theme.colors.gray[4] }}>
+                            Type
+                          </Table.Th>
+                          <Table.Th style={{ color: theme.colors.gray[4] }}>
+                            Amount
+                          </Table.Th>
+                          <Table.Th style={{ color: theme.colors.gray[4] }}>
+                            Status
+                          </Table.Th>
                         </Table.Tr>
                       </Table.Thead>
                       <Table.Tbody>
                         {transactions
-                          .sort((a, b) => new Date(b.transactionDate).getTime() - new Date(a.transactionDate).getTime())
+                          .sort(
+                            (a, b) =>
+                              new Date(b.transactionDate).getTime() -
+                              new Date(a.transactionDate).getTime()
+                          )
                           .map((transaction) => (
                             <Table.Tr key={transaction.id}>
                               <Table.Td style={{ color: theme.colors.gray[3] }}>
-                                {format(new Date(transaction.transactionDate), 'MMM dd, yyyy')}
+                                {format(
+                                  new Date(transaction.transactionDate),
+                                  "MMM dd, yyyy"
+                                )}
                               </Table.Td>
                               <Table.Td style={{ color: theme.colors.gray[3] }}>
                                 {transaction.college.name}
@@ -486,12 +561,16 @@ const SubscriptionPage: React.FC = () => {
                                   variant="filled"
                                   size="sm"
                                   leftSection={
-                                    transaction.status === 'success' ? 
-                                      <IconCheck size={12} /> : 
+                                    transaction.status === "success" ? (
+                                      <IconCheck size={12} />
+                                    ) : (
                                       <IconX size={12} />
+                                    )
                                   }
                                 >
-                                  {transaction.status === 'success' ? 'Success' : 'Failed'}
+                                  {transaction.status === "success"
+                                    ? "Success"
+                                    : "Failed"}
                                 </Badge>
                               </Table.Td>
                             </Table.Tr>
@@ -509,4 +588,4 @@ const SubscriptionPage: React.FC = () => {
   );
 };
 
-export default SubscriptionPage; 
+export default SubscriptionPage;

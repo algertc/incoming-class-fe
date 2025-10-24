@@ -556,7 +556,7 @@ export const HeroSection: React.FC = () => {
             className="hero-text"
             style={{ maxWidth: 700 }}
           >
-            Skip the awkward intros later - start connecting now. Link your social media, post your profile, and match with roommates and friends before move-in day.
+            Skip the awkward intros - start connecting now. Link your social media, post your profile, and match with roommates and friends before move-in day.
           </Text>
 
           <Box 

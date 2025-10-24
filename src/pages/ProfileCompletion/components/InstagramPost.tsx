@@ -51,27 +51,14 @@ const InstagramPost: React.FC<InstagramPostProps> = ({
         {/* Header */}
         <Group justify="space-between" p="sm" style={{ borderBottom: '1px solid #efefef' }}>
           <Group gap="xs">
-            <Box
-              style={{
-                position: 'relative',
-                padding: '2px',
-                background: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)',
+            <Avatar
+              src={user.avatar}
+              alt={user.username}
+              size={32}
+              style={{ 
                 borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
               }}
-            >
-              <Avatar
-                src={user.avatar}
-                alt={user.username}
-                size={32}
-                style={{ 
-                  border: '2px solid white',
-                  borderRadius: '50%',
-                }}
-              />
-            </Box>
+            />
             <Text 
               size="sm" 
               fw={600}

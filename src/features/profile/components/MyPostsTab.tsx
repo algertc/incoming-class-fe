@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Stack,
@@ -55,12 +55,18 @@ const MyPostsTab: React.FC = () => {
   const [limitReachedModalOpened, setLimitReachedModalOpened] = useState(false);
   const [limitReachedType, setLimitReachedType] = useState<'edit' | 'boost'>('edit');
   const [currentEditPost, setCurrentEditPost] = useState<Post | null>(null);
+  
+  // State for image editing
+  const [existingPhotos, setExistingPhotos] = useState<string[]>([]);
+  const [newPhotos, setNewPhotos] = useState<string[]>([]); // For previews
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]); // For upload
+  const [removedExistingIndices, setRemovedExistingIndices] = useState<Set<number>>(new Set());
+  
   const [cropModalOpened, setCropModalOpened] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
-  const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
+  const [fileForCropping, setFileForCropping] = useState<File | null>(null);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [aspectRatio, setAspectRatio] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { data: userPostsResponse, isLoading, error, refetch } = useUserPosts({ page: 1, limit: 50 });
@@ -117,7 +123,7 @@ const MyPostsTab: React.FC = () => {
   // Handle edit post with premium check
   const handleEditPost = (post: Post) => {
     // Subscription check is now at the call site (onClick)
-    if ((user?.subscriptionEditCount || 0) >= 2) {
+    if ((user?.subscriptionEditCount || 0) >= 2 && !user?.isPremium) {
       showLimitReachedModal('edit');
       return;
     }
@@ -127,9 +133,18 @@ const MyPostsTab: React.FC = () => {
       title: post.title || '',
       content: post.content 
     });
-    // Initialize with empty preview images - only show new images
-    setPreviewImages([]);
+
+    // --- New Image and Aspect Ratio Logic ---
+    const postImages = post.images || [];
+    setExistingPhotos(postImages);
+    setAspectRatio(post.aspectRatio);
+
+    // Reset states for new edit session
+    setNewPhotos([]);
     setSelectedFiles([]);
+    setRemovedExistingIndices(new Set());
+    setPendingFiles([]);
+    
     setEditModalOpened(true);
   };
 
@@ -141,6 +156,22 @@ const MyPostsTab: React.FC = () => {
     }
   };
 
+  const processNextFile = (files: File[]) => {
+    if (files.length === 0) return;
+    const fileToProcess = files[0];
+    setFileForCropping(fileToProcess);
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result;
+      if (result) {
+        setCurrentImageUrl(result as string);
+        setCropModalOpened(true);
+      }
+    };
+    reader.readAsDataURL(fileToProcess);
+  };
+
   // Handle files from input or drop
   const handleFiles = (files: File[]) => {
     // Validate files before processing
@@ -150,76 +181,63 @@ const MyPostsTab: React.FC = () => {
       return;
     }
 
-    // Process each file one by one with cropping
-    files.forEach((file, index) => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const result = e.target?.result;
-          if (result) {
-            // Open crop modal for the first file
-            if (index === 0) {
-              setCurrentImageUrl(result as string);
-              setCurrentFileIndex(selectedFiles.length);
-              setCropModalOpened(true);
-            }
-            // Add file to selected files
-            setSelectedFiles(prev => [...prev, file]);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+    // Add new files to pending queue
+    const newPendingFiles = [...pendingFiles, ...files];
+    setPendingFiles(newPendingFiles);
+
+    // Start processing if modal is not already open
+    if (!cropModalOpened && newPendingFiles.length > 0) {
+      processNextFile(newPendingFiles);
+    }
   };
 
   // Handle crop complete
-  const handleCropComplete = async (croppedImageBlob: Blob) => {
-    // Convert blob to File
-    const croppedFile = new File([croppedImageBlob], selectedFiles[currentFileIndex].name, {
-      type: 'image/jpeg',
-    });
+  const handleCropComplete = async (croppedImageBlob: Blob, newAspectRatioLabel?: string) => {
+    if (!fileForCropping) return;
 
-    // Update selectedFiles with cropped version
-    setSelectedFiles(prev => {
-      const newFiles = [...prev];
-      newFiles[currentFileIndex] = croppedFile;
-      return newFiles;
-    });
-
-    // Create preview URL - only add new images to preview
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result;
-      if (result) {
-        setPreviewImages(prev => [...prev, result as string]);
+    try {
+      if (newAspectRatioLabel && !aspectRatio) {
+        setAspectRatio(newAspectRatioLabel);
       }
-    };
-    reader.readAsDataURL(croppedFile);
 
-    // Check if there are more files to crop
-    if (currentFileIndex < selectedFiles.length - 1) {
-      // Process next file
+      const croppedFile = new File([croppedImageBlob], fileForCropping.name, {
+        type: 'image/jpeg',
+      });
+
+      setSelectedFiles(prev => [...prev, croppedFile]);
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result;
         if (result) {
-          setCurrentImageUrl(result as string);
-          setCurrentFileIndex(prev => prev + 1);
-          setCropModalOpened(true);
+          setNewPhotos(prev => [...prev, result as string]);
         }
       };
-      reader.readAsDataURL(selectedFiles[currentFileIndex + 1]);
-    } else {
-      // All files processed
-      setCropModalOpened(false);
-      setCurrentFileIndex(-1);
+      reader.readAsDataURL(croppedFile);
+
+      const remainingFiles = pendingFiles.slice(1);
+      setPendingFiles(remainingFiles);
+
+      if (remainingFiles.length > 0) {
+        processNextFile(remainingFiles);
+      } else {
+        setCropModalOpened(false);
+        setFileForCropping(null);
+        setCurrentImageUrl('');
+      }
+    } catch (error) {
+      console.error('Failed to process cropped image:', error);
+      showError('Failed to process cropped image.');
     }
   };
 
-  // Remove image - only handle new images since we only show new images in edit modal
-  const removeImage = (index: number) => {
-    setPreviewImages(prev => prev.filter((_, i) => i !== index));
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+  const removePhoto = (photoId: string, index: number) => {
+    if (photoId.startsWith('existing-')) {
+      setRemovedExistingIndices(prev => new Set(prev).add(index));
+    } else if (photoId.startsWith('new-')) {
+      setNewPhotos(prev => prev.filter((_, i) => i !== index));
+      setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    }
   };
 
   // Handle save edit
@@ -227,53 +245,55 @@ const MyPostsTab: React.FC = () => {
     if (!currentEditPost) return;
 
     try {
-      let finalImages: string[] = [];
-
-      // Upload new images if any
+      let uploadedImageUrls: string[] = [];
       if (selectedFiles.length > 0) {
         const formData = createImageFormData(selectedFiles);
         const uploadResponse = await uploadImagesMutation.mutateAsync(formData);
-        
-        if (uploadResponse.status && uploadResponse.data) {
-          // Only use the newly uploaded images
-          finalImages = uploadResponse.data;
+        if (!uploadResponse.status || !uploadResponse.data) {
+          throw new Error(uploadResponse.message || 'Failed to upload new images.');
         }
+        uploadedImageUrls = uploadResponse.data;
       }
- 
       
-      const updateData: { title: string; content: string; images?: string[] } = {
-          title: values.title,
-          content: values.content,
+      const remainingExistingPhotos = existingPhotos.filter(
+        (_, index) => !removedExistingIndices.has(index)
+      );
+
+      const finalImages = [...remainingExistingPhotos, ...uploadedImageUrls];
+
+      const updateData: { 
+        title: string; 
+        content: string; 
+        images?: string[];
+        aspectRatio?: string;
+      } = {
+        title: values.title,
+        content: values.content,
+        images: finalImages,
       };
 
-      if (finalImages.length > 0) {
-        updateData.images = finalImages;
+      if (aspectRatio) {
+        updateData.aspectRatio = aspectRatio;
       }
-      
-      await updatePostMutation.mutateAsync(
-        { postId: currentEditPost.id, updateData },
-        {
-          onSuccess: () => {
-            showSuccess('Post updated successfully');
-            setEditModalOpened(false);
-            refetch(); // Refetch posts
-            fetchUser();
-          },
-          onError: (err) => {
-            showError((err as any)?.response?.data?.message || 'Failed to update post.');
-          },
-        }
-      );
+
+      await updatePostMutation.mutateAsync({
+        postId: currentEditPost.id,
+        updateData,
+      });
+
+      setEditModalOpened(false);
+      refetch(); // Refetch posts to show updated data
+      fetchUser(); // Refetch user to get updated edit count
+      showSuccess('Post updated successfully!');
     } catch (error) {
-      console.error('Failed to update post:', error);
-      showError('Failed to update post. Please try again.');
+      showError((error as Error).message || 'Failed to update post.');
     }
   };
 
   // Handle boost post with premium check
   const handleBoostPost = async (postId: string) => {
     // Subscription check is now at the call site (onClick)
-    if ((user?.subscriptionBumpCount || 0) >= 1) {
+    if ((user?.subscriptionBumpCount || 0) >= 2) {
       showLimitReachedModal('boost');
       return;
     }
@@ -388,6 +408,21 @@ const MyPostsTab: React.FC = () => {
     </Box>
   );
 
+  // Combine existing and new photos for display in the modal
+  const displayPhotosInModal = [
+    ...existingPhotos
+      .map((url, index) => ({ id: `existing-${index}`, url, isExisting: true }))
+      .filter((_, index) => !removedExistingIndices.has(index)),
+    ...newPhotos.map((url, index) => ({ id: `new-${index}`, url, isExisting: false })),
+  ];
+  
+  useEffect(() => {
+    // If all photos are removed, allow choosing a new aspect ratio
+    if (displayPhotosInModal.length === 0) {
+      setAspectRatio(undefined);
+    }
+  }, [displayPhotosInModal.length]);
+
   // Loading state
   if (isLoading) {
     return (
@@ -492,7 +527,6 @@ const MyPostsTab: React.FC = () => {
         onClose={() => {
           setEditModalOpened(false);
           setCurrentEditPost(null);
-          setPreviewImages([]);
           setSelectedFiles([]);
           editForm.reset();
           setAspectRatio(undefined);
@@ -526,17 +560,15 @@ const MyPostsTab: React.FC = () => {
       >
         <LoadingOverlay visible={updatePostMutation.isPending || uploadImagesMutation.isPending} />
         
-        {/* Hidden file input */}
-        <input
-          type="file"
-          ref={fileInputRef}
-          onChange={handleFileInput}
-          accept="image/*"
-          multiple
-          style={{ display: 'none' }}
-        />
-        
         <form onSubmit={editForm.onSubmit(handleSaveEdit)}>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileInput}
+            style={{ display: 'none' }}
+            accept="image/png,image/jpeg,image/gif"
+            multiple
+          />
           <Stack gap="md">
             <Textarea
               label="Post Title"
@@ -611,12 +643,12 @@ const MyPostsTab: React.FC = () => {
               </Paper>
 
               {/* Image Grid */}
-              {previewImages.length > 0 && (
+              {displayPhotosInModal.length > 0 && (
                 <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }} spacing="sm" mt="md">
-                  {previewImages.map((image, index) => (
-                    <Box key={index} style={{ position: 'relative' }}>
+                  {displayPhotosInModal.map((photo, index) => (
+                    <Box key={photo.id} style={{ position: 'relative' }}>
                       <Image
-                        src={image}
+                        src={photo.url}
                         radius="md"
                         fit="cover"
                         style={{ height: '100px' }}
@@ -632,7 +664,7 @@ const MyPostsTab: React.FC = () => {
                           right: -8,
                           zIndex: 10,
                         }}
-                        onClick={() => removeImage(index)}
+                        onClick={() => removePhoto(photo.id, photo.isExisting ? index : index - existingPhotos.filter((_, i) => !removedExistingIndices.has(i)).length)}
                       >
                         <IconX size={14} />
                       </ActionIcon>
@@ -640,7 +672,7 @@ const MyPostsTab: React.FC = () => {
                   ))}
                   
                   {/* Add more images button */}
-                  {previewImages.length < 10 && (
+                  {displayPhotosInModal.length < 10 && (
                     <Paper
                       p="md"
                       radius="md"
@@ -678,7 +710,7 @@ const MyPostsTab: React.FC = () => {
                 onClick={() => {
                   setEditModalOpened(false);
                   setCurrentEditPost(null);
-                  setPreviewImages([]);
+                 
                   setSelectedFiles([]);
                   editForm.reset();
                 }}
@@ -708,7 +740,6 @@ const MyPostsTab: React.FC = () => {
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
         aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
       />
 
       <PremiumSubscriptionModal

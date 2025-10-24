@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Paper,
   Stack,
@@ -11,14 +11,14 @@ import {
   Modal,
   Alert,
   Loader,
-} from '@mantine/core';
+} from "@mantine/core";
+import { IconX, IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import {
-  IconX,
-  IconAlertTriangle,
-  IconInfoCircle,
-} from '@tabler/icons-react';
-import { useCancelSubscription, useSubscriptionStatus } from '../../../hooks/api/usePayment';
-import { notifications } from '@mantine/notifications';
+  useCancelSubscription,
+  useSubscriptionStatus,
+} from "../../../hooks/api/usePayment";
+import { notifications } from "@mantine/notifications";
+import { useCurrentUser } from "../../../hooks/api";
 
 interface CancelSubscriptionCardProps {
   onSubscriptionCanceled?: () => void;
@@ -29,15 +29,19 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
 }) => {
   const theme = useMantineTheme();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
+  // Get current user to check subscription type
+  const { data: currentUserData } = useCurrentUser();
+  const user = currentUserData?.data?.user;
+
   // Get subscription status to determine if cancellation should be available
-  const { 
-    data: subscriptionStatus, 
+  const {
+    data: subscriptionStatus,
     isLoading: isLoadingStatus,
-    error: statusError ,
+    error: statusError,
     refetch: refetchSubscriptionStatus,
   } = useSubscriptionStatus();
-  
+
   const {
     mutateAsync: cancelSubscription,
     isPending: isCanceling,
@@ -47,36 +51,43 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
   const handleCancelSubscription = async () => {
     try {
       const response = await cancelSubscription();
-      
+
       // Show success notification
       notifications.show({
-        title: 'Subscription Canceled',
-        message: response.data.message || 'Your subscription has been successfully canceled.',
-        color: 'green',
+        title: "Subscription Canceled",
+        message:
+          response.data.message ||
+          "Your subscription has been successfully canceled.",
+        color: "green",
         icon: <IconInfoCircle size={16} />,
       });
 
       // Close modal
       setIsModalOpen(false);
-      
+
       // Call callback if provided
       if (onSubscriptionCanceled) {
         onSubscriptionCanceled();
-       await refetchSubscriptionStatus();
+        await refetchSubscriptionStatus();
       }
     } catch (error) {
       // Show error notification
       notifications.show({
-        title: 'Cancellation Failed',
-        message: (error as Error).message || 'Failed to cancel subscription. Please try again.',
-        color: 'red',
+        title: "Cancellation Failed",
+        message:
+          (error as Error).message ||
+          "Failed to cancel subscription. Please try again.",
+        color: "red",
         icon: <IconAlertTriangle size={16} />,
       });
     }
   };
 
   // Determine if cancellation should be available
-  const canCancel = subscriptionStatus?.data?.isSubscribed && subscriptionStatus?.data?.isAutoRenewalOn;
+  // Check if user has any subscription (Premium Watch+ or Starter Pack) and has auto-renewal on
+  const hasActiveSubscription = user?.isSubscribed || user?.isStarterSubscribed;
+  const canCancel =
+    hasActiveSubscription && subscriptionStatus?.data?.isAutoRenewalOn;
 
   // Show loading state while fetching subscription status
   if (isLoadingStatus) {
@@ -85,14 +96,17 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
         p="xl"
         radius="lg"
         style={{
-          background: "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
           border: "1px solid rgba(229, 56, 59, 0.15)",
-          backdropFilter: "blur(10px)"
+          backdropFilter: "blur(10px)",
         }}
       >
         <Group align="center" justify="center">
           <Loader size="sm" />
-          <Text size="sm" c="gray.4">Loading subscription status...</Text>
+          <Text size="sm" c="gray.4">
+            Loading subscription status...
+          </Text>
         </Group>
       </Paper>
     );
@@ -105,9 +119,10 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
         p="xl"
         radius="lg"
         style={{
-          background: "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
           border: "1px solid rgba(229, 56, 59, 0.15)",
-          backdropFilter: "blur(10px)"
+          backdropFilter: "blur(10px)",
         }}
       >
         <Alert
@@ -116,7 +131,8 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
           variant="light"
         >
           <Text size="sm">
-            Failed to load subscription status. Please refresh the page to try again.
+            Failed to load subscription status. Please refresh the page to try
+            again.
           </Text>
         </Alert>
       </Paper>
@@ -134,19 +150,15 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
         p="xl"
         radius="lg"
         style={{
-          background: "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
+          background:
+            "linear-gradient(135deg, rgba(229, 56, 59, 0.05) 0%, rgba(139, 69, 19, 0.05) 100%)",
           border: "1px solid rgba(229, 56, 59, 0.15)",
-          backdropFilter: "blur(10px)"
+          backdropFilter: "blur(10px)",
         }}
       >
         <Stack gap="lg">
           <Group align="center">
-            <ThemeIcon
-              size="lg"
-              radius="md"
-              color="red"
-              variant="light"
-            >
+            <ThemeIcon size="lg" radius="md" color="red" variant="light">
               <IconX size={20} />
             </ThemeIcon>
             <Title order={3} c={theme.white}>
@@ -155,19 +167,26 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
           </Group>
 
           <Text size="sm" c="gray.4" style={{ lineHeight: 1.6 }}>
-            If you're not satisfied with your premium experience, you can cancel your subscription at any time. 
-            Your premium features will remain active until the end of your current billing period.
+            {user?.isSubscribed
+              ? "If you're not satisfied with your Premium Watch+ experience, you can cancel your subscription at any time."
+              : "If you're not satisfied with your Starter Pack, you can cancel your subscription at any time."}{" "}
+            Your features will remain active until the end of your current
+            billing period.
           </Text>
 
           <Alert
             icon={<IconAlertTriangle size={16} />}
             color="yellow"
             variant="light"
-            style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)' }}
+            style={{ backgroundColor: "rgba(255, 193, 7, 0.1)" }}
           >
             <Text c={"white"} size="sm">
-              <strong>Important:</strong> Canceling your subscription will remove access to unlimited posts, 
-              advanced filters, and other premium features at the end of your billing cycle.
+              <strong>Important:</strong> Canceling your subscription will
+              remove access to{" "}
+              {user?.isSubscribed
+                ? "unlimited posts, advanced filters, and other premium features"
+                : "your subscription benefits"}{" "}
+              at the end of your billing cycle.
             </Text>
           </Alert>
 
@@ -222,15 +241,24 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
               By canceling your subscription, you will lose access to:
             </Text>
             <Stack gap="xs" pl="md">
-              <Text size="sm" c="gray.3">• Unlimited post viewing</Text>
-              <Text size="sm" c="gray.3">• Advanced search and filtering</Text>
-              <Text size="sm" c="gray.3">• Priority customer support</Text>
-              <Text size="sm" c="gray.3">• Premium features and updates</Text>
+              <Text size="sm" c="gray.3">
+                • Unlimited post viewing
+              </Text>
+              <Text size="sm" c="gray.3">
+                • Advanced search and filtering
+              </Text>
+              <Text size="sm" c="gray.3">
+                • Priority customer support
+              </Text>
+              <Text size="sm" c="gray.3">
+                • Premium features and updates
+              </Text>
             </Stack>
           </Stack>
 
           <Text size="sm" c="gray.4">
-            Your premium features will remain active until the end of your current billing period.
+            Your premium features will remain active until the end of your
+            current billing period.
           </Text>
 
           {cancelError && (
@@ -240,7 +268,8 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
               variant="light"
             >
               <Text size="sm">
-                {(cancelError as Error).message || 'Failed to cancel subscription. Please try again.'}
+                {(cancelError as Error).message ||
+                  "Failed to cancel subscription. Please try again."}
               </Text>
             </Alert>
           )}
@@ -258,9 +287,11 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
               color="red"
               onClick={handleCancelSubscription}
               disabled={isCanceling}
-              leftSection={isCanceling ? <Loader size={16} /> : <IconX size={16} />}
+              leftSection={
+                isCanceling ? <Loader size={16} /> : <IconX size={16} />
+              }
             >
-              {isCanceling ? 'Canceling...' : 'Yes, Cancel Subscription'}
+              {isCanceling ? "Canceling..." : "Yes, Cancel Subscription"}
             </Button>
           </Group>
         </Stack>
@@ -269,4 +300,4 @@ const CancelSubscriptionCard: React.FC<CancelSubscriptionCardProps> = ({
   );
 };
 
-export default CancelSubscriptionCard; 
+export default CancelSubscriptionCard;

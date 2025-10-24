@@ -98,6 +98,7 @@ export interface User {
   hometown?: string;
   profilePicture?: string;
   photos?: string[];
+  aspectRatio?: string; // Add aspectRatio field
   profileStage: ProfileStage;
   housing?: Housing;
   religion?: Religion;
@@ -184,6 +185,7 @@ export interface UpdateProfileData {
   bio?: string;
   profileImage?: string | File;
   photos?: string[]; // Add photos array support
+  aspectRatio?: string; // Add aspectRatio field
   isProfileCompleted?: boolean;
   // Additional profile fields
   major?: string;

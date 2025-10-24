@@ -53,6 +53,7 @@ export interface Post {
   };
   content: string;
   images?: string[];
+  aspectRatio?: string;
   timestamp: Date;
   likes: number;
   comments: number;
@@ -78,7 +79,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
   const [currentFileIndex, setCurrentFileIndex] = useState<number>(-1);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
-  const [aspectRatio, setAspectRatio] = useState<number | undefined>(undefined);
+  const [aspectRatio, setAspectRatio] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const formattedTime = formatDistanceToNow(new Date(post.timestamp), { addSuffix: true });
   
@@ -843,7 +844,6 @@ const PostCard: React.FC<PostCardProps> = ({ post, isStatic = false, hideDots = 
         imageUrl={currentImageUrl}
         onCropComplete={handleCropComplete}
         aspectRatio={aspectRatio}
-        setAspectRatio={setAspectRatio}
       />
       
       {/* Premium Subscription Modal for unauthenticated users */}

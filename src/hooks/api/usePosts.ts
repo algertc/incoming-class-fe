@@ -59,7 +59,7 @@ export function useUpdatePost() {
   return useMutation({
     mutationFn: ({ postId, updateData }: { 
       postId: string; 
-      updateData: { title: string; content?: string; images?: string[] } 
+      updateData: { title: string; content?: string; images?: string[], aspectRatio?: string; } 
     }) => feedService.updatePost(postId, updateData),
     
     onSuccess: (response) => {

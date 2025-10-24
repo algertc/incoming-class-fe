@@ -177,7 +177,7 @@ const ProfilePreview: React.FC = () => {
                 avatar: userData.college?.logoUrl || userData.profileImage || userData.photos?.[0] || 'https://i.pravatar.cc/150?img=1',
                 verified: false
               }}
-              image={userData.photos?.[1] || userData.photos?.[0]}
+              image={userData.photos?.[0]}
               caption={userData.bio || `${userData.firstName || 'Student'} at ${getCollegeName(userData.college) || userData.university || 'College'} 🎓 ${userData.major ? `Studying ${userData.major}` : ''} ${userData.hometown ? `From ${userData.hometown}` : ''}`}
               likesCount={Math.floor(Math.random() * 50) + 20}
               timeAgo="2 hours ago"
